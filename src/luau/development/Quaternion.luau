@@ -1,62 +1,5 @@
 -- Version: 0.0.1
 
---[[
-    @license
-    Copyright 2023 tukars
-    
-    Permission is hereby granted, free of charge, to any person obtaining a 
-    copy of this software and associated documentation files (the "Software"), 
-    to deal in the Software without restriction, including without limitation 
-    the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-    and/or sell copies of the Software, and to permit persons to whom the 
-    Software is  furnished to do so, subject to the following conditions:
-    
-    The above copyright notice and this permission notice shall be included in 
-    all copies or substantial portions of the Software.
-    
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
-    DEALINGS IN THE SOFTWARE.
---]]
-
--- Full documentation available online: <insert the github docs link here>
--- See CONTRIBUTING file for code style guidelines
-
---[[
-    This should only run in no-check mode(if you don't want the warning box 
-    filled with unnecessary warnings).
-    Due to to type checking in luau, it doesn't like metatables and custom type 
-    checking, so any function which uses the Mul/__mul metamethod (which can 
-    take a range of types) will show a type checking warning, this however can 
-    be safely ignored.
---]]
-
---[=[
-    @classdesc Quaternions represent rotations in 3D space in a memory 
-        efficient manner (4 numbers, compared to rotation matrices 9), and 
-        without suffering from gimbal lock (as euler angles do).
-        However, quaternions can suffer from gimbal lock if you only construct
-        them from euler angles and do not use quaternion operations themselves.
-        Once you have converted from euler angles to quaternions it is best
-        to stay in that form.
-        It is important to note that quaternions have double cover, meaning 
-        that q0 and -q0 encode the same rotation.
-        
-        This class is **immutable** which means once a quaternion has been
-        created, its components cannot be changed. All methods create new
-        quaternions.
-    
-    @property Unit Quaternion -- A quaternion with unit length. Result is 
-        cached.
-    @property Magnitude Quaternion -- Returns the magnitude of the quaternion.
-        Result is cached.
---]=]
-
-
 export type Quaternion = {
     
     -- Constructors
@@ -196,6 +139,36 @@ export type Quaternion = {
 
 local EPSILON = 1e-6
 
+--[=[
+    @class Quaternion
+    
+    Quaternions represent rotations in 3D space in a memory 
+    efficient manner (4 numbers, compared to rotation matrices 9), and 
+    without suffering from gimbal lock (as euler angles do).
+    However, quaternions can suffer from gimbal lock if you only construct
+    them from euler angles and do not use quaternion operations themselves.
+    Once you have converted from euler angles to quaternions it is best
+    to stay in that form.
+    It is important to note that quaternions have double cover, meaning 
+    that q0 and -q0 encode the same rotation.
+    
+    This class is **immutable** which means once a quaternion has been
+    created, its components cannot be changed. All methods create new
+    quaternions.
+    
+    @prop Unit Quaternion -- A quaternion with unit length. Result is 
+        cached.
+    @prop Magnitude number -- Returns the magnitude of the quaternion.
+        Result is cached.
+    @prop identity Quaternion -- An identity quaternion with no rotation. 
+        This is constant and should be accessed through the Quaternion class 
+        rather than an individual Quaternion object.
+    @prop zero Quaternion -- The zero quaternion, this does not represent any 
+        rotation as it has a magnitude of zero. This is a constant and should 
+        be  accessed through the Quaternion class rather than an individual 
+        Quaternion object.
+    
+]=]
 local Quaternion = {_type = "Quaternion"}
 
 -- Internal functions for type checking and throwing errors
@@ -248,14 +221,6 @@ local function AssertType(
     return ""
 end
 
-local function AssertHasKeys(argPlace: number, dictionary: {}, ...)
-    for _, key in pairs({...}) do
-        if dictionary[key] == nil then
-            ArgumentError(argPlace, "key: " .. tostring(key), "nil")
-        end
-    end
-end
-
 local function _safeUnit(vector: Vector3, default: Vector3): Vector3
     if vector.Magnitude > EPSILON then
         return vector.Unit
@@ -265,16 +230,19 @@ local function _safeUnit(vector: Vector3, default: Vector3): Vector3
 end
 
 
---[==[
-===============================================================================
-*******************************************************************************
-===============================================================================
-                                Main Constructor                               
-===============================================================================
-*******************************************************************************
-===============================================================================
---]==]
-
+--[=[
+    Creates a new quaternion with X, Y, Z, W values, where the 
+    X, Y, Z are the imaginary components and the W component is the real 
+    component.
+    
+    @within Quaternion
+    @param qX number? -- the X component, defaults to 0.
+    @param qY number? -- the Y component, defaults to 0.
+    @param qZ number? -- the Z component, defaults to 0.
+    @param qW number? -- the W component, defaults to 1.
+    
+    @return Quaternion
+]=]
 local function new(
     qX: number?, qY: number?, qZ: number?, qW: number?
 ): Quaternion
@@ -284,66 +252,22 @@ local function new(
     AssertType(3, qZ, "number", "nil")
     AssertType(4, qW, "number", "nil")
 
-    local self = {
+    local self = setmetatable({
         X = qX or 0,
         Y = qY or 0,
         Z = qZ or 0,
         W = qW or 1,
         _cached = {}
-    }
+    } :: any, Quaternion)
     
-    local self = setmetatable(self :: any, Quaternion)
     table.freeze(self)
-
+    
     return self
 end
 
-
---[=[
-    @description An identity quaternion with no rotation. This is constant and 
-        should be accessed through the Quaternion class rather than an 
-        individual Quaternion object.
---]=]
-Quaternion.identity = new(0, 0, 0, 1)
-
-
---[=[
-    @description The zero quaternion, this does not represent any rotation as
-        it has a magnitude of zero. This is a constant and should be accessed
-        through the Quaternion class rather than an individual Quaternion 
-        object.
---]=]
-Quaternion.zero = new(0, 0, 0, 0)
-
---[=[
-    @group Constructors
-    
-    @description Creates a new quaternion with X, Y, Z, W values, where the 
-        X, Y, Z are the imaginary components and the W component is the real 
-        component.
-    
-    @param qX number? -- the X component of the imaginary part of the 
-        quaternion, defaults to 0.
-    @param qY number? -- the Y component of the imaginary part of the 
-        quaternion, defaults to 0.
-    @param qZ number? -- the Z component of the imaginary part of the 
-        quaternion, defaults to 0.
-    @param qW number? -- the W component of the real part of the 
-        quaternion, defaults to 1.
-    
-    @return Quaternion
---]=]
 Quaternion.new = new
-
---[==[
-===============================================================================
-*******************************************************************************
-===============================================================================
-                                  Constructors                                 
-===============================================================================
-*******************************************************************************
-===============================================================================
---]==]
+Quaternion.identity = new(0, 0, 0, 1)
+Quaternion.zero = new(0, 0, 0, 0)
 
 -- Private Methods
 
@@ -352,9 +276,9 @@ local function _Orthonormalize(
 ): (Vector3, Vector3, Vector3)
     
     local xBasis = _safeUnit(rightVector, Vector3.xAxis)
-    local upVector = _safeUnit(upVector, Vector3.yAxis)
+    local _upVector = _safeUnit(upVector, Vector3.yAxis)
     
-    local zBasis = xBasis:Cross(upVector)
+    local zBasis = xBasis:Cross(_upVector)
     if zBasis.Magnitude > EPSILON then
         zBasis = zBasis.Unit
     else
@@ -417,37 +341,45 @@ end
 
 -- Public Methods
 
-local function fromAxisAngle(axis: Vector3, angle: number): Quaternion
-    AssertType(1, axis, "Vector3")
-    AssertType(2, angle, "number")
-    
-    local axis = _safeUnit(axis, Vector3.xAxis)
-
-    local ha = angle / 2
-    local sha = math.sin(ha)
-
-    local X = sha * axis.X
-    local Y = sha * axis.Y
-    local Z = sha * axis.Z
-    local W = math.cos(ha)
-
-    return new(X, Y, Z, W)
-end
-
-
 --[=[
-    @group Constructors
+    Creates a quaternion from an axis and angle. 
+    Will always return a valid unit quaternion. Normalizes axis.
     
-    @description Creates a quaternion from an axis and angle. 
-        Will always return a valid unit quaternion. Normalizes axis.
-        
+    @within Quaternion
     @param axis Vector3 -- The axis of rotation
     @param angle number -- The angle of rotation around the axis
     
     @return Quaternion
---]=]
+]=]
+local function fromAxisAngle(axis: Vector3, angle: number): Quaternion
+    AssertType(1, axis, "Vector3")
+    AssertType(2, angle, "number")
+    
+    axis = _safeUnit(axis, Vector3.xAxis)
+    
+    local ha = angle / 2
+    local sha = math.sin(ha)
+    
+    local X = sha * axis.X
+    local Y = sha * axis.Y
+    local Z = sha * axis.Z
+    local W = math.cos(ha)
+    
+    return new(X, Y, Z, W)
+end
+
 Quaternion.fromAxisAngle = fromAxisAngle
 
+--[=[
+    Creates a quaternion from an axis and angle. 
+    Assumes axis is already normalized.
+    
+    @within Quaternion
+    @param axis Vector3 -- The axis of rotation
+    @param angle number -- The angle of rotation around the axis
+    
+    @return Quaternion
+]=]
 local function fromAxisAngleFast(axis: Vector3, angle: number): Quaternion
     AssertType(1, axis, "Vector3")
     AssertType(2, angle, "number")
@@ -463,20 +395,18 @@ local function fromAxisAngleFast(axis: Vector3, angle: number): Quaternion
     return new(X, Y, Z, W)
 end
 
---[=[
-    @group Constructors
-    
-    @description Creates a quaternion from an axis and angle. 
-        Assumes axis is already normalized.
-        
-    @param axis Vector3 -- The axis of rotation
-    @param angle number -- The angle of rotation around the axis
-    
-    @return Quaternion
---]=]
+
 Quaternion.fromAxisAngleFast = fromAxisAngleFast
 
-
+--[=[
+    Creates a quaternion from a CFrame. 
+    Will always return a valid unit quaternion.
+    
+    @within Quaternion
+    @param cframe CFrame -- The CFrame to construct quaternion from
+    
+    @return Quaternion
+]=]
 local function fromCFrame(cframe: CFrame): Quaternion
     AssertType(1, cframe, "CFrame")
     
@@ -484,19 +414,21 @@ local function fromCFrame(cframe: CFrame): Quaternion
     return _fromOrthonormalizedMatrix(_Orthonormalize(Rv, Uv, Lv))
 end
 
-
---[=[
-    @group Constructors
-    
-    @description Creates a quaternion from a CFrame. 
-        Will always return a valid unit quaternion.
-    
-    @param cframe CFrame -- The CFrame to construct quaternion from
-    
-    @return Quaternion
---]=]
 Quaternion.fromCFrame = fromCFrame
 
+--[=[
+    Creates a quaternion from three vectors describing a rotation
+    matrix.
+    Will always return a valid unit quaternion.
+    
+    @within Quaternion
+    @param vX Vector3 -- The right vector component (m00, m10, m20)
+    @param vY Vector3 -- The up vector component (r01, r11, r21)
+    @param vZ Vector3? -- The look vector component (r02, r12, r22). If not
+        provided, will be calculated as `vX:Cross(vY).Unit`.
+    
+    @return Quaternion
+]=]
 local function fromMatrix(vX: Vector3, vY: Vector3, vZ: Vector3?): Quaternion
     AssertType(1, vX, "Vector3")
     AssertType(2, vY, "Vector3")
@@ -511,32 +443,31 @@ local function fromMatrix(vX: Vector3, vY: Vector3, vZ: Vector3?): Quaternion
     return _fromOrthonormalizedMatrix(_Orthonormalize(vXo, vYo, vZo))
 end
 
-
---[=[
-    @group Constructors
-    
-    @description Creates a quaternion from three vectors describing a rotation
-        matrix.
-        Will always return a valid unit quaternion.
-    
-    @param vX Vector3 -- The right vector component (m00, m10, m20)
-    @param vY Vector3 -- The up vector component (r01, r11, r21)
-    @param vZ Vector3? -- The look vector component (r02, r12, r22). If not
-        provided, will be calculated as `vX:Cross(vY).Unit`.
-    
-    @return Quaternion
---]=]
 Quaternion.fromMatrix = fromMatrix
 
+--[=[
+    Returns a quaternion looking at Vector3 `lookAt`, from the
+    Vector3 `from`, with an optional upVector Vector3 `up`. Maintains
+    the same functionality as Roblox's `CFrame.lookAt`.
+    Will always return a valid unit quaternion.
+    
+    @within Quaternion
+    @param from Vector3 -- The position to look from
+    @param lookAt Vector3 -- The position to look at
+    @param up Vector3? -- The up vector to keep look vector relative to. 
+        Defaults to Vector3.yAxis
+    
+    @return Quaternion
+]=]
 local function lookAt(from: Vector3, lookAt: Vector3, up: Vector3?): Quaternion
     AssertType(1, from, "Vector3")
     AssertType(2, lookAt, "Vector3")
     AssertType(3, up, "Vector3", "nil")
     
     local lookVector = _safeUnit(lookAt - from, Vector3.zAxis)
-    local up = _safeUnit(up or Vector3.yAxis, Vector3.yAxis)
+    local _up = _safeUnit(up or Vector3.yAxis, Vector3.yAxis)
     
-    local rightVector = lookVector:Cross(up)
+    local rightVector = lookVector:Cross(_up)
     if rightVector.Magnitude > 1e-6 then
         local rightVector = rightVector.Unit
         local upVector = rightVector:Cross(lookVector).Unit
@@ -558,24 +489,19 @@ local function lookAt(from: Vector3, lookAt: Vector3, up: Vector3?): Quaternion
     end
 end
 
-
---[=[
-    @group Constructors
-    
-    @description Returns a quaternion looking at Vector3 `lookAt`, from the
-        Vector3 `from`, with an optional upVector Vector3 `up`. Maintains
-        the same functionality as Roblox's `CFrame.lookAt`.
-        Will always return a valid unit quaternion.
-        
-    @param from Vector3 -- The position to look from
-    @param lookAt Vector3 -- The position to look at
-    @param up Vector3? -- The up vector to keep look vector relative to. Uses
-        Vector3.yAxis if none is supplied.
-    
-    @return Quaternion
---]=]
 Quaternion.lookAt = lookAt
 
+--[=[
+    Creates a quaternion using angles `rx`, `ry`, and `rz` in
+    radians. Rotation is applied in Z, Y, X order.
+    
+    @within Quaternion
+    @param rx number
+    @param ry number
+    @param rz number
+    
+    @return Quaternion
+]=]
 local function fromEulerAnglesXYZ(
     rx: number, ry: number, rz: number
 ): Quaternion
@@ -604,29 +530,28 @@ local function fromEulerAnglesXYZ(
     return new(qX, qY, qZ, qW)
 end
 
+Quaternion.fromEulerAnglesXYZ = fromEulerAnglesXYZ
+
 
 --[=[
-    @group Constructors
+    Alias for fromEulerAnglesXYZ.
     
-    @description Creates a quaternion using angles `rx`, `ry`, and `rz` in
-        radians. Rotation is applied in Z, Y, X order.
+    @function Angles
+    @within Quaternion
+]=]
+Quaternion.Angles = fromEulerAnglesXYZ
+
+--[=[
+    Creates a quaternion using angles `rx`, `ry`, and `rz` in
+        radians. Rotation is applied in Z, X, Y order.
     
+    @within Quaternion
     @param rx number
     @param ry number
     @param rz number
     
     @return Quaternion
---]=]
-Quaternion.fromEulerAnglesXYZ = fromEulerAnglesXYZ
-
-
---[=[
-    @group Constructors
-    
-    @alias fromEulerAnglesXYZ
---]=]
-Quaternion.Angles = fromEulerAnglesXYZ
-
+]=]
 local function fromEulerAnglesYXZ(
     rx: number, ry: number, rz: number
 ): Quaternion 
@@ -657,28 +582,30 @@ local function fromEulerAnglesYXZ(
 end
 
 
---[=[
-    @group Constructors
-    
-    @description Creates a quaternion using angles `rx`, `ry`, and `rz` in
-        radians. Rotation is applied in Z, X, Y order.
-    
-    @param rx number
-    @param ry number
-    @param rz number
-    
-    @return Quaternion
---]=]
+
 Quaternion.fromEulerAnglesYXZ = fromEulerAnglesYXZ
 
 
 --[=[
-    @group Constructors
+    Alias for fromEulerAnglesYXZ
     
-    @alias fromEulerAnglesYXZ
---]=]
+    @function fromOrientation
+    @within Quaternion
+]=]
 Quaternion.fromOrientation = fromEulerAnglesYXZ
 
+--[=[
+    Creates a quaternion using angles `rx`, `ry`, and `rz` in
+    radians. Rotation is applied in the order given by `rotationOrder`.
+    
+    @within Quaternion
+    @param rx number
+    @param ry number
+    @param rz number
+    @param rotationOrder Enum.RotationOrder? -- defaults to XYZ order.
+    
+    @return Quaternion
+]=]
 local function fromEulerAngles(
     rx: number, ry: number, rz: number, rotationOrder: Enum.RotationOrder?
 ): Quaternion 
@@ -742,44 +669,34 @@ local function fromEulerAngles(
     return new(qX, qY, qZ, qW)
 end
 
-
---[=[
-    @group Constructors
-    
-    @description Creates a quaternion using angles `rx`, `ry`, and `rz` in
-        radians. Rotation is applied in the order given by `rotationOrder`.
-    
-    @param rx number
-    @param ry number
-    @param rz number
-    @param rotationOrder Enum.RotationOrder? -- defaults to 
-        Enum.RotationOrder.XYZ
-    
-    @return Quaternion
---]=]
 Quaternion.fromEulerAngles = fromEulerAngles
 
-
+--[=[
+    Creates a quaternion from a vector, where the imaginary
+    components of the quaternion are set by the vector components.
+    
+    @within Quaternion
+    @param vector Vector3 -- The vector to use to set the imaginary components.
+    
+    @return Quaternion
+]=]
 local function fromVector(vector: Vector3): Quaternion
     AssertType(1, vector, "Vector3")
     
     return new(vector.X, vector.Y, vector.Z, 0)
 end
 
-
---[=[
-    @group Constructors
-    
-    @description Creates a quaternion from a vector, where the imaginary
-        components of the quaternion are set by the vector components.
-    
-    @param vec
-    
-    @return Quaternion
---]=]
 Quaternion.fromVector = fromVector
 
---https://stackoverflow.com/questions/31600717
+--[=[
+    Returns a function which will return a new random quaternion every
+    time that it is called.
+    
+    @within Quaternion
+    @param seed number -- The seed to use for random rotation generation.
+    
+    @return () -> Quaternion
+]=]
 local function RandomQuaternion(seed: number): () -> Quaternion
     local seed = seed or 1
     local random = Random.new(seed)
@@ -808,134 +725,126 @@ local function RandomQuaternion(seed: number): () -> Quaternion
     end
 end
 
-
---[=[
-    @group Constructors
-    
-    @description Returns a function which will return a random quaternion every
-        time that it is called.
-    
-    @param seed number -- The seed to use for random rotation generation.
-    
-    @return function
---]=]
 Quaternion.RandomQuaternion = RandomQuaternion
 
-
---[==[
-===============================================================================
-*******************************************************************************
-===============================================================================
-                        Math operations and Metamethods                        
-===============================================================================
-*******************************************************************************
-===============================================================================
---]==]
-
-
-
 --[=[
-    @group math
     
-    @description Adds the the second quaternion to the first quaternion using 
-        component-wise addition.
-    @operation Quaternion + Quaternion
+    Adds the the second quaternion to the first quaternion using 
+    component-wise addition.
+    
+    @method Quaternion + Quaternion
     @returns Quaternion
     
-    @description Subtracts the the second quaternion from the first quaternion
-        using component-wise subtraction.
-    @operation Quaternion - Quaternion
+    
+    Subtracts the the second quaternion from the first quaternion
+    using component-wise subtraction.
+    @method Quaternion - Quaternion
     @returns Quaternion
     
-    @description Multiplies the first quaternion by the second quaternion using
-        the Hamilton product. The order of multiplication is crucial, and in 
-        nearly all cases, (where q0 and q1 are quaternions) q0 * q1 is not 
-        equal to q1 * q0.
-    @operation Quaternion * Quaternion
+    
+    Multiplies the first quaternion by the second quaternion using
+    the Hamilton product. The order of multiplication is crucial, and in 
+    nearly all cases, (where q0 and q1 are quaternions) q0 * q1 is not 
+    equal to q1 * q0.
+    @method Quaternion * Quaternion
     @returns Quaternion
     
-    @description Multiplies each component of a quaternion by a scalar value.
-    @operation Quaternion * number
+    
+    Multiplies each component of a quaternion by a scalar value.
+    @method Quaternion * number
     @returns Quaternion
     
-    @description Multiplies each component of a quaternion by a scalar value.
-    @operation number * Quaternion
+    
+    Multiplies each component of a quaternion by a scalar value.
+    @method number * Quaternion
     @returns Quaternion
     
-    @description Converts the Quaternion to a CFrame and multiplies them 
-        together. Equivalent to `Quaternion:ToCFrame() * CFrame`.
-    @operation Quaternion * CFrame
+    
+    Converts the Quaternion to a CFrame and multiplies them 
+    together. Equivalent to `Quaternion:ToCFrame() * CFrame`.
+    @method Quaternion * CFrame
     @returns Quaternion
     
-    @description Rotates a Vector3 by a Quaternion.
-    @operation Quaternion * Vector3
+    
+    Rotates a Vector3 by a Quaternion.
+    @method Quaternion * Vector3
     @returns Vector3
     
-    @description Creates a CFrame with the position given by Vector3 and the
-        rotation given by Quaternion. 
-    @operation Vector3 * Quaternion
+    
+    Creates a CFrame with the position given by Vector3 and the
+    rotation given by Quaternion. 
+    @method Vector3 * Quaternion
     @returns CFrame
     
-    @description Divides each component of the quaternion by the given scalar
-        (denominator).
-    @operation Quaternion / number
+    
+    Divides each component of the quaternion by the given scalar
+    (denominator).
+    @method Quaternion / number
     @returns Quaternion
     
-    @description Divides each component of the quaternion by the given scalar
-        (numerator).
-    @operation number / Quaternion
+    
+    Divides each component of the quaternion by the given scalar
+    (numerator).
+    @method number / Quaternion
     @returns Quaternion
     
-    @description Multiplies the the first quaternion by the inverse of the
-        second quaternion.
-    @operation Quaternion / Quaternion
+    
+    Multiplies the the first quaternion by the inverse of the
+    second quaternion.
+    @method Quaternion / Quaternion
     @returns Quaternion
     
-    @description Negates each component of the Quaternion.
-    @operation -Quaternion
+    Negates each component of the Quaternion.
+    @method -Quaternion
     @returns Quaternion
     
-    @description Raises quaternion by the given power. Has the effect of
-        scaling a rotation around the identity quaternion. For example,
-        if a quaternion `q0` represents a rotation of 60 degrees around the
-        X axis, doing `q0 ^ 0.5` will return a quaternion with a rotation of
-        of 30 degrees around the X axis. Doing `q0 ^ 2` will return a rotation
-        of 120 degrees around the X axis. The power can be any real number.
-    @operation Quaternion ^ number
+    
+    Raises quaternion by the given power. Has the effect of
+    scaling a rotation around the identity quaternion. For example,
+    if a quaternion `q0` represents a rotation of 60 degrees around the
+    X axis, doing `q0 ^ 0.5` will return a quaternion with a rotation of
+    of 30 degrees around the X axis. Doing `q0 ^ 2` will return a rotation
+    of 120 degrees around the X axis. The power can be any real number.
+    @method Quaternion ^ number
     @returns Quaternion
     
-    @description Checks if each component of one quaternion is exactly equal
-        to the components of another quaternion.
-    @operation Quaternion == Quaternion
+    
+    Checks if each component of one quaternion is exactly equal
+    to the components of another quaternion.
+    @method Quaternion == Quaternion
     @returns boolean
     
-    @description Returns true if the first quaternion has a smaller symetrical
-        distance from the identity quaternion than the second quaternion.
-    @operation Quaternion < Quaternion
+    
+    Returns true if the first quaternion has a smaller symetrical
+    distance from the identity quaternion than the second quaternion.
+    @method Quaternion < Quaternion
     @returns boolean
     
-    @description Returns true if the first quaternion has a smaller or equal
-        symetrical distance from the identity quaternion than the second 
-        quaternion.
-    @operation Quaternion <= Quaternion
+    Returns true if the first quaternion has a smaller or equal
+    symetrical distance from the identity quaternion than the second 
+    quaternion.
+    @method Quaternion <= Quaternion
     @returns boolean
     
-    @description Returns true if the first quaternion has a greater symetrical
-        distance from the identity quaternion than the second quaternion.
-    @operation Quaternion > Quaternion
+    
+    Returns true if the first quaternion has a greater symetrical
+    distance from the identity quaternion than the second quaternion.
+    @method Quaternion > Quaternion
     @returns boolean
     
-    @description Returns true if the first quaternion has a greater or equal
-        symetrical distance from the identity quaternion than the second 
-        quaternion.
-    @operation Quaternion >= Quaternion
+    
+    Returns true if the first quaternion has a greater or equal
+    symetrical distance from the identity quaternion than the second 
+    quaternion.
+    @method Quaternion >= Quaternion
     @returns boolean
     
-    @description The length of the quaternion.
-    @operation #Quaternion
+    
+    The length of the quaternion.
+    @method #Quaternion
     @returns number
     
---]=]
+]=]
 
 local function Add(q0: Quaternion, q1: Quaternion): Quaternion
     AssertType(1, q0, "Quaternion")
@@ -1113,18 +1022,14 @@ end
 
 Quaternion.__le = le
 
-
-
---[==[
-================================================================================
-********************************************************************************
-================================================================================
-                                    Methods                                     
-================================================================================
-********************************************************************************
-================================================================================
---]==]
-
+--[=[
+    The exponential of a quaternion.
+    
+    @within Quaternion
+    @param q0 Quaternion
+    
+    @return Quaternion
+]=]
 local function Exp(q0: Quaternion): Quaternion
     AssertType(1, q0, "Quaternion")
     
@@ -1141,17 +1046,18 @@ local function Exp(q0: Quaternion): Quaternion
     end
 end
 
---[=[
-    @group Methods
-    
-    @description The exponential of a quaternion.
-    
-    @param q0 Quaternion
-    
-    @return Quaternion
---]=]
 Quaternion.Exp = Exp
 
+--[=[
+    The exponential map on the Riemannian manifold described by
+    the quaternion space.
+    
+    @within Quaternion
+    @param q0 Quaternion -- The base point of the exponential map
+    @param q1 Quaternion -- The tangent vector argument of the exponential map 
+    
+    @return Quaternion
+]=]
 local function ExpMap(q0: Quaternion, q1: Quaternion): Quaternion
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
@@ -1159,20 +1065,18 @@ local function ExpMap(q0: Quaternion, q1: Quaternion): Quaternion
     return Mul(q0, Exp(q1))
 end
 
---[=[
-    @group Methods
-    
-    @description The exponential map on the Riemannian manifold described by
-        the quaternion space.
-    
-    @param q0 Quaternion -- The base point of the exponential map
-    @param q1 Quaternion -- The tangent vector argument of the exponential map 
-        vector
-    
-    @return Quaternion
---]=]
 Quaternion.ExpMap = ExpMap
 
+--[=[
+    The symmetrized exponential map on the quaternion Riemannian
+    manifold.
+    
+    @within Quaternion
+    @param q0 Quaternion -- The base point of the exponential map
+    @param q1 Quaternion -- The tangent vector argument of the exponential map
+    
+    @return Quaternion
+]=]
 local function ExpMapSym(q0: Quaternion, q1: Quaternion): Quaternion
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
@@ -1181,19 +1085,16 @@ local function ExpMapSym(q0: Quaternion, q1: Quaternion): Quaternion
     return Mul(Mul(sqrtQ, Exp(q1)), sqrtQ)
 end
 
---[=[
-    @group Methods
-    
-    @description The symmetrized exponential map on the quaternion Riemannian
-        manifold.
-    
-    @param q0 Quaternion -- The base point of the exponential map
-    @param q1 Quaternion -- The tangent vector argument of the exponential map
-    
-    @return Quaternion
---]=]
 Quaternion.ExpMapSym = ExpMapSym
 
+--[=[
+    The logarithm of a quaternion.
+    
+    @within Quaternion
+    @param q0 Quaternion
+    
+    @return Quaternion
+]=]
 local function Log(q0: Quaternion): Quaternion
     AssertType(1, q0, "Quaternion")
     
@@ -1214,35 +1115,36 @@ local function Log(q0: Quaternion): Quaternion
     end
 end
 
---[=[
-    @group Methods
-    
-    @description The logarithm of a quaternion
-    
-    @param q0 Quaternion
-    
-    @return Quaternion
---]=]
 Quaternion.Log = Log
 
+--[=[
+    The logarithm map on the quaternion Riemannian manifold.
+    
+    @within Quaternion
+    @param q0 Quaternion -- The base point of the logarathmic map
+    @param q1 Quaternion -- The argument of the quaternion map
+    
+    @return Quaternion
+]=]
 local function LogMap(q0: Quaternion, q1: Quaternion): Quaternion
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
     
     return Log(Mul(q0:Inverse(), q1))
 end
+
+Quaternion.LogMap = LogMap
+
 --[=[
-    @group Methods
+    The symmetrized logarithm map on the quaternion Riemannian 
+    manifold.
     
-    @description The logarithm map on the quaternion Riemannian manifold.
-    
+    @within Quaternion
     @param q0 Quaternion -- The base point of the logarathmic map
     @param q1 Quaternion -- The argument of the quaternion map
     
     @return Quaternion
---]=]
-Quaternion.LogMap = LogMap
-
+]=]
 local function LogMapSym(q0: Quaternion, q1: Quaternion): Quaternion
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
@@ -1251,19 +1153,16 @@ local function LogMapSym(q0: Quaternion, q1: Quaternion): Quaternion
     return Log(Mul(Mul(invSqrtq0, q1), invSqrtq0))
 end
 
---[=[
-    @group Methods
-    
-    @description The symmetrized logarithm map on the quaternion Riemannian 
-        manifold.
-    
-    @param q0 Quaternion -- The base point of the logarathmic map
-    @param q1 Quaternion -- The argument of the quaternion map
-    
-    @return Quaternion
---]=]
 Quaternion.LogMapSym = LogMapSym
 
+--[=[
+    The length of the quaternion.
+    
+    @within Quaternion
+    @param q0 Quaternion
+    
+    @return number
+]=]
 local function Length(q0: Quaternion): number 
     AssertType(1, q0, "Quaternion")
 
@@ -1271,18 +1170,17 @@ local function Length(q0: Quaternion): number
     return (qX * qX + qY * qY + qZ * qZ + qW * qW) ^ 0.5
 end
 
---[=[
-    @group Methods
-    
-    @description The length of the quaternion.
-    
-    @param q0 Quaternion
-    
-    @return number
---]=]
 Quaternion.Length = Length
 Quaternion.__len = Length
 
+--[=[
+    The sum of the squares length of the quaternion.
+    
+    @within Quaternion
+    @param q0 Quaternion
+    
+    @return number
+]=]
 local function LengthSquare(q0: Quaternion): number 
     AssertType(1, q0, "Quaternion")
 
@@ -1290,17 +1188,16 @@ local function LengthSquare(q0: Quaternion): number
     return qX * qX + qY * qY + qZ * qZ + qW * qW
 end
 
+Quaternion.LengthSquare = LengthSquare
+
 --[=[
-    @group Methods
+    A numerically stable way to get the length of a quaternion.
     
-    @description The sum of the squares length of the quaternion.
-    
+    @within Quaternion
     @param q0 Quaternion
     
     @return number
---]=]
-Quaternion.LengthSquare = LengthSquare
-
+]=]
 local function Hypot(q0: Quaternion): number 
     AssertType(1, q0, "Quaternion")
     
@@ -1315,18 +1212,17 @@ local function Hypot(q0: Quaternion): number
     return 0
 end
 
---[=[
-    @group Methods
-    
-    @description A numerically stable way to get the length of a quaternion.
-    
-    @param q0 Quaternion
-    
-    @return number
---]=]
 Quaternion.Hypot = Hypot
 
-
+--[=[
+    The normalized quaternion with a length of one. Passing the
+    zero Quaternion into this will return the identity Quaternion.
+    
+    @within Quaternion
+    @param q0 Quaternion
+    
+    @return Quaternion
+]=]
 local function Normalize(q0: Quaternion): Quaternion 
     AssertType(1, q0, "Quaternion")
 
@@ -1338,18 +1234,18 @@ local function Normalize(q0: Quaternion): Quaternion
     end
 end
 
---[=[
-    @group Methods
-    
-    @description The normalized quaternion with a length of one. Passing the
-        zero Quaternion into this will return the identity Quaternion.
-    
-    @param q0 Quaternion
-    
-    @return Quaternion
---]=]
 Quaternion.Normalize = Normalize
 
+--[=[
+    Returns true if the given quaternion has a length close to
+    one, within 1 +- epsilon range.
+    
+    @within Quaternion
+    @param q0 Quaternion
+    @param epsilon number
+    
+    @return boolean
+]=]
 local function IsUnit(q0: Quaternion, epsilon: number): boolean
     AssertType(1, q0, "Quaternion")
     
@@ -1357,19 +1253,19 @@ local function IsUnit(q0: Quaternion, epsilon: number): boolean
     return math.abs(1 - Length(q0)) < epsilon
 end
 
---[=[
-    @group Methods
-    
-    @description Returns true if the given quaternion has a length close to
-        one, within 1 +- epsilon range.
-    
-    @param q0 Quaternion
-    @param epsilon number
-    
-    @return boolean
---]=]
 Quaternion.IsUnit = IsUnit
 
+--[=[
+    returns A CFrame with the same rotation as the given 
+    quaternion. If a position is supplied, the CFrame will have that
+    position. The given quaternion will be normalized.
+    
+    @within Quaternion
+    @param q0 Quaternion
+    @param position Vector3?
+    
+    @return CFrame
+]=]
 local function ToCFrame(q0: Quaternion, position: Vector3?): CFrame
     AssertType(1, q0, "Quaternion")
     AssertType(2, position, "Vector3", "nil")
@@ -1383,20 +1279,17 @@ local function ToCFrame(q0: Quaternion, position: Vector3?): CFrame
     )
 end
 
---[=[
-    @group Methods
-    
-    @description returns A CFrame with the same rotation as the given 
-        quaternion. If a position is supplied, the CFrame will have that
-        position. The given quaternion will be normalized.
-    
-    @param q0 Quaternion
-    @param position Vector3?
-    
-    @return CFrame
---]=]
 Quaternion.ToCFrame = ToCFrame
 
+--[=[
+    Returns the dot product between two quaternions.
+    
+    @within Quaternion
+    @param q0 Quaternion
+    @param q1 Quaternion
+    
+    @return number
+]=]
 local function Dot(q0: Quaternion, q1: Quaternion): number 
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
@@ -1404,36 +1297,34 @@ local function Dot(q0: Quaternion, q1: Quaternion): number
     return q0.X * q1.X + q0.Y * q1.Y + q0.Z * q1.Z + q0.W * q1.W
 end
 
---[=[
-    @group Methods
-    
-    @description Returns the dot product between two quaternions.
-    
-    @param q0 Quaternion
-    @param q1 Quaternion
-    
-    @return number
---]=]
 Quaternion.Dot = Dot
 
+--[=[
+    The conjugate of the Quaternion. The imaginary components are
+    negated.
+    
+    @within Quaternion
+    @param q0 Quaternion
+    
+    @return Quaternion
+]=]
 local function Conjugate(q0: Quaternion): Quaternion 
     AssertType(1, q0, "Quaternion")
 
     return new(-q0.X, -q0.Y, -q0.Z, q0.W)
 end
 
+Quaternion.Conjugate = Conjugate
+
 --[=[
-    @group Methods
+    The inverse of the Quaternion. Mulitplying a quaternion by
+    its own inverse will result in the identity Quaternion.
     
-    @description The conjugate of the Quaternion. The imaginary components are
-        negated.
-    
+    @within Quaternion
     @param q0 Quaternion
     
     @return Quaternion
---]=]
-Quaternion.Conjugate = Conjugate
-
+]=]
 local function Inverse(q0: Quaternion): Quaternion 
     AssertType(1, q0, "Quaternion")
     
@@ -1443,18 +1334,17 @@ local function Inverse(q0: Quaternion): Quaternion
     return new(-q0.X / length, -q0.Y/ length, -q0.Z / length, q0.W / length)
 end
 
---[=[
-    @group Methods
-    
-    @description The inverse of the Quaternion. Mulitplying a quaternion by
-        its own inverse will result in the identity Quaternion.
-    
-    @param q0 Quaternion
-    
-    @return Quaternion
---]=]
 Quaternion.Inverse = Inverse
 
+--[=[
+    Returns the angular velocity between two quaternions.
+    
+    @within Quaternion
+    @param q0 Quaternion
+    @param q1 Quaternion
+    
+    @return Quaternion
+]=]
 local function LogInv(q0: Quaternion, q1: Quaternion): Quaternion 
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
@@ -1462,39 +1352,39 @@ local function LogInv(q0: Quaternion, q1: Quaternion): Quaternion
     return Log(Mul(q0, Inverse(q1)))
 end
 
---[=[
-    @group Methods
-    
-    @description Returns the angular velocity between two quaternions.
-    
-    @param q0 Quaternion
-    @param q1 Quaternion
-    
-    @return Quaternion
---]=]
 Quaternion.LogInv = LogInv
 
+--[=[
+    Returns the negated version of the given quaternion.
+    
+    @within Quaternion
+    @param q0 Quaternion
+    
+    @return Quaternion
+]=]
 local function Negate(q0: Quaternion): Quaternion 
     AssertType(1, q0, "Quaternion")
 
     return new(-q0.X, -q0.Y, -q0.Z, -q0.W)
 end
 
---[=[
-    @group Methods
-    
-    @description Returns the negated version of the given quaternion.
-    
-    @param q0 Quaternion
-    
-    @return Quaternion
---]=]
 Quaternion.Negate = Negate
 Quaternion.__unm = Negate
 
--- source: https://github.com/KieranWynn/pyquaternion/blob/master/pyquaternion
---      /quaternion.py#L772
--- solves q2 for the equation q0 * q2 = q1 with the minimal rotation
+--[=[
+    Returns the quaternion which has the minimal rotation to get
+    from `q0` to `q1` using the double cover property of quaternions.
+    If `q2 = q0:Difference(q1)`, then `q0 * q2 = q1`, or `q0 * q2 = -q1` 
+    (the same rotation). If you don't want to take advantage of the double 
+    cover property, then you can do `q2 = q0 * q1:Inverse()`, where
+    `q0 * q2 = q1` all of the time.
+    
+    @within Quaternion
+    @param q0 Quaternion
+    @param q1 Quaternion
+    
+    @return Quaternion
+]=]
 local function Difference(q0: Quaternion, q1: Quaternion): Quaternion 
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
@@ -1505,24 +1395,18 @@ local function Difference(q0: Quaternion, q1: Quaternion): Quaternion
     return Mul(Inverse(q0), q1)
 end
 
+Quaternion.Difference = Difference
+
 --[=[
-    @group Methods
+    Returns the intrinsic geodesic distance between two 
+    quaternions. Output will be in the range 0-2pi for unit quaternions.
     
-    @description Returns the quaternion which has the minimal rotation to get
-        from `q0` to `q1` using the double cover property of quaternions.
-        If `q2 = q0:Difference(q1)`, then `q0 * q2 = q1`, or `q0 * q2 = -q1` 
-        (the same rotation). If you don't want to take advantage of the double 
-        cover property, then you can do `q2 = q0 * q1:Inverse()`, where
-        `q0 * q2 = q1` all of the time.
-    
+    @within Quaternion
     @param q0 Quaternion
     @param q1 Quaternion
     
-    @return Quaternion
---]=]
-Quaternion.Difference = Difference
-
--- intrinsic geodesic distance
+    @return number
+]=]
 local function Distance(q0: Quaternion, q1: Quaternion): number
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
@@ -1530,20 +1414,18 @@ local function Distance(q0: Quaternion, q1: Quaternion): number
     return Length(LogMap(q0, q1)) * 2
 end
 
+Quaternion.Distance = Distance
+
 --[=[
-    @group Methods
+    Returns the symmetrized geodesic distance between two 
+    quaternions. Output will be in the range 0-pi for unit quaternions.
     
-    @description Returns the intrinsic geodesic distance between two 
-        quaternions. Output will be in the range 0-2pi for unit quaternions.
-    
+    @within Quaternion
     @param q0 Quaternion
     @param q1 Quaternion
     
     @return number
---]=]
-Quaternion.Distance = Distance
-
--- symmetrized shortest geodesic distance
+]=]
 local function DistanceSym(q0: Quaternion, q1: Quaternion): number
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
@@ -1551,19 +1433,18 @@ local function DistanceSym(q0: Quaternion, q1: Quaternion): number
     return Length(Log(Difference(q0, q1))) * 2
 end
 
+Quaternion.DistanceSym = DistanceSym
+
 --[=[
-    @group Methods
+    Returns the chord distance of the shortest path/arc between 
+    two quaternions.
     
-    @description Returns the symmetrized geodesic distance between two 
-        quaternions. Output will be in the range 0-pi for unit quaternions.
-    
+    @within Quaternion
     @param q0 Quaternion
     @param q1 Quaternion
     
     @return number
---]=]
-Quaternion.DistanceSym = DistanceSym
-
+]=]
 local function DistanceChord(q0: Quaternion, q1: Quaternion): number
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
@@ -1571,19 +1452,18 @@ local function DistanceChord(q0: Quaternion, q1: Quaternion): number
     return math.sin(DistanceSym(q0, q1) / 2) * 2
 end
 
+Quaternion.DistanceChord = DistanceChord
+
 --[=[
-    @group Methods
+    Returns the absolute distance between two 
+    quaternions, accounting for sign ambiguity.
     
-    @description Returns the chord distance of the shortest path/arc between 
-        two quaternions.
-    
+    @within Quaternion
     @param q0 Quaternion
     @param q1 Quaternion
     
     @return number
---]=]
-Quaternion.DistanceChord = DistanceChord
-
+]=]
 local function DistanceAbs(q0: Quaternion, q1: Quaternion): number
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
@@ -1599,19 +1479,20 @@ local function DistanceAbs(q0: Quaternion, q1: Quaternion): number
     return dPlus
 end
 
---[=[
-    @group Methods
-    
-    @description Returns the absolute distance between two 
-        quaternions, accounting for sign ambiguity.
-    
-    @param q0 Quaternion
-    @param q1 Quaternion
-    
-    @return number
---]=]
 Quaternion.DistanceAbs = DistanceAbs
 
+--[=[
+    Returns a quaternion along the great circle arc between two
+    existing quaternion endpoints lying on the unit radius hypersphere.
+    Alpha can be any real number.
+    
+    @within Quaternion
+    @param q0 Quaternion -- The starting quaternion
+    @param q1 Quaternion -- The end quaternion
+    @param alpha number
+    
+    @return Quaternion
+]=]
 local function Slerp(q0: Quaternion, q1: Quaternion, alpha: number): Quaternion 
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
@@ -1642,22 +1523,19 @@ local function Slerp(q0: Quaternion, q1: Quaternion, alpha: number): Quaternion
     return Normalize(Add(Mul(s0, q0), Mul(s1, q1)))
 end
 
---[=[
-    @group Methods
-    
-    @description Returns a quaternion along the great circle arc between two
-        existing quaternion endpoints lying on the unit radius hypersphere.
-        Alpha can be any real number.
-    
-    @param q0 Quaternion -- The starting quaternion
-    @param q1 Quaternion -- The end quaternion
-    @param alpha number
-    
-    @return Quaternion
---]=]
 Quaternion.Slerp = Slerp
 
--- equivalent to Quaternion.identity:Slerp(q1, alpha), but more efficient
+--[=[
+    Returns a quaternion along the great circle arc between the
+        identity quaternion and the given quaternion lying on the unit radius
+        hypersphere. Alpha can be any real number
+    
+    @within Quaternion
+    @param q0 Quaternion
+    @alpha number
+    
+    @return Quaternion
+]=]
 local function IdentitySlerp(q1: Quaternion, alpha: number): Quaternion 
     AssertType(1, q1, "Quaternion")
     AssertType(2, alpha, "number")
@@ -1691,20 +1569,20 @@ local function IdentitySlerp(q1: Quaternion, alpha: number): Quaternion
     return Normalize(new(q1.X * s1, q1.Y * s1, q1.Z * s1, q0 * s0 + q1.W * s1))
 end
 
---[=[
-    @group Methods
-    
-    @description Returns a quaternion along the great circle arc between the
-        identity quaternion and the given quaternion lying on the unit radius
-        hypersphere. Alpha can be any real number
-    
-    @param q0 Quaternion
-    @alpha number
-    
-    @return Quaternion
---]=]
 Quaternion.IdentitySlerp = IdentitySlerp
 
+--[=[
+    Returns a function which can be used to calculate a quaternion
+    along the great circle arc between the two given quaternions lying on
+    the unit radius hypersphere. For example:
+    `slerp = q0:SlerpFunction(q1)`, and then `q2 = slerp(alpha)`.
+    
+    @within Quaternion
+    @param q0 Quaternion
+    @param q1 Quaternion
+    
+    @return (alpha: number) -> Quaternion
+]=]
 local function SlerpFunction(
     q0: Quaternion, q1: Quaternion
 ): (alpha: number) -> Quaternion
@@ -1747,21 +1625,23 @@ local function SlerpFunction(
     end
 end
 
---[=[
-    @group Methods
-    
-    @description Returns a function which can be used to calculate a quaternion
-        along the great circle arc between the two given quaternions lying on
-        the unit radius hypersphere. For example:
-        `slerp = q0:SlerpFunction(q1)`, and then `q2 = slerp(alpha)`.
-    
-    @param q0 Quaternion
-    @param q1 Quaternion
-    
-    @return (alpha: number) -> Quaternion
---]=]
 Quaternion.SlerpFunction = SlerpFunction
 
+--[=[
+    Generates an iterable sequence of n evenly spaces quaternion
+    rotations between any two existing quaternion endpoints lying on the
+    unit radius hypersphere. 
+    
+    @within Quaternion
+    @param q0 Quaternion -- The initial rotation
+    @param q1 Quaternion -- The final rotation
+    @param n number -- The number of intermediate quaternion rotations
+    @param includeEndpoints boolean? -- If true, then the sequence of 
+        quaternions will have `q0` at the start and `q1` at the end, with
+        a sequence length of n + 2. Defaults to false.
+    
+    @return Quaternion
+]=]
 local function Intermediates(
     q0: Quaternion, q1: Quaternion, n: number, includeEndpoints: boolean?
 ): {Quaternion}
@@ -1793,24 +1673,19 @@ local function Intermediates(
     return steps
 end
 
---[=[
-    @group Methods
-    
-    @description Generates an iterable sequence of n evenly spaces quaternion
-        rotations between any two existing quaternion endpoints lying on the
-        unit radius hypersphere. 
-    
-    @param q0 Quaternion -- The initial rotation
-    @param q1 Quaternion -- The final rotation
-    @param n number -- The number of intermediate quaternion rotations
-    @param includeEndpoints boolean? -- If true, then the sequence of 
-        quaternions will have `q0` at the start and `q1` at the end, with
-        a sequence length of n + 2. Defaults to false.
-    
-    @return Quaternion
---]=]
 Quaternion.Intermediates = Intermediates
 
+--[=[
+    The instantaneous quaternion derivative representing a 
+    quaternion rotating at a 3D rate vector `rate`
+    
+    @within Quaternion
+    @param q0 Quaternion
+    @param rate Vector3 -- a vector describing rotation rates about the global
+            x, y and z axes respectively.
+    
+    @return Quaternion
+]=]
 local function Derivative(q0: Quaternion, rate: Vector3): Quaternion
     AssertType(1, q0, "Quaternion")
     AssertType(2, rate, "Vector3")
@@ -1818,20 +1693,25 @@ local function Derivative(q0: Quaternion, rate: Vector3): Quaternion
     return Mul(Mul(0.5, q0), fromVector(rate))
 end
 
+Quaternion.Derivative = Derivative
+
 --[=[
-    @group Methods
+    Advance a time varying Quaternion to its value at a time
+    `timestep` in the future. The solution is closed form given the
+    assumption that rate is constant over the interval of length 
+    `timestep`.
     
-    @description The instantaneous quaternion derivative representing a 
-        quaternion rotating at a 3D rate vector `rate`
-    
+    @within Quaternion
     @param q0 Quaternion
     @param rate Vector3 -- a vector describing rotation rates about the global
             x, y and z axes respectively.
+    @param timestep number -- interval over which to integrate into the future.
+        Assuming *now* is `T=0`, the integration occurs over the interval
+        `T=0` to `T=timestep`. Smaller intervals are more accurate when
+        `rate` changes over time.
     
     @return Quaternion
---]=]
-Quaternion.Derivative = Derivative
-
+]=]
 local function Integrate(
     q0: Quaternion, rate: Vector3, timestep: number
 ): Quaternion
@@ -1854,26 +1734,19 @@ local function Integrate(
     end
 end
 
---[=[
-    @group Methods
-    
-    @description Advance a time varying Quaternion to its value at a time
-        `timestep` in the future. The solution is closed form given the
-        assumption that rate is constant over the interval of length 
-        `timestep`.
-    
-    @param q0 Quaternion
-    @param rate Vector3 -- a vector describing rotation rates about the global
-            x, y and z axes respectively.
-    @param timestep number -- interval over which to integrate into the future.
-        Assuming *now* is `T=0`, the integration occurs over the interval
-        `T=0` to `T=timestep`. Smaller intervals are more accurate when
-        `rate` changes over time.
-    
-    @return Quaternion
---]=]
 Quaternion.Integrate = Integrate
 
+--[=[
+    Returns true if the symmetrized geodesic distnace is less
+        than `epsilon`.
+    
+    @within Quaternion
+    @param q0 Quaternion
+    @param q1 Quaternion
+    @param epsilon number
+    
+    @return boolean
+]=]
 local function ApproxEq(
     q0: Quaternion, q1: Quaternion, epsilon: number?
 ): boolean 
@@ -1886,20 +1759,16 @@ local function ApproxEq(
     return DistanceSym(q0, q1) < epsilon
 end
 
---[=[
-    @group Methods
-    
-    @description Returns true if the symmetrized geodesic distnace is less
-        than `epsilon`.
-    
-    @param q0 Quaternion
-    @param q1 Quaternion
-    @param epsilon number
-    
-    @return boolean
---]=]
 Quaternion.ApproxEq = ApproxEq
 
+--[=[
+    Returns true if any component of the quaternion is NaN.
+    
+    @within Quaternion
+    @param q0 Quaternion
+    
+    @return boolean
+]=]
 local function IsNaN(q0: Quaternion): boolean 
     AssertType(1, q0, "Quaternion")
     
@@ -1907,15 +1776,6 @@ local function IsNaN(q0: Quaternion): boolean
     return qX ~= qX or qY ~= qY or qZ ~= qZ or qW ~= qW
 end
 
---[=[
-    @group Methods
-    
-    @description Returns true if any component of the quaternion is NaN.
-    
-    @param q0 Quaternion
-    
-    @return boolean
---]=]
 Quaternion.IsNaN = IsNaN
 
 local function _toRotationMatrix(q0: Quaternion)
@@ -1949,6 +1809,15 @@ local function _toRotationMatrix(q0: Quaternion)
     return m00, m01, m02, m10, m11, m12, m20, m21, m22
 end
 
+--[=[
+    Converts quaternion to axis angle representation. Quaternion
+    is normalized before conversion.
+    
+    @within Quaternion
+    @param q0 Quaternion
+    
+    @return (Vector3, number)
+]=]
 local function ToAxisAngle(q0: Quaternion): (Vector3, number)
     AssertType(1, q0, "Quaternion")
     
@@ -1965,18 +1834,19 @@ local function ToAxisAngle(q0: Quaternion): (Vector3, number)
     end
 end
 
---[=[
-    @group Methods
-    
-    @description Converts quaternion to axis angle representation. Quaternion
-        is normalized before conversion.
-    
-    @param q0 Quaternion
-    
-    @return (Vector3, number)
---]=]
 Quaternion.ToAxisAngle = ToAxisAngle
 
+--[=[
+    Converts quaternion to it's matrix representation in 
+    `m00, m01, m02, m10, m11, m12, m20, m21, m22` order as a tuple. 
+    Quaternion is normalized before conversion.
+    
+    @within Quaternion
+    @param q0 Quaternion
+    
+    @return 
+        (number, number, number, number, number, number, number, number, number)
+]=]
 local function ToMatrix(q0: Quaternion): 
     (
         number, number, number, 
@@ -1988,20 +1858,18 @@ local function ToMatrix(q0: Quaternion):
     return _toRotationMatrix(q0)
 end
 
---[=[
-    @group Methods
-    
-    @description Converts quaternion to it's matrix representation in 
-        `m00, m01, m02, m10, m11, m12, m20, m21, m22` order as a tuple. 
-        Quaternion is normalized before conversion.
-    
-    @param q0 Quaternion
-    
-    @return 
-        (number, number, number, number, number, number, number, number, number)
---]=]
 Quaternion.ToMatrix = ToMatrix
 
+--[=[
+    Converts quaternion to it's matrix representation with three
+    vectors, each representation a column of the rotation matrix.
+    Quaternion is normalized before conversion.
+    
+    @within Quaternion
+    @param q0 Quaternion
+    
+    @return (Vector3, Vector3, Vector3)
+]=]
 local function ToMatrixVectors(q0: Quaternion): (Vector3, Vector3, Vector3) 
     AssertType(1, q0, "Quaternion")
     
@@ -2014,73 +1882,67 @@ local function ToMatrixVectors(q0: Quaternion): (Vector3, Vector3, Vector3)
         -Vector3.new(m02, m12, m22)
 end
 
---[=[
-    @group Methods
-    
-    @description Converts quaternion to it's matrix representation with three
-        vectors, each representation a column of the rotation matrix.
-        Quaternion is normalized before conversion.
-    
-    @param q0 Quaternion
-    
-    @return (Vector3, Vector3, Vector3)
---]=]
 Quaternion.ToMatrixVectors = ToMatrixVectors
 
+--[=[
+    Returns the imaginary components of the quaternion as a Vector.
+    
+    @within Quaternion
+    @param q0 Quaternion
+    
+    @return Vector3
+]=]
 local function Vector(q0: Quaternion): Vector3 
     AssertType(1, q0, "Quaternion")
     
     return Vector3.new(q0.X, q0.Y, q0.Z)
 end
 
---[=[
-    @group Methods
-    
-    @description Returns the imaginary components of the quaternion as a 
-        Vector.
-    
-    @param q0 Quaternion
-    
-    @return Vector3
---]=]
 Quaternion.Vector = Vector
 
+--[=[
+    Returns a new quaternion with the same real component as
+    the given quaternion, but with the imaginary components set to zero.
+    
+    @within Quaternion
+    @param q0 Quaternion
+    
+    @return Quaternion
+]=]
 local function Real(q0: Quaternion): Quaternion 
     AssertType(1, q0, "Quaternion")
     
     return new(0, 0, 0, q0.W)
 end
 
+Quaternion.Real = Real
+
 --[=[
-    @group Methods
+    Returns a new quaternion with the same imaginary components as
+    the given quaternion, but with the real component set to zero.
     
-    @description Returns a new quaternion with the same real component as
-        the given quaternion, but with the imaginary components set to zero.
-    
+    @within Quaternion
     @param q0 Quaternion
     
     @return Quaternion
---]=]
-Quaternion.Real = Real
-
+]=]
 local function Imaginary(q0: Quaternion): Quaternion 
     AssertType(1, q0, "Quaternion")
     
     return new(q0.X, q0.Y, q0.Z, 0)
 end
 
---[=[
-    @group Methods
-    
-    @description Returns a new quaternion with the same imaginary components as
-        the given quaternion, but with the real component set to zero.
-    
-    @param q0 Quaternion
-    
-    @return Quaternion
---]=]
 Quaternion.Imaginary = Imaginary
 
+--[=[
+    Converts the quaternion to euler angles representation in
+    X, Y, Z order. Quaternion is normalized before conversion.
+    
+    @within Quaternion
+    @param q0 Quaternion
+    
+    @return (number, number, number)
+]=]
 local function ToEulerAnglesXYZ(q0: Quaternion): (number, number, number) 
     AssertType(1, q0, "Quaternion")
     
@@ -2129,6 +1991,15 @@ local function ToEulerAnglesXZY(q0: Quaternion): (number, number, number)
     return rX, rY, rZ
 end
 
+--[=[
+    Converts the quaternion to euler angles representation in
+    Y, X, Z order. Quaternion is normalized before conversion.
+    
+    @within Quaternion
+    @param q0 Quaternion
+    
+    @return (number, number, number)
+]=]
 local function ToEulerAnglesYXZ(q0: Quaternion): (number, number, number) 
     AssertType(1, q0, "Quaternion")
     
@@ -2234,6 +2105,17 @@ local TO_EULER_ANGLES_MAP = {
     [5] = ToEulerAnglesZYX
 }
 
+--[=[
+    Converts the quaternion to euler angles representation.
+    Quaternion is normalized before conversion. The result is dependent
+    on the given `rotationOrder`. Defaults to `Enum.RotationOrder.XYZ`.
+    
+    @within Quaternion
+    @param q0 Quaternion
+    @param rotationOrder Enum.RotationOrder
+    
+    @return (number, number, number)
+]=]
 local function ToEulerAngles(
     q0: Quaternion, rotationOrder: Enum.RotationOrder
 ): (number, number, number) 
@@ -2245,71 +2127,39 @@ local function ToEulerAngles(
     return TO_EULER_ANGLES_MAP[rotationOrder.Value](q0)
 end
 
---[=[
-    @group Methods
-    
-    @description Converts the quaternion to euler angles representation.
-        Quaternion is normalized before conversion. The result is dependent
-        on the given `rotationOrder`. Defaults to `Enum.RotationOrder.XYZ`.
-    
-    @param q0 Quaternion
-    @param rotationOrder Enum.RotationOrder
-    
-    @return (number, number, number)
---]=]
+
 Quaternion.ToEulerAngles = ToEulerAngles
-
---[=[
-    @group Methods
-    
-    @description Converts the quaternion to euler angles representation in
-        X, Y, Z order. Quaternion is normalized before conversion.
-    
-    @param q0 Quaternion
-    
-    @return (number, number, number)
---]=]
 Quaternion.ToEulerAnglesXYZ = ToEulerAnglesXYZ
-
---[=[
-    @group Methods
-    
-    @description Converts the quaternion to euler angles representation in
-        Y, X, Z order. Quaternion is normalized before conversion.
-    
-    @param q0 Quaternion
-    
-    @return (number, number, number)
---]=]
 Quaternion.ToEulerAnglesYXZ = ToEulerAnglesYXZ
 
 --[=[
-    @group Methods
+    Alias for ToEulerAnglesYXZ
     
-    @alias ToEulerAnglesYXZ
---]=]
+    @method ToOrientation
+    @within Quaternion
+]=]
 Quaternion.ToOrientation = ToEulerAnglesYXZ
 
+--[=[
+    Returns the components of the quaternion in X, Y, Z, W order.
+    
+    @within Quaternion
+    @param q0 Quaternion
+    
+    @return (number, number, number, number)
+]=]
 local function GetComponents(q0: Quaternion): (number, number, number, number)
     return q0.X, q0.Y, q0.Z, q0.W
 end
 
---[=[
-    @group Methods
-    
-    @description Returns the components of the quaternion in X, Y, Z, W order.
-    
-    @param q0 Quaternion
-    
-    @return (number, number, number, number)
---]=]
 Quaternion.GetComponents = GetComponents
 
 --[=[
-    @group Methods
+    Alias for GetComponents
     
-    @alias GetComponents
---]=]
+    @method components
+    @within Quaternion
+]=]
 Quaternion.components = GetComponents
 
 local function round(number: number, decimalPlaces: number?): string
@@ -2325,6 +2175,17 @@ local function round(number: number, decimalPlaces: number?): string
     return tostring(number)
 end
 
+--[=[
+    Converts quaternion to string representation. If
+    `decimalPlaces` is given, each component in the string will be rounded
+    to the given places.
+    
+    @within Quaternion
+    @param q0 Quaternion
+    @param decimalPlaces number?
+    
+    @return string
+]=]
 local function ToString(q0: Quaternion, decimalPlaces: number?): string
     AssertType(1, q0, "Quaternion")
     AssertType(2, decimalPlaces, "number", "nil")
@@ -2337,21 +2198,9 @@ local function ToString(q0: Quaternion, decimalPlaces: number?): string
 end
 
 Quaternion.__tostring = ToString
-
---[=[
-    @group Methods
-    
-    @description Converts quaternion to string representation. If
-        `decimalPlaces` is given, each component in the string will be rounded
-        to the given places.
-    
-    @param q0 Quaternion
-    @param decimalPlaces number?
-    
-    @return string
---]=]
 Quaternion.ToString = ToString
 
+--- @__index
 function Quaternion.__index(q0, key)
     local functionIndex = Quaternion[key]
     if functionIndex then
@@ -2389,7 +2238,7 @@ table.freeze(Quaternion)
 return Quaternion
 
 --[=[
-    @sources
+    Sources:
     [1]: https://github.com/KieranWynn/pyquaternion/blob/master/pyquaternion
         /quaternion.py
     [2]: https://www.euclideanspace.com/maths/geometry/rotations/conversions
@@ -2398,6 +2247,7 @@ return Quaternion
     [4]: https://github.com/Quenty/NevermoreEngine/blob/main/src/quaternion/src
         /Shared/Quaternion.lua
     [5]: https://www.andre-gaschler.com/rotationconverter/
---]=]
+    [6]: https://stackoverflow.com/questions/31600717
+]=]
 
 
