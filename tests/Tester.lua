@@ -109,7 +109,6 @@ function Tester:ExecuteTests()
     local testsPassed = 0
     local testsFailed = 0
     local unhandledExceptions = 0
-    
     local testGroupOrder = self.testModule._order
     
     for _, groupName in pairs(testGroupOrder) do
