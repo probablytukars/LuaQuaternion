@@ -355,11 +355,11 @@ local function _Orthonormalize(
     local upVector = _safeUnit(upVector, Vector3.yAxis)
     
     local zBasis = xBasis:Cross(upVector)
-    if zBasis.Magnitude > 1e-6 then
+    if zBasis.Magnitude > EPSILON then
         zBasis = zBasis.Unit
     else
         zBasis = xBasis:Cross(Vector3.yAxis)
-        if zBasis.Magnitude > 1e-6 then
+        if zBasis.Magnitude > EPSILON then
             zBasis = zBasis.Unit
         else
             zBasis = Vector3.xAxis
@@ -2348,7 +2348,7 @@ Quaternion.__tostring = ToString
     @param q0 Quaternion
     @param decimalPlaces number?
     
-    @return Quaternion
+    @return string
 --]=]
 Quaternion.ToString = ToString
 
