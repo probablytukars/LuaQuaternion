@@ -906,8 +906,7 @@ Quaternion.RandomQuaternion = RandomQuaternion
 
 --[=[
     Returns true if the first quaternion has a smaller or equal
-    symetrical distance from the identity quaternion than the second 
-    quaternion.
+    length than the second Quaternion.
     
     @method Quaternion <= Quaternion
     @within Quaternion
