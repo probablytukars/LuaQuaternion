@@ -1044,6 +1044,7 @@ Quaternion.__le = le
     
     @method Exp
     @within Quaternion
+    @param q0 Quaternion
     
     @return Quaternion
 ]=]
@@ -1067,11 +1068,11 @@ Quaternion.Exp = Exp
 
 --[=[
     The exponential map on the Riemannian manifold described by
-    the quaternion space. The Quaternion this method acts on is the base
-    point of the exponential map.
+    the quaternion space.
     
     @method ExpMap
     @within Quaternion
+    @param q0 Quaternion -- The base point of the exponential map
     @param q1 Quaternion -- The tangent vector argument of the exponential map 
     
     @return Quaternion
@@ -1087,11 +1088,11 @@ Quaternion.ExpMap = ExpMap
 
 --[=[
     The symmetrized exponential map on the quaternion Riemannian
-    manifold. The Quaternion this method acts on is the base
-    point of the exponential map.
+    manifold.
     
     @method ExpMapSym
     @within Quaternion
+    @param q0 Quaternion -- The base point of the exponential map
     @param q1 Quaternion -- The tangent vector argument of the exponential map
     
     @return Quaternion
@@ -1199,7 +1200,7 @@ Quaternion.__len = Length
 --[=[
     The sum of the squares length of the quaternion.
     
-    @method LengthSquared
+    
     @within Quaternion
     @param q0 Quaternion
     
@@ -1217,7 +1218,6 @@ Quaternion.LengthSquared = LengthSquared
 --[=[
     A numerically stable way to get the length of a quaternion.
     
-    @method Hypot
     @within Quaternion
     @param q0 Quaternion
     
@@ -1243,7 +1243,6 @@ Quaternion.Hypot = Hypot
     The normalized quaternion with a length of one. Passing the
     zero Quaternion into this will return the identity Quaternion.
     
-    @method Normalize
     @within Quaternion
     @param q0 Quaternion
     
@@ -1266,7 +1265,6 @@ Quaternion.Normalize = Normalize
     Returns true if the given quaternion has a length close to
     one, within 1 +- epsilon range.
     
-    @method IsUnit
     @within Quaternion
     @param q0 Quaternion
     @param epsilon number
@@ -1287,7 +1285,6 @@ Quaternion.IsUnit = IsUnit
     quaternion. If a position is supplied, the CFrame will have that
     position. The given quaternion will be normalized.
     
-    @method ToCFrame
     @within Quaternion
     @param q0 Quaternion
     @param position Vector3?
@@ -1312,7 +1309,6 @@ Quaternion.ToCFrame = ToCFrame
 --[=[
     Returns the dot product between two quaternions.
     
-    @method Dot
     @within Quaternion
     @param q0 Quaternion
     @param q1 Quaternion
@@ -1332,7 +1328,6 @@ Quaternion.Dot = Dot
     The conjugate of the Quaternion. The imaginary components are
     negated.
     
-    @method Conjugate
     @within Quaternion
     @param q0 Quaternion
     
@@ -1350,7 +1345,6 @@ Quaternion.Conjugate = Conjugate
     The inverse of the Quaternion. Mulitplying a quaternion by
     its own inverse will result in the identity Quaternion.
     
-    @method Inverse
     @within Quaternion
     @param q0 Quaternion
     
@@ -1370,7 +1364,6 @@ Quaternion.Inverse = Inverse
 --[=[
     Returns the angular velocity between two quaternions.
     
-    @method LogInv
     @within Quaternion
     @param q0 Quaternion
     @param q1 Quaternion
@@ -1389,7 +1382,6 @@ Quaternion.LogInv = LogInv
 --[=[
     Returns the negated version of the given quaternion.
     
-    @method Negate
     @within Quaternion
     @param q0 Quaternion
     
@@ -1412,7 +1404,6 @@ Quaternion.__unm = Negate
     cover property, then you can do `q2 = q0 * q1:Inverse()`, where
     `q0 * q2 = q1` all of the time.
     
-    @method Difference
     @within Quaternion
     @param q0 Quaternion
     @param q1 Quaternion
@@ -1435,7 +1426,6 @@ Quaternion.Difference = Difference
     Returns the intrinsic geodesic distance between two 
     quaternions. Output will be in the range 0-2pi for unit quaternions.
     
-    @method Distance
     @within Quaternion
     @param q0 Quaternion
     @param q1 Quaternion
@@ -1455,7 +1445,6 @@ Quaternion.Distance = Distance
     Returns the symmetrized geodesic distance between two 
     quaternions. Output will be in the range 0-pi for unit quaternions.
     
-    @method DistanceSym
     @within Quaternion
     @param q0 Quaternion
     @param q1 Quaternion
@@ -1475,7 +1464,6 @@ Quaternion.DistanceSym = DistanceSym
     Returns the chord distance of the shortest path/arc between 
     two quaternions.
     
-    @method DistanceChord
     @within Quaternion
     @param q0 Quaternion
     @param q1 Quaternion
@@ -1495,7 +1483,6 @@ Quaternion.DistanceChord = DistanceChord
     Returns the absolute distance between two 
     quaternions, accounting for sign ambiguity.
     
-    @method DistanceAbs
     @within Quaternion
     @param q0 Quaternion
     @param q1 Quaternion
@@ -1524,7 +1511,6 @@ Quaternion.DistanceAbs = DistanceAbs
     existing quaternion endpoints lying on the unit radius hypersphere.
     Alpha can be any real number.
     
-    @method Slerp
     @within Quaternion
     @param q0 Quaternion -- The starting quaternion
     @param q1 Quaternion -- The end quaternion
@@ -1569,7 +1555,6 @@ Quaternion.Slerp = Slerp
         identity quaternion and the given quaternion lying on the unit radius
         hypersphere. Alpha can be any real number
     
-    @method IdentitySlerp
     @within Quaternion
     @param q1 Quaternion
     @param alpha number
@@ -1617,7 +1602,6 @@ Quaternion.IdentitySlerp = IdentitySlerp
     the unit radius hypersphere. For example:
     `slerp = q0:SlerpFunction(q1)`, and then `q2 = slerp(alpha)`.
     
-    @method SlerpFunction
     @within Quaternion
     @param q0 Quaternion
     @param q1 Quaternion
@@ -1673,7 +1657,6 @@ Quaternion.SlerpFunction = SlerpFunction
     rotations between any two existing quaternion endpoints lying on the
     unit radius hypersphere. 
     
-    @method Intermediates
     @within Quaternion
     @param q0 Quaternion -- The initial rotation
     @param q1 Quaternion -- The final rotation
@@ -1719,7 +1702,6 @@ Quaternion.Intermediates = Intermediates
     The instantaneous quaternion derivative representing a 
     quaternion rotating at a 3D rate vector `rate`
     
-    @method Derivative
     @within Quaternion
     @param q0 Quaternion
     @param rate Vector3 -- a vector describing rotation rates about the global x, y and z axes respectively.
@@ -1741,7 +1723,6 @@ Quaternion.Derivative = Derivative
     assumption that rate is constant over the interval of length 
     `timestep`.
     
-    @method Integrate
     @within Quaternion
     @param q0 Quaternion
     @param rate Vector3 -- a vector describing rotation rates about the global x, y and z axes respectively.
@@ -1777,7 +1758,6 @@ Quaternion.Integrate = Integrate
     Returns true if the symmetrized geodesic distance is less
         than `epsilon`.
     
-    @method ApproxEq
     @within Quaternion
     @param q0 Quaternion
     @param q1 Quaternion
@@ -1802,7 +1782,6 @@ Quaternion.ApproxEq = ApproxEq
 --[=[
     Returns true if any component of the quaternion is NaN.
     
-    @method IsNaN
     @within Quaternion
     @param q0 Quaternion
     
@@ -1852,7 +1831,6 @@ end
     Converts quaternion to axis angle representation. Quaternion
     is normalized before conversion.
     
-    @method ToAxisAngle
     @within Quaternion
     @param q0 Quaternion
     
@@ -1881,7 +1859,6 @@ Quaternion.ToAxisAngle = ToAxisAngle
     `m00, m01, m02, m10, m11, m12, m20, m21, m22` order as a tuple. 
     Quaternion is normalized before conversion.
     
-    @method ToMatrix
     @within Quaternion
     @param q0 Quaternion
     
@@ -1905,7 +1882,6 @@ Quaternion.ToMatrix = ToMatrix
     vectors, each representation a column of the rotation matrix.
     Quaternion is normalized before conversion.
     
-    @method ToMatrixVectors
     @within Quaternion
     @param q0 Quaternion
     
@@ -1928,7 +1904,6 @@ Quaternion.ToMatrixVectors = ToMatrixVectors
 --[=[
     Returns the imaginary components of the quaternion as a Vector.
     
-    @method Vector
     @within Quaternion
     @param q0 Quaternion
     
@@ -1946,7 +1921,6 @@ Quaternion.Vector = Vector
     Returns a new quaternion with the same real component as
     the given quaternion, but with the imaginary components set to zero.
     
-    @method Real
     @within Quaternion
     @param q0 Quaternion
     
@@ -1964,7 +1938,6 @@ Quaternion.Real = Real
     Returns a new quaternion with the same imaginary components as
     the given quaternion, but with the real component set to zero.
     
-    @method Imaginary
     @within Quaternion
     @param q0 Quaternion
     
@@ -1979,9 +1952,9 @@ end
 Quaternion.Imaginary = Imaginary
 
 --[=[
-    Converts the quaternion to euler angles that could be used to generate the Quaternion if angles were applied in Z, Y, X order.
+    Converts the quaternion to euler angles representation in
+    X, Y, Z order. Quaternion is normalized before conversion.
     
-    @method ToEulerAnglesXYZ
     @within Quaternion
     @param q0 Quaternion
     
@@ -2036,9 +2009,9 @@ local function ToEulerAnglesXZY(q0: Quaternion): (number, number, number)
 end
 
 --[=[
-    Converts the quaternion to euler angles that could be used to generate the Quaternion if angles were applied in Z, X, Y order.
+    Converts the quaternion to euler angles representation in
+    Y, X, Z order. Quaternion is normalized before conversion.
     
-    @method ToEulerAnglesYXZ
     @within Quaternion
     @param q0 Quaternion
     
@@ -2153,10 +2126,7 @@ local TO_EULER_ANGLES_MAP = {
     Converts the quaternion to euler angles representation.
     Quaternion is normalized before conversion. The result is dependent
     on the given `rotationOrder`. Defaults to `Enum.RotationOrder.XYZ`.
-    Returns the euler angles that could be used to generate the given
-    Quaternion in the reverse given RotationOrder.
     
-    @method ToEulerAngles
     @within Quaternion
     @param q0 Quaternion
     @param rotationOrder Enum.RotationOrder
@@ -2190,7 +2160,6 @@ Quaternion.ToOrientation = ToEulerAnglesYXZ
 --[=[
     Returns the components of the quaternion in X, Y, Z, W order.
     
-    @method GetComponents
     @within Quaternion
     @param q0 Quaternion
     
@@ -2228,7 +2197,6 @@ end
     `decimalPlaces` is given, each component in the string will be rounded
     to the given places.
     
-    @method ToString
     @within Quaternion
     @param q0 Quaternion
     @param decimalPlaces number?
