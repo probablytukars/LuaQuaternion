@@ -1,0 +1,10 @@
+apiCategories = [
+	"Constructor",
+	"Deconstructor",
+	"Method",
+	"Math Operations"
+]
+
+[docusaurus]
+onBrokenLinks = "throw"
+onBrokenMarkdownLinks = "warn"
