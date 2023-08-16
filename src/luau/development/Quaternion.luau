@@ -155,19 +155,36 @@ local EPSILON = 1e-6
     This class is **immutable** which means once a quaternion has been
     created, its components cannot be changed. All methods create new
     quaternions.
+]=]
+--[=[
+    A quaternion with unit length. Result is cached.
     
-    @prop Unit Quaternion -- A quaternion with unit length. Result is 
-        cached.
-    @prop Magnitude number -- Returns the magnitude of the quaternion.
-        Result is cached.
-    @prop identity Quaternion -- An identity quaternion with no rotation. 
-        This is constant and should be accessed through the Quaternion class 
-        rather than an individual Quaternion object.
-    @prop zero Quaternion -- The zero quaternion, this does not represent any 
-        rotation as it has a magnitude of zero. This is a constant and should 
-        be  accessed through the Quaternion class rather than an individual 
-        Quaternion object.
+    @prop Unit Quaternion
+    @within Quaternion
+]=]
+--[=[
+    Returns the magnitude of the quaternion.
+    Result is cached.
     
+    @prop Magnitude number
+    @within Quaternion
+]=]
+--[=[
+    An identity quaternion with no rotation. 
+    This is constant and should be accessed through the Quaternion class 
+    rather than an individual Quaternion object.
+    
+    @prop identity Quaternion
+    @within Quaternion
+]=]
+--[=[
+    The zero quaternion, this does not represent any 
+    rotation as it has a magnitude of zero. This is a constant and should 
+    be  accessed through the Quaternion class rather than an individual 
+    Quaternion object.
+    
+    @prop zero Quaternion
+    @within Quaternion
 ]=]
 local Quaternion = {_type = "Quaternion"}
 
@@ -422,10 +439,9 @@ Quaternion.fromCFrame = fromCFrame
     Will always return a valid unit quaternion.
     
     @within Quaternion
-    @param vX Vector3 -- The right vector component (m00, m10, m20)
+    @param vX Vector3 -- The right vector component (r00, r10, r20)
     @param vY Vector3 -- The up vector component (r01, r11, r21)
-    @param vZ Vector3? -- The look vector component (r02, r12, r22). If not
-        provided, will be calculated as `vX:Cross(vY).Unit`.
+    @param vZ Vector3? -- The back vector component (r02, r12, r22). If not provided, will be calculated as `vX:Cross(vY).Unit`.
     
     @return Quaternion
 ]=]
@@ -454,8 +470,7 @@ Quaternion.fromMatrix = fromMatrix
     @within Quaternion
     @param from Vector3 -- The position to look from
     @param lookAt Vector3 -- The position to look at
-    @param up Vector3? -- The up vector to keep look vector relative to. 
-        Defaults to Vector3.yAxis
+    @param up Vector3? -- The up vector to keep look vector relative to. Defaults to Vector3.yAxis
     
     @return Quaternion
 ]=]
@@ -727,19 +742,21 @@ end
 
 Quaternion.RandomQuaternion = RandomQuaternion
 
---[=[
+--[==[
+    
+    ignore for now
     
     Adds the the second quaternion to the first quaternion using 
     component-wise addition.
     
     @method Quaternion + Quaternion
-    @returns Quaternion
+    @return Quaternion
     
     
     Subtracts the the second quaternion from the first quaternion
     using component-wise subtraction.
     @method Quaternion - Quaternion
-    @returns Quaternion
+    @return Quaternion
     
     
     Multiplies the first quaternion by the second quaternion using
@@ -747,56 +764,56 @@ Quaternion.RandomQuaternion = RandomQuaternion
     nearly all cases, (where q0 and q1 are quaternions) q0 * q1 is not 
     equal to q1 * q0.
     @method Quaternion * Quaternion
-    @returns Quaternion
+    @return Quaternion
     
     
     Multiplies each component of a quaternion by a scalar value.
     @method Quaternion * number
-    @returns Quaternion
+    @return Quaternion
     
     
     Multiplies each component of a quaternion by a scalar value.
     @method number * Quaternion
-    @returns Quaternion
+    @return Quaternion
     
     
     Converts the Quaternion to a CFrame and multiplies them 
     together. Equivalent to `Quaternion:ToCFrame() * CFrame`.
     @method Quaternion * CFrame
-    @returns Quaternion
+    @return Quaternion
     
     
     Rotates a Vector3 by a Quaternion.
     @method Quaternion * Vector3
-    @returns Vector3
+    @return Vector3
     
     
     Creates a CFrame with the position given by Vector3 and the
     rotation given by Quaternion. 
     @method Vector3 * Quaternion
-    @returns CFrame
+    @return CFrame
     
     
     Divides each component of the quaternion by the given scalar
     (denominator).
     @method Quaternion / number
-    @returns Quaternion
+    @return Quaternion
     
     
     Divides each component of the quaternion by the given scalar
     (numerator).
     @method number / Quaternion
-    @returns Quaternion
+    @return Quaternion
     
     
     Multiplies the the first quaternion by the inverse of the
     second quaternion.
     @method Quaternion / Quaternion
-    @returns Quaternion
+    @return Quaternion
     
     Negates each component of the Quaternion.
     @method -Quaternion
-    @returns Quaternion
+    @return Quaternion
     
     
     Raises quaternion by the given power. Has the effect of
@@ -806,45 +823,45 @@ Quaternion.RandomQuaternion = RandomQuaternion
     of 30 degrees around the X axis. Doing `q0 ^ 2` will return a rotation
     of 120 degrees around the X axis. The power can be any real number.
     @method Quaternion ^ number
-    @returns Quaternion
+    @return Quaternion
     
     
     Checks if each component of one quaternion is exactly equal
     to the components of another quaternion.
     @method Quaternion == Quaternion
-    @returns boolean
+    @return boolean
     
     
     Returns true if the first quaternion has a smaller symetrical
     distance from the identity quaternion than the second quaternion.
     @method Quaternion < Quaternion
-    @returns boolean
+    @return boolean
     
     Returns true if the first quaternion has a smaller or equal
     symetrical distance from the identity quaternion than the second 
     quaternion.
     @method Quaternion <= Quaternion
-    @returns boolean
+    @return boolean
     
     
     Returns true if the first quaternion has a greater symetrical
     distance from the identity quaternion than the second quaternion.
     @method Quaternion > Quaternion
-    @returns boolean
+    @return boolean
     
     
     Returns true if the first quaternion has a greater or equal
     symetrical distance from the identity quaternion than the second 
     quaternion.
     @method Quaternion >= Quaternion
-    @returns boolean
+    @return boolean
     
     
     The length of the quaternion.
     @method #Quaternion
-    @returns number
+    @return number
     
-]=]
+--]==]
 
 local function Add(q0: Quaternion, q1: Quaternion): Quaternion
     AssertType(1, q0, "Quaternion")
@@ -1256,7 +1273,7 @@ end
 Quaternion.IsUnit = IsUnit
 
 --[=[
-    returns A CFrame with the same rotation as the given 
+    Returns a CFrame with the same rotation as the given 
     quaternion. If a position is supplied, the CFrame will have that
     position. The given quaternion will be normalized.
     
@@ -1531,8 +1548,8 @@ Quaternion.Slerp = Slerp
         hypersphere. Alpha can be any real number
     
     @within Quaternion
-    @param q0 Quaternion
-    @alpha number
+    @param q1 Quaternion
+    @param alpha number
     
     @return Quaternion
 ]=]
@@ -1636,11 +1653,9 @@ Quaternion.SlerpFunction = SlerpFunction
     @param q0 Quaternion -- The initial rotation
     @param q1 Quaternion -- The final rotation
     @param n number -- The number of intermediate quaternion rotations
-    @param includeEndpoints boolean? -- If true, then the sequence of 
-        quaternions will have `q0` at the start and `q1` at the end, with
-        a sequence length of n + 2. Defaults to false.
+    @param includeEndpoints boolean? -- If true, then the sequence of quaternions will have `q0` at the start and `q1` at the end, with a sequence length of n + 2. Defaults to false.
     
-    @return Quaternion
+    @return {Quaternion}
 ]=]
 local function Intermediates(
     q0: Quaternion, q1: Quaternion, n: number, includeEndpoints: boolean?
@@ -1681,8 +1696,7 @@ Quaternion.Intermediates = Intermediates
     
     @within Quaternion
     @param q0 Quaternion
-    @param rate Vector3 -- a vector describing rotation rates about the global
-            x, y and z axes respectively.
+    @param rate Vector3 -- a vector describing rotation rates about the global x, y and z axes respectively.
     
     @return Quaternion
 ]=]
@@ -1703,12 +1717,8 @@ Quaternion.Derivative = Derivative
     
     @within Quaternion
     @param q0 Quaternion
-    @param rate Vector3 -- a vector describing rotation rates about the global
-            x, y and z axes respectively.
-    @param timestep number -- interval over which to integrate into the future.
-        Assuming *now* is `T=0`, the integration occurs over the interval
-        `T=0` to `T=timestep`. Smaller intervals are more accurate when
-        `rate` changes over time.
+    @param rate Vector3 -- a vector describing rotation rates about the global x, y and z axes respectively.
+    @param timestep number -- interval over which to integrate into the future. Assuming *now* is `T=0`, the integration occurs over the interval `T=0` to `T=timestep`. Smaller intervals are more accurate when `rate` changes over time.
     
     @return Quaternion
 ]=]
@@ -1737,7 +1747,7 @@ end
 Quaternion.Integrate = Integrate
 
 --[=[
-    Returns true if the symmetrized geodesic distnace is less
+    Returns true if the symmetrized geodesic distance is less
         than `epsilon`.
     
     @within Quaternion
@@ -1844,8 +1854,7 @@ Quaternion.ToAxisAngle = ToAxisAngle
     @within Quaternion
     @param q0 Quaternion
     
-    @return 
-        (number, number, number, number, number, number, number, number, number)
+    @return (number, number, number, number, number, number, number, number, number)
 ]=]
 local function ToMatrix(q0: Quaternion): 
     (
@@ -2200,7 +2209,7 @@ end
 Quaternion.__tostring = ToString
 Quaternion.ToString = ToString
 
---- @__index
+
 function Quaternion.__index(q0, key)
     local functionIndex = Quaternion[key]
     if functionIndex then
@@ -2237,7 +2246,7 @@ table.freeze(Quaternion)
 
 return Quaternion
 
---[=[
+--[==[
     Sources:
     [1]: https://github.com/KieranWynn/pyquaternion/blob/master/pyquaternion
         /quaternion.py
@@ -2248,6 +2257,6 @@ return Quaternion
         /Shared/Quaternion.lua
     [5]: https://www.andre-gaschler.com/rotationconverter/
     [6]: https://stackoverflow.com/questions/31600717
-]=]
+--]==]
 
 
