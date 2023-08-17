@@ -77,6 +77,13 @@ end
 
 Vector3.__unm = unm
 
+local function toString(vector)
+    local vX, vY, vZ = vector.X, vector.Y, vector.Z
+    return tostring(vX) .. ", " .. tostring(vY) .. ", " .. tostring(vZ)
+end
+
+Vector3.__tostring = toString
+
 
 local function Length(vector)
     local x, y, z = vector.X, vector.Y, vector.Z
