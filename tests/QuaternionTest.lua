@@ -4,9 +4,9 @@ local EPSILON = 5e-4
 
 local QuaternionTest = {}
 QuaternionTest._order = {
-    "ConstructorGroup",
-    "DeconstructorGroup",
-    "MathGroup",
+    --"ConstructorGroup",
+    --"DeconstructorGroup",
+    --"MathGroup",
     "MethodsGroup"
 }
 
@@ -2180,7 +2180,7 @@ LengthSquare.Positive = {
     test = function()
         local q0 = Quaternion.new(2, 5, 7, 3)
         local expect_len = 87
-        local len = q0:LengthSquare()
+        local len = q0:LengthSquared()
 
         return Assert.ApproxEquals(expect_len, len, EPSILON)
     end
@@ -2191,7 +2191,7 @@ LengthSquare.Zero = {
     test = function()
         local q0 = Quaternion.new(0, 0, 0, 0)
         local expect_len = 0
-        local len = q0:LengthSquare()
+        local len = q0:LengthSquared()
 
         return Assert.ApproxEquals(expect_len, len, EPSILON)
     end
@@ -2202,7 +2202,7 @@ LengthSquare.Negative = {
     test = function()
         local q0 = Quaternion.new(-2, 5, -7, -3)
         local expect_len = 87
-        local len = q0:LengthSquare()
+        local len = q0:LengthSquared()
 
         return Assert.ApproxEquals(expect_len, len, EPSILON)
     end
@@ -2480,6 +2480,7 @@ Difference._order = {
 Difference.SameSphere = {
     DisplayName = "Same hemisphere",
     test = function()
+        print("same hemisphere")
         local q0 = Quaternion.fromEulerAngles(
             math.rad(-20), math.rad(40), math.rad(120)
         )

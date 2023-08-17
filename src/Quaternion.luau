@@ -1,4 +1,4 @@
--- Version: 0.0.1
+-- Version: 0.0.2
 
 export type Quaternion = {
     
@@ -15,7 +15,7 @@ export type Quaternion = {
     fromEulerAnglesYXZ: (rx: number, ry: number, rz: number) -> Quaternion,
     fromOrientation: (rx: number, ry: number, rz: number) -> Quaternion,
     fromEulerAngles: (
-        rx: number, ry: number, rz: number, rotationOrder: Enum.RotationOrder?
+        rx: number, ry: number, rz: number, rotationOrder: string?
     ) -> Quaternion,
     fromVector: (vector: Vector3) -> Quaternion,
     RandomQuaternion: (seed: number) -> () -> Quaternion,
@@ -120,7 +120,7 @@ export type Quaternion = {
     ToEulerAnglesYXZ: (q0: Quaternion) -> (number, number, number),
     ToOrientation: (q0: Quaternion) -> (number, number, number),
     ToEulerAngles: (
-        q0: Quaternion, rotationOrder: Enum.RotationOrder
+        q0: Quaternion, rotationOrder: string?
     ) -> (number, number, number),
     ToMatrix: (q0: Quaternion) ->
     (
@@ -627,20 +627,21 @@ Quaternion.fromOrientation = fromEulerAnglesYXZ
     @param rx number
     @param ry number
     @param rz number
-    @param rotationOrder Enum.RotationOrder? -- defaults to XYZ order.
+    @param rotationOrder string? -- defaults to "XYZ".
     
     @return Quaternion
     @tag Constructor
 ]=]
 local function fromEulerAngles(
-    rx: number, ry: number, rz: number, rotationOrder: Enum.RotationOrder?
+    rx: number, ry: number, rz: number, rotationOrder: string?
 ): Quaternion 
     
-    if not rotationOrder then rotationOrder = Enum.RotationOrder.XYZ end
     AssertType(1, rx, "number")
     AssertType(2, ry, "number")
     AssertType(3, rz, "number")
-    AssertType(4, rotationOrder, "Enum.RotationOrder", "nil")
+    AssertType(4, rotationOrder, "string", "nil")
+    
+    if not rotationOrder then rotationOrder = "XYZ" end
 
     local xCos = math.cos(rx / 2)
     local yCos = math.cos(ry / 2)
@@ -655,37 +656,34 @@ local function fromEulerAngles(
     local xCosyCos = xCos * yCos
     local xSinySin = xSin * ySin
     
-    local rotationOrder = rotationOrder or Enum.RotationOrder.XYZ
-    local order = rotationOrder.Name
-    
     local qX, qY, qZ, qW
     
-    if order == "XYZ" then
+    if rotationOrder == "XYZ" then
         qX = xSinyCos * zCos + xCosySin * zSin;
         qY = xCosySin * zCos - xSinyCos * zSin;
         qZ = xCosyCos * zSin + xSinySin * zCos;
         qW = xCosyCos * zCos - xSinySin * zSin;
-    elseif order == "YXZ" then
+    elseif rotationOrder == "YXZ" then
         qX = xSinyCos * zCos + xCosySin * zSin;
         qY = xCosySin * zCos - xSinyCos * zSin;
         qZ = xCosyCos * zSin - xSinySin * zCos;
         qW = xCosyCos * zCos + xSinySin * zSin;
-    elseif order == "ZXY" then
+    elseif rotationOrder == "ZXY" then
         qX = xSinyCos * zCos - xCosySin * zSin;
         qY = xCosySin * zCos + xSinyCos * zSin;
         qZ = xCosyCos * zSin + xSinySin * zCos;
         qW = xCosyCos * zCos - xSinySin * zSin;
-    elseif order == "ZYX" then
+    elseif rotationOrder == "ZYX" then
         qX = xSinyCos * zCos - xCosySin * zSin;
         qY = xCosySin * zCos + xSinyCos * zSin;
         qZ = xCosyCos * zSin - xSinySin * zCos;
         qW = xCosyCos * zCos + xSinySin * zSin;
-    elseif order == "YZX" then
+    elseif rotationOrder == "YZX" then
         qX = xSinyCos * zCos + xCosySin * zSin;
         qY = xCosySin * zCos + xSinyCos * zSin;
         qZ = xCosyCos * zSin - xSinySin * zCos;
         qW = xCosyCos * zCos - xSinySin * zSin;
-    elseif order == "XZY" then
+    elseif rotationOrder == "XZY" then
         qX = xSinyCos * zCos - xCosySin * zSin;
         qY = xCosySin * zCos - xSinyCos * zSin;
         qZ = xCosyCos * zSin + xSinySin * zCos;
@@ -982,7 +980,7 @@ local function Mul(
         )
     elseif op0type == "number" and op1type == "Quaternion" then 
         return new(op0 * op1.X, op0 * op1.Y, op0 * op1.Z, op0 * op1.W)
-    elseif op0type == "Quaternion" and op1type == "number" then 
+    elseif op0type == "Quaternion" and op1type == "number" then
         return new(op0.X * op1, op0.Y * op1, op0.Z * op1, op0.W * op1)
     elseif op0type == "Quaternion" and op1type == "CFrame" then 
         return op0:ToCFrame() * op1
@@ -2222,35 +2220,35 @@ local function ToEulerAnglesZYX(q0: Quaternion): (number, number, number)
 end
 
 local TO_EULER_ANGLES_MAP = {
-    [0] = ToEulerAnglesXYZ,
-    [1] = ToEulerAnglesXZY,
-    [2] = ToEulerAnglesYZX,
-    [3] = ToEulerAnglesYXZ,
-    [4] = ToEulerAnglesZXY,
-    [5] = ToEulerAnglesZYX
+    ["XYZ"] = ToEulerAnglesXYZ,
+    ["XZY"] = ToEulerAnglesXZY,
+    ["YZX"] = ToEulerAnglesYZX,
+    ["YXZ"] = ToEulerAnglesYXZ,
+    ["ZXY"] = ToEulerAnglesZXY,
+    ["ZYX"] = ToEulerAnglesZYX
 }
 
 --[=[
     Converts the quaternion to euler angles representation.
     Quaternion is normalized before conversion. The result is dependent
-    on the given `rotationOrder`. Defaults to `Enum.RotationOrder.XYZ`.
+    on the given `rotationOrder`. Defaults to "XYZ".
     
     @within Quaternion
     @param q0 Quaternion
-    @param rotationOrder Enum.RotationOrder
+    @param rotationOrder string?
     
     @return (number, number, number)
     @tag Deconstructor
 ]=]
 local function ToEulerAngles(
-    q0: Quaternion, rotationOrder: Enum.RotationOrder
+    q0: Quaternion, rotationOrder: string?
 ): (number, number, number) 
     
-    AssertType(2, rotationOrder, "Enum.RotationOrder", "nil")
+    AssertType(2, rotationOrder, "string", "nil")
     
-    if not rotationOrder then rotationOrder = Enum.RotationOrder.XYZ end
+    if not rotationOrder then rotationOrder = "XYZ" end
 
-    return TO_EULER_ANGLES_MAP[rotationOrder.Value](q0)
+    return TO_EULER_ANGLES_MAP[rotationOrder](q0)
 end
 
 
