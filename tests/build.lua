@@ -1,1 +1,1 @@
-local json = require("tests/json"
+local json = require("tests/json")
