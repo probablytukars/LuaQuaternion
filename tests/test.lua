@@ -1,3 +1,4 @@
+package.path = ";.\\?.lua;..\\mocks\\?.lua"
 local Tester = require("Tester")
 local Quaternion = require("../src/Quaternion")
 local TestLibrary = require("QuaternionTest")
