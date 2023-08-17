@@ -1,4 +1,5 @@
 local Assert = require("Assert")
+local Vector3 = require("../mocks/Vector3")
 
 local EPSILON = 5e-4
 
