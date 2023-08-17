@@ -7,7 +7,7 @@ local QuaternionTest = {}
 QuaternionTest._order = {
     --"ConstructorGroup",
     --"DeconstructorGroup",
-    --"MathGroup",
+    "MathGroup",
     "MethodsGroup"
 }
 
@@ -2481,7 +2481,6 @@ Difference._order = {
 Difference.SameSphere = {
     DisplayName = "Same hemisphere",
     test = function()
-        print("same hemisphere")
         local q0 = Quaternion.fromEulerAngles(
             math.rad(-20), math.rad(40), math.rad(120)
         )
