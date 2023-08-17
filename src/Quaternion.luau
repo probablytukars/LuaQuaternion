@@ -915,8 +915,7 @@ Quaternion.RandomQuaternion = RandomQuaternion
 ]=]
 
 --[=[
-    Returns true if the first quaternion has a greater symetrical
-    distance from the identity quaternion than the second quaternion.
+    Returns true if the first quaternion has a greater length than the second Quaternion.
     
     @method Quaternion > Quaternion
     @within Quaternion
@@ -925,9 +924,7 @@ Quaternion.RandomQuaternion = RandomQuaternion
 ]=]
 
 --[=[
-    Returns true if the first quaternion has a greater or equal
-    symetrical distance from the identity quaternion than the second 
-    quaternion.
+    Returns true if the first quaternion has a greater or equal length than the second Quaternion.
     
     @method Quaternion >= Quaternion
     @within Quaternion
