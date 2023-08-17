@@ -244,6 +244,7 @@ fromCFrame.Constructor = {
                     end
                 end
             end
+            return true
         end
     end,
 }
@@ -357,14 +358,19 @@ lookAt._order = {
 lookAt.FromLookAt = {
     DisplayName = "From look at (1 arg)",
     test = function()
-        for collectionName, rc in pairs(testData.RepresentationCollection) do
-            for _, cf in pairs(rc) do
-                local cft = CFrame.lookAt(Vector3.zero, cf.LookVector)
-                local q0 = Quaternion.lookAt(Vector3.zero, cf.LookVector)
-                local q0cf = CFrame.new(0, 0, 0, q0.X, q0.Y, q0.Z, q0.W)
-                local cfeq = Assert.CFramesApproxEqual(cft, q0cf, EPSILON)
-                if not cfeq then
-                    return false, "Failed on " .. collectionName
+        for collectionName, rc in pairs(testData) do
+            if rc[1].standard then
+                for k, representation in pairs(rc) do
+                    local lookAt = representation.lookAt
+                    local cf = CFrame.fromMatrixArray(lookAt.matrix)
+                    local q0 = Quaternion.lookAt(Vector3.zero, cf.LookVector)
+                    local qe = lookAt.quaternion
+                    if not (
+                        Assert.KeyValuesApprox(qe, q0, EPSILON)
+                        or Assert.KeyValuesApprox(qe, -q0, EPSILON)
+                    ) then
+                        return false, "Failed on " .. collectionName
+                    end
                 end
             end
         end
@@ -375,18 +381,21 @@ lookAt.FromLookAt = {
 lookAt.FromLookAtWithUp = {
     DisplayName = "From look at with up vector (2 args)",
     test = function()
-        for collectionName, rc in pairs(testData.RepresentationCollection) do
-            for _, cf in pairs(rc) do
-                local cft = CFrame.lookAt(
-                    Vector3.zero, cf.LookVector, cf.UpVector
-                )
-                local q0 = Quaternion.lookAt(
-                    Vector3.zero, cf.LookVector, cf.UpVector
-                )
-                local q0cf = CFrame.new(0, 0, 0, q0.X, q0.Y, q0.Z, q0.W)
-                local cfeq = Assert.CFramesApproxEqual(cft, q0cf, EPSILON)
-                if not cfeq then
-                    return false, "Failed on " .. collectionName
+        for collectionName, rc in pairs(testData) do
+            if rc[1].standard then
+                for k, representation in pairs(rc) do
+                    local lookAt = representation.lookWithUp
+                    local cf = CFrame.fromMatrixArray(lookAt.matrix)
+                    local q0 = Quaternion.lookAt(
+                        Vector3.zero, cf.LookVector, cf.UpVector
+                    )
+                    local qe = lookAt.quaternion
+                    if not (
+                        Assert.KeyValuesApprox(qe, q0, EPSILON)
+                        or Assert.KeyValuesApprox(qe, -q0, EPSILON)
+                    ) then
+                        return false, "Failed on " .. collectionName
+                    end
                 end
             end
         end
@@ -397,18 +406,21 @@ lookAt.FromLookAtWithUp = {
 lookAt.LookIsSameAsUp = {
     DisplayName = "Look vector is same as up vector",
     test = function()
-        for collectionName, rc in pairs(testData.RepresentationCollection) do
-            for _, cf in pairs(rc) do
-                local q0 = Quaternion.lookAt(
-                    Vector3.zero, cf.LookVector, cf.UpVector
-                )
-                local cft = CFrame.lookAt(
-                    Vector3.zero, cf.LookVector, cf.UpVector
-                )
-                local q0cf = CFrame.new(0, 0, 0, q0.X, q0.Y, q0.Z, q0.W)
-                local cfeq = Assert.CFramesApproxEqual(cft, q0cf, EPSILON)
-                if not cfeq then
-                    return false, "Failed on " .. collectionName
+        for collectionName, rc in pairs(testData) do
+            if rc[1].standard then
+                for k, representation in pairs(rc) do
+                    local lookAt = representation.lookWithLook
+                    local cf = CFrame.fromMatrixArray(lookAt.matrix)
+                    local q0 = Quaternion.lookAt(
+                        Vector3.zero, cf.LookVector, cf.LookVector
+                    )
+                    local qe = lookAt.quaternion
+                    if not (
+                        Assert.KeyValuesApprox(qe, q0, EPSILON)
+                        or Assert.KeyValuesApprox(qe, -q0, EPSILON)
+                    ) then
+                        return false, "Failed on " .. collectionName
+                    end
                 end
             end
         end
@@ -419,9 +431,10 @@ lookAt.LookIsSameAsUp = {
 lookAt.RandomLocations = {
     DisplayName = "Random Locations",
     test = function()
-        for _, look in pairs(testData.lookAt) do
-            local positions = look
-            local from, lookAt = positions.from, positions.at
+        for _, look in pairs(testData.LookAt) do
+            printTable(look)
+            local from, lookAt = look.from, look.at
+            
             local q0 = Quaternion.lookAt(from, lookAt)
             local cf = CFrame.lookAt(from, lookAt)
             local q0cf = CFrame.new(0, 0, 0, q0.X, q0.Y, q0.Z, q0.W)
