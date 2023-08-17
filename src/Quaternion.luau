@@ -1,6 +1,7 @@
 -- Version: 0.0.2
 
 local Vector3 = require("../mocks/Vector3")
+local CFrame = require("../mocks/CFrame")
 
 export type Quaternion = {
     
