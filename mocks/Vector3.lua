@@ -55,10 +55,9 @@ Vector3.__mul = Mul
 local function Div(op1, op2)
     local op1IsVector3 = getmetatable(op1) == Vector3
     local op2IsVector3 = getmetatable(op2) == Vector3
-    local op1IsNumber = type(op1) == "number"
     local op2IsNumber = type(op2) == "number"
     
-    assert(op1IsVector3 or not(op1IsNumber))
+    assert(op1IsVector3)
     assert(op2IsVector3 or op2IsNumber)
     
     if op1IsVector3 and op2IsVector3 then
@@ -76,6 +75,28 @@ local function unm(vector)
 end
 
 Vector3.__unm = unm
+
+local function Cross(op1, op2)
+    assert(getmetatable(op1) == Vector3)
+    assert(getmetatable(op2) == Vector3)
+
+    local newX = op1.Y * op2.Z - op1.Z * op2.Y
+    local newY = op1.Z * op2.X - op1.X * op2.Z
+    local newZ = op1.X * op2.Y - op1.Y * op2.X
+
+    return new(newX, newY, newZ)
+end
+
+Vector3.Cross = Cross
+
+local function Dot(op1, op2)
+    assert(getmetatable(op1) == Vector3)
+    assert(getmetatable(op2) == Vector3)
+
+    return op1.X * op2.X + op1.Y * op2.Y + op1.Z * op2.Z
+end
+
+Vector3.Dot = Dot
 
 local function toString(vector)
     local vX, vY, vZ = vector.X, vector.Y, vector.Z

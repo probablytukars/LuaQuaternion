@@ -228,19 +228,23 @@ fromCFrame._order = {"Constructor"}
 fromCFrame.Constructor = {
     DisplayName = "Constructor",
     test = function()
-        for collectionName, rc in pairs(testData.RepresentationCollection) do
-            for _, cf in pairs(rc) do
-                local q0 = Quaternion.fromCFrame(cf)
-                local q0cf = CFrame.new(0, 0, 0, q0.X, q0.Y, q0.Z, q0.W)
-                local cfeq = Assert.CFramesApproxEqual(
-                    cf:Orthonormalize(), q0cf, EPSILON
-                )
-                if not cfeq then
-                    return false, "Failed on " .. collectionName
+        for collectionName, rc in pairs(testData) do
+            if rc[1].standard then
+                for k, representation in pairs(rc) do
+                    local standard = representation.standard
+                    local cf = CFrame.fromMatrixArray(standard.matrix)
+                    local q0 = Quaternion.fromCFrame(cf)
+                    local qe = standard.quaternion
+                    
+                    if not (
+                        Assert.KeyValuesApprox(qe, q0, EPSILON)
+                        or Assert.KeyValuesApprox(qe, -q0, EPSILON)
+                    ) then
+                        return false, "Failed on " .. collectionName
+                    end
                 end
             end
         end
-        return true
     end,
 }
 
@@ -251,19 +255,24 @@ fromMatrix._order = {"Constructor", "SameVectors"}
 fromMatrix.Constructor = {
     DisplayName = "Constructor",
     test = function()
-        for collectionName, rc in pairs(testData.RepresentationCollection) do
-            for _, cf in pairs(rc) do
-                local q0 = Quaternion.fromMatrix(
-                    cf.RightVector, 
-                    cf.UpVector, 
-                    -cf.LookVector
-                )
-                local q0cf = CFrame.new(0, 0, 0, q0.X, q0.Y, q0.Z, q0.W)
-                local cfo = cf:Orthonormalize()
-
-                local cfeq = Assert.CFramesApproxEqual(cfo, q0cf, EPSILON)
-                if not cfeq then
-                    return false, "Failed on " .. collectionName
+        for collectionName, rc in pairs(testData) do
+            if rc[1].standard then
+                for k, representation in pairs(rc) do
+                    local standard = representation.standard
+                    local cf = CFrame.fromMatrixArray(standard.matrix)
+                    local q0 = Quaternion.fromMatrix(
+                        cf.RightVector, 
+                        cf.UpVector, 
+                        -cf.LookVector
+                    )
+                    local qe = standard.quaternion
+                    
+                    if not (
+                        Assert.KeyValuesApprox(qe, q0, EPSILON)
+                        or Assert.KeyValuesApprox(qe, -q0, EPSILON)
+                    ) then
+                        return false, "Failed on " .. collectionName
+                    end
                 end
             end
         end
