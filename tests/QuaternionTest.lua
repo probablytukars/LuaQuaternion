@@ -6,8 +6,8 @@ local EPSILON = 5e-4
 
 local QuaternionTest = {}
 QuaternionTest._order = {
-    --"ConstructorGroup",
-    --"DeconstructorGroup",
+    "ConstructorGroup",
+    "DeconstructorGroup",
     "MathGroup",
     "MethodsGroup"
 }
@@ -151,8 +151,9 @@ fromAxisAngle._order = {
 fromAxisAngle.Constructor = {
     DisplayName = "Constructor",
     test = function()
-        for collectionName, rc in pairs(testData.RepresentationCollection) do
-            for _, cf in pairs(rc) do
+        for collectionName, rc in pairs(testData) do
+            for k, cf in pairs(rc) do
+                print(k, cf)
                 local cforth = cf:Orthonormalize()
                 local axis, angle = cforth:ToAxisAngle()
                 local cfaa = CFrame.fromAxisAngle(axis, angle)
