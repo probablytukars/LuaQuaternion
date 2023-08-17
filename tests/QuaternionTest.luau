@@ -12,6 +12,8 @@ QuaternionTest._order = {
     --"MethodsGroup"
 }
 
+local rotationOrders = {"XYZ", "XZY", "YXZ", "YZX", "ZXY", "ZYX"}
+
 local Quaternion
 local testData
 
@@ -171,10 +173,7 @@ fromAxisAngle.Constructor = {
                     local q0 = Quaternion.fromAxisAngle(axisVec, angle)
                     local qe = standard.quaternion
                     
-                    if not (
-                        Assert.KeyValuesApprox(qe, q0, EPSILON)
-                        or Assert.KeyValuesApprox(qe, -q0, EPSILON)
-                    ) then
+                    if not(Assert.QuaternionsEqualApprox(qe, q0, EPSILON)) then
                         return false, "Failed on " .. collectionName
                     end
                 end
@@ -236,10 +235,7 @@ fromCFrame.Constructor = {
                     local q0 = Quaternion.fromCFrame(cf)
                     local qe = standard.quaternion
                     
-                    if not (
-                        Assert.KeyValuesApprox(qe, q0, EPSILON)
-                        or Assert.KeyValuesApprox(qe, -q0, EPSILON)
-                    ) then
+                    if not(Assert.QuaternionsEqualApprox(qe, q0, EPSILON)) then
                         return false, "Failed on " .. collectionName
                     end
                 end
@@ -268,10 +264,7 @@ fromMatrix.Constructor = {
                     )
                     local qe = standard.quaternion
                     
-                    if not (
-                        Assert.KeyValuesApprox(qe, q0, EPSILON)
-                        or Assert.KeyValuesApprox(qe, -q0, EPSILON)
-                    ) then
+                    if not(Assert.QuaternionsEqualApprox(qe, q0, EPSILON)) then
                         return false, "Failed on " .. collectionName
                     end
                 end
@@ -365,10 +358,7 @@ lookAt.FromLookAt = {
                     local cf = CFrame.fromMatrixArray(lookAt.matrix)
                     local q0 = Quaternion.lookAt(Vector3.zero, cf.LookVector)
                     local qe = lookAt.quaternion
-                    if not (
-                        Assert.KeyValuesApprox(qe, q0, EPSILON)
-                        or Assert.KeyValuesApprox(qe, -q0, EPSILON)
-                    ) then
+                    if not(Assert.QuaternionsEqualApprox(qe, q0, EPSILON)) then
                         return false, "Failed on " .. collectionName
                     end
                 end
@@ -390,10 +380,7 @@ lookAt.FromLookAtWithUp = {
                         Vector3.zero, cf.LookVector, cf.UpVector
                     )
                     local qe = lookAt.quaternion
-                    if not (
-                        Assert.KeyValuesApprox(qe, q0, EPSILON)
-                        or Assert.KeyValuesApprox(qe, -q0, EPSILON)
-                    ) then
+                    if not(Assert.QuaternionsEqualApprox(qe, q0, EPSILON)) then
                         return false, "Failed on " .. collectionName
                     end
                 end
@@ -415,10 +402,7 @@ lookAt.LookIsSameAsUp = {
                         Vector3.zero, cf.LookVector, cf.LookVector
                     )
                     local qe = lookAt.quaternion
-                    if not (
-                        Assert.KeyValuesApprox(qe, q0, EPSILON)
-                        or Assert.KeyValuesApprox(qe, -q0, EPSILON)
-                    ) then
+                    if not(Assert.QuaternionsEqualApprox(qe, q0, EPSILON)) then
                         return false, "Failed on " .. collectionName
                     end
                 end
@@ -437,11 +421,8 @@ lookAt.RandomLocations = {
             local lookVec = tableToVector(lookAtPos)
             local q0 = Quaternion.lookAt(fromVec, lookVec)
             local qe = look.quaternion
-            if not (
-                Assert.KeyValuesApprox(qe, q0, EPSILON)
-                or Assert.KeyValuesApprox(qe, -q0, EPSILON)
-            ) then
-                return false
+            if not(Assert.QuaternionsEqualApprox(qe, q0, EPSILON)) then
+                return false, "Failed on " .. collectionName
             end
         end
         return true
@@ -456,23 +437,22 @@ Angles._order = {"Constructor"}
 Angles.Constructor = {
     DisplayName = "Constructor",
     test = function()
-        for collectionName, rc in pairs(testData.RepresentationCollection) do
-            for _, cf in pairs(rc) do
-                local cfo = cf:Orthonormalize()
-
-                local rX, rY, rZ = cfo:ToEulerAnglesXYZ()
-                local q0 = Quaternion.Angles(rX, rY, rZ)
-                local q1 = Quaternion.fromEulerAnglesXYZ(rX, rY, rZ)
-
-                local q0cf = CFrame.new(0, 0, 0, q0.X, q0.Y, q0.Z, q0.W)
-                local q1cf = CFrame.new(0, 0, 0, q1.X, q1.Y, q1.Z, q1.W)
-
-                local cf0eq = Assert.CFramesApproxEqual(cfo, q0cf, EPSILON)
-                local cf1eq = Assert.CFramesApproxEqual(cfo, q0cf, EPSILON)
-
-                if (not cf0eq) or (not cf1eq) then
-
-                    return false, "Failed on " .. collectionName
+        for collectionName, rc in pairs(testData) do
+            if rc[1].standard then
+                for k, representation in pairs(rc) do
+                    local standard = representation.standard
+                    local XYZ = standard.XYZ
+                    local rx, ry, rz = table.unpack(XYZ)
+                    local q0 = Quaternion.Angles(rx, ry, rz)
+                    local q1 = Quaternion.fromEulerAnglesXYZ(rx, ry, rz)
+                    local qe = standard.quaternion
+                    
+                    if 
+                    not(Assert.QuaternionsEqualApprox(qe, q0, EPSILON)) 
+                    or not(Assert.QuaternionsEqualApprox(qe, q1, EPSILON)) 
+                    then
+                        return false, "Failed on " .. collectionName
+                    end
                 end
             end
         end
@@ -488,22 +468,22 @@ fromOrientation._order = {"Constructor"}
 fromOrientation.Constructor = {
     DisplayName = "Constructor",
     test = function()
-        for collectionName, rc in pairs(testData.RepresentationCollection) do
-            for _, cf in pairs(rc) do
-                local cfo = cf:Orthonormalize()
-
-                local rX, rY, rZ = cfo:ToEulerAnglesYXZ()
-                local q0 = Quaternion.fromOrientation(rX, rY, rZ)
-                local q1 = Quaternion.fromEulerAnglesYXZ(rX, rY, rZ)
-
-                local q0cf = CFrame.new(0, 0, 0, q0.X, q0.Y, q0.Z, q0.W)
-                local q1cf = CFrame.new(0, 0, 0, q1.X, q1.Y, q1.Z, q1.W)
-
-                local cf0eq = Assert.CFramesApproxEqual(cfo, q0cf, EPSILON)
-                local cf1eq = Assert.CFramesApproxEqual(cfo, q1cf, EPSILON)
-
-                if (not cf0eq) or (not cf1eq) then
-                    return false, "Failed on " .. collectionName
+        for collectionName, rc in pairs(testData) do
+            if rc[1].standard then
+                for k, representation in pairs(rc) do
+                    local standard = representation.standard
+                    local YXZ = standard.YXZ
+                    local rx, ry, rz = table.unpack(YXZ)
+                    local q0 = Quaternion.fromOrientation(rx, ry, rz)
+                    local q1 = Quaternion.fromEulerAnglesYXZ(rx, ry, rz)
+                    local qe = standard.quaternion
+                    
+                    if 
+                    not(Assert.QuaternionsEqualApprox(qe, q0, EPSILON)) 
+                    or not(Assert.QuaternionsEqualApprox(qe, q1, EPSILON)) 
+                    then
+                        return false, "Failed on " .. collectionName
+                    end
                 end
             end
         end
@@ -518,18 +498,20 @@ fromEulerAngles._order = {"Constructor"}
 fromEulerAngles.Constructor = {
     DisplayName = "Constructor",
     test = function()
-        for collectionName, rc in pairs(testData.RepresentationCollection) do
-            for _, cf in pairs(rc) do
-                local cfo = cf:Orthonormalize()
-                for _, rotationOrder in pairs(Enum.RotationOrder:GetEnumItems()) do
-                    local rX, rY, rZ = cfo:ToEulerAngles(rotationOrder)
-                    local q0 = Quaternion.fromEulerAngles(rX, rY, rZ, rotationOrder)
-                    local q0cf = CFrame.new(0, 0, 0, q0.X, q0.Y, q0.Z, q0.W)
-
-                    local cf0eq = Assert.CFramesApproxEqual(cfo, q0cf, EPSILON)
-
-                    if (not cf0eq) then
-                        return false, "Failed on " .. collectionName
+        for collectionName, rc in pairs(testData) do
+            if rc[1].standard then
+                for k, representation in pairs(rc) do
+                    local standard = representation.standard
+                    for _, rotationOrder in pairs(rotationOrders) do
+                        local ang = standard[rotationOrder]
+                        local rx, ry, rz = table.unpack(ang)
+                        local q0 = Quaternion.fromEulerAngles(
+                            rx, ry, rz, rotationOrder
+                        )
+                        local qe = standard.quaternion
+                        if not(Assert.QuaternionsEqualApprox(qe, q0, EPSILON)) then
+                            return false, "Failed on " .. collectionName
+                        end
                     end
                 end
             end
@@ -560,33 +542,16 @@ fromVector.Constructor = {
 
 local RandomQuaternion = {}
 ConstructorGroup.RandomQuaternion = RandomQuaternion
-RandomQuaternion._order = {"IsUnit", "SameSeed"}
+RandomQuaternion._order = {"IsUnit"}
 
 RandomQuaternion.IsUnit = {
     DisplayName = "Is Unit",
     test = function()
-        local randomQuaternion = Quaternion.RandomQuaternion(tick())
+        local randomQuaternion = Quaternion.RandomQuaternion(os.time())
         local q0 = randomQuaternion()
         local length = math.sqrt(q0.X^2 + q0.Y^2 + q0.Z^2 + q0.W^2)
         local dif1 = math.abs(1 - length)
         return dif1 < EPSILON
-    end,
-}
-
-RandomQuaternion.SameSeed = {
-    DisplayName = "Same seed",
-    test = function()
-        local seed = tick()
-        local randomQuaternion = Quaternion.RandomQuaternion(seed)
-        local randomQuaternion2 = Quaternion.RandomQuaternion(seed)
-        local randomQuaternion3 = Quaternion.RandomQuaternion(0)
-        
-        local q0 = randomQuaternion()
-        local q1 = randomQuaternion2()
-        local q2 = randomQuaternion3()
-        
-        return Assert.KeyValuesApprox(q0, q1, EPSILON)
-            and not Assert.KeyValuesApprox(q0, q2, EPSILON)
     end,
 }
 

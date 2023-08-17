@@ -67,6 +67,8 @@ function Assert.VectorsApproxEqual(a, b, epsilon)
     return xeq and yeq and zeq
 end
 
+
+
 function Assert.CFramesApproxEqual(a, b, epsilon, includePosition)
     
     local ax, ay, az, 
@@ -157,6 +159,12 @@ function Assert.KeyValuesApprox(a, tab, epsilon)
         end
     end
     return true
+end
+
+function Assert.QuaternionsEqualApprox(qe, qr, epsilon)
+    return 
+        Assert.KeyValuesApprox(qe, qr, epsilon) 
+        or Assert.KeyValuesApprox(qe, -qr, epsilon)
 end
 
 

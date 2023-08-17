@@ -728,15 +728,29 @@ Quaternion.fromVector = fromVector
 ]=]
 local function RandomQuaternion(seed: number): () -> Quaternion
     local seed = seed or 1
-    local random = Random.new(seed)
+    
+    --@luau
+    --local random = Random.new(seed)
+    --@luauend
+    --@lua
+    math.randomseed(seed)
+    --@luaend
     local tau = 2 * math.pi
     local sqrt = math.sqrt
     local sin = math.sin
     local cos = math.cos
     return function()
-        local u = random:NextNumber(0, 1)
-        local v = random:NextNumber(0, 1)
-        local w = random:NextNumber(0, 1)
+        --@luau
+        --local u = random:NextNumber(0, 1)
+        --local v = random:NextNumber(0, 1)
+        --local w = random:NextNumber(0, 1)
+        --@luauend
+        
+        --@lua
+        local u = math.random()
+        local v = math.random()
+        local w = math.random()
+        --@luaend
         
         local omu = 1 - u
         local squ = sqrt(u)
