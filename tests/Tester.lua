@@ -5,11 +5,14 @@ local buffer = OutputBuffer.new()
 local Tester = {}
 Tester.__index = Tester
 
-function Tester.new(testModule, testWithoutProtection)
+function Tester.new(testLibrary, testModule, testData, testWithoutProtection)
     local self = {}
     
     self.testModule = testModule
+    self.testData = testData
     self.testWithoutProtection = testWithoutProtection or false
+    
+    testModule.init(testLibrary, testData)
     
     setmetatable(self, Tester)
     
