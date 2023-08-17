@@ -1,4 +1,4 @@
-local Vector3 = require("mocks/Vector3")
+local Vector3 = require("../mocks/Vector3")
 
 local CFrame = {_type="CFrame"}
 CFrame.__index = CFrame

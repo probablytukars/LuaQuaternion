@@ -4,7 +4,6 @@ Vector3.__index = Vector3
 local function new(x, y, z)
     local self = {X = x or 0, Y = y or 0, Z = z or 0}
     setmetatable(self, Vector3)
-    table.freeze(self)
     return self
 end
 
@@ -67,9 +66,16 @@ local function Div(op1, op2)
     elseif op1IsVector3 then
         return new(op1.X / op2, op1.Y / op2, op1.Z / op2)
     end
+    return
 end
 
 Vector3.__div = Div
+
+local function unm(vector)
+    return new(-vector.X, -vector.Y, -vector.Z)
+end
+
+Vector3.__unm = unm
 
 
 local function Length(vector)
@@ -88,7 +94,6 @@ function Vector3.__index(self, key)
         return functionIndex
     end
     local lower = string.lower(key)
-    local cached = rawget(self, "_cached")
     if lower == "unit" then
         local norm = Normalize(self)
         return norm
