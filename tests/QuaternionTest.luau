@@ -432,14 +432,15 @@ lookAt.RandomLocations = {
     DisplayName = "Random Locations",
     test = function()
         for _, look in pairs(testData.LookAt) do
-            printTable(look)
-            local from, lookAt = look.from, look.at
-            
-            local q0 = Quaternion.lookAt(from, lookAt)
-            local cf = CFrame.lookAt(from, lookAt)
-            local q0cf = CFrame.new(0, 0, 0, q0.X, q0.Y, q0.Z, q0.W)
-            local cfeq = Assert.CFramesApproxEqual(cf, q0cf, EPSILON)
-            if not cfeq then
+            local from, lookAtPos = look.from, look.at
+            local fromVec, lookVec = tableToVector(from)
+            local lookVec = tableToVector(lookAtPos)
+            local q0 = Quaternion.lookAt(fromVec, lookVec)
+            local qe = look.quaternion
+            if not (
+                Assert.KeyValuesApprox(qe, q0, EPSILON)
+                or Assert.KeyValuesApprox(qe, -q0, EPSILON)
+            ) then
                 return false
             end
         end
