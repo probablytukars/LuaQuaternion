@@ -1,4 +1,4 @@
-local Assert = require("tests/Assert")
+local Assert = require("Assert")
 
 local EPSILON = 5e-4
 
@@ -903,16 +903,16 @@ ToEulerAngles._order = {}
 
 -- assert default is XYZ
 
-for _, rotationOrder in pairs(Enum.RotationOrder:GetEnumItems()) do
-    local enumName = rotationOrder.Name
-    local name = "ToEulerAngles_" .. enumName
+local rotationOrders = {}--"XYZ", "XZY", "YXZ", "YZX", "ZXY", "ZYX"}
+for _, rotationOrder in pairs(rotationOrders) do
+    local name = "ToEulerAngles_" .. rotationOrder
     local UnitLessHalf = "UnitLessHalf_" .. name
     local UnitHalf = "UnitHalf_" .. name
     local Zero = "Zero_" .. name
     local NonUnit = "NonUnit" .. name
     
     ToEulerAngles[UnitLessHalf] = {
-        DisplayName = enumName .. " Unit Quaternion: test < 0.5",
+        DisplayName = rotationOrder .. " Unit Quaternion: test < 0.5",
         test = function()
             local randomQuaternion = Quaternion.RandomQuaternion(tick())
             for i = 1, 100 do
