@@ -1,5 +1,6 @@
 local Assert = require("Assert")
 local Vector3 = require("../mocks/Vector3")
+local CFrame = require("../mocks/CFrame")
 
 local EPSILON = 5e-4
 
