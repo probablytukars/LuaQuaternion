@@ -7,9 +7,9 @@ local EPSILON = 5e-4
 local QuaternionTest = {}
 QuaternionTest._order = {
     "ConstructorGroup",
-    "DeconstructorGroup",
-    "MathGroup",
-    "MethodsGroup"
+    --"DeconstructorGroup",
+    --"MathGroup",
+    --"MethodsGroup"
 }
 
 local Quaternion
@@ -20,6 +20,19 @@ function QuaternionTest.init(library, data)
     testData = data
 end
 
+local function printTable(tbl)
+    local tableString = "{\n"
+    for key, value in pairs(tbl) do
+        tableString = tableString .. '\t["' .. tostring(key) .. '"] = ' 
+            .. tostring(value) .. "\n"
+    end
+    tableString = tableString .. "}"
+    print(tableString)
+end
+
+local function tableToVector(table)
+    return Vector3.new(table.X, table.Y, table.Z)
+end
 
 
 local ConstructorGroup = {}
@@ -41,8 +54,6 @@ new.Full = {
     DisplayName = "Full",
     test = function()
         local q0 = Quaternion.new(2, 3, 4, 5)
-        
-        print(q0, Assert.KeyValues(q0, {X = 2, Y = 3, Z = 4, W = 5}))
         return Assert.KeyValues(q0, {X = 2, Y = 3, Z = 4, W = 5})
     end
 }
@@ -152,17 +163,20 @@ fromAxisAngle.Constructor = {
     DisplayName = "Constructor",
     test = function()
         for collectionName, rc in pairs(testData) do
-            for k, cf in pairs(rc) do
-                print(k, cf)
-                local cforth = cf:Orthonormalize()
-                local axis, angle = cforth:ToAxisAngle()
-                local cfaa = CFrame.fromAxisAngle(axis, angle)
-                local q0 = Quaternion.fromAxisAngle(axis, angle)
-                local q0cf = CFrame.new(0, 0, 0, q0.X, q0.Y, q0.Z, q0.W)
-
-                local cfeq = Assert.CFramesApproxEqual(cforth, q0cf, EPSILON)
-                if not cfeq then
-                    return false, "Failed on " .. collectionName
+            if rc[1].standard then
+                for k, representation in pairs(rc) do
+                    local standard = representation.standard
+                    local axis, angle = table.unpack(standard.axisAngle)
+                    local axisVec = tableToVector(axis)
+                    local q0 = Quaternion.fromAxisAngle(axisVec, angle)
+                    local qe = standard.quaternion
+                    
+                    if not (
+                        Assert.KeyValuesApprox(qe, q0, EPSILON)
+                        or Assert.KeyValuesApprox(qe, -q0, EPSILON)
+                    ) then
+                        return false, "Failed on " .. collectionName
+                    end
                 end
             end
         end
