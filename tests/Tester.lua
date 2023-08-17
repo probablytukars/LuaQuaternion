@@ -5,12 +5,12 @@ local buffer = OutputBuffer.new()
 local Tester = {}
 Tester.__index = Tester
 
-function Tester.new(testLibrary, testModule, testData, testWithoutProtection)
+function Tester.new(testLibrary, testModule, testData, unsafeMode)
     local self = {}
     
     self.testModule = testModule
     self.testData = testData
-    self.testWithoutProtection = testWithoutProtection or false
+    self.unsafeMode = unsafeMode or false
     
     testModule.init(testLibrary, testData)
     
@@ -31,8 +31,8 @@ local function getResultString(
 end
 
 function Tester:runTest(test, call)
-    local success, result, reason 
-    if self.testWithoutProtection then
+    local success, result, reason
+    if self.unsafeMode then
         result = test.test()
         success = true
     else
