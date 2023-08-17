@@ -59,8 +59,8 @@ local function Div(op1, op2)
     local op1IsNumber = type(op1) == "number"
     local op2IsNumber = type(op2) == "number"
     
-    assert(op1IsVector3 or op1IsNumber)
-    assert(op2IsVector3 or not(op2IsNumber))
+    assert(op1IsVector3 or not(op1IsNumber))
+    assert(op2IsVector3 or op2IsNumber)
     
     if op1IsVector3 and op2IsVector3 then
         return new(op1.X * op2.X, op1.Y * op2.Y, op1.Z * op2.Z)
@@ -83,7 +83,7 @@ local function Normalize(vector)
 end
 
 function Vector3.__index(self, key)
-    local functionIndex = Quaternion[key]
+    local functionIndex = Vector3[key]
     if functionIndex then
         return functionIndex
     end
