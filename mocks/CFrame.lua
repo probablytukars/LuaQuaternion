@@ -49,6 +49,21 @@ end
 
 CFrame.new = new
 
+local function fromMatrixArray(matrix)
+    local self = {}
+    
+    self.X = 0
+    self.Y = 0
+    self.Z = 0
+    
+    self.matrix = matrix
+    
+    setmetatable(self, CFrame)
+    return self
+end
+
+CFrame.fromMatrixArray = fromMatrixArray
+
 local function GetComponents(self)
     return {self.X, self.Y, self.Z, table.unpack(self.matrix)}
 end
