@@ -1998,6 +1998,7 @@ Quaternion.ToMatrix = ToMatrix
     Converts quaternion to it's matrix representation with three
     vectors, each representation a column of the rotation matrix.
     Quaternion is normalized before conversion.
+    Returns RightVector, UpVector, BackVector.
     
     @within Quaternion
     @param q0 Quaternion
@@ -2014,7 +2015,7 @@ local function ToMatrixVectors(q0: Quaternion): (Vector3, Vector3, Vector3)
     return 
         Vector3.new(m00, m10, m20),
         Vector3.new(m01, m11, m21),
-        -Vector3.new(m02, m12, m22)
+        Vector3.new(m02, m12, m22)
 end
 
 Quaternion.ToMatrixVectors = ToMatrixVectors
@@ -2090,8 +2091,8 @@ local function ToEulerAnglesXYZ(q0: Quaternion): (number, number, number)
     local rX, rY, rZ
     
     local test = qY * qW + qX * qZ
-    if math.abs(test) > 0.5 - EPSILON then
-        local sign = test >= 0 and 1 or -1
+    if math.abs(test) > 0.499999 then
+        local sign = test > 0 and 1 or -1
         rX = sign * 2 * math.atan2(qZ, qW)
         rY = sign * math.pi / 2
         rZ = 0

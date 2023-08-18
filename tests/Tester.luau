@@ -33,8 +33,11 @@ end
 function Tester:runTest(test, call)
     local success, result, reason
     if self.unsafeMode then
-        result = test.test()
+        result, reason = test.test()
         success = true
+        if reason then
+            print(test.DisplayName, reason)
+        end
     else
         success, result, reason = pcall(test.test)
     end

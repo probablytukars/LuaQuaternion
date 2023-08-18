@@ -84,11 +84,17 @@ end
 CFrame.fromMatrix = fromMatrix
 
 local function GetComponents(self)
-    return {self.X, self.Y, self.Z, table.unpack(self.matrix)}
+    return self.X, self.Y, self.Z, table.unpack(self.matrix)
 end
 
 CFrame.GetComponents = GetComponents
 CFrame.components = GetComponents
+
+local function toString(self)
+    return table.concat({GetComponents(self)}, ", ")
+end
+
+CFrame.__tostring = toString
 
 function CFrame.__index(self, key)
     local functionIndex = CFrame[key]

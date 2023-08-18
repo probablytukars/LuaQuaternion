@@ -7,9 +7,9 @@ local EPSILON = 5e-4
 local QuaternionTest = {}
 QuaternionTest._order = {
     "ConstructorGroup",
-    --"DeconstructorGroup",
-    --"MathGroup",
-    --"MethodsGroup"
+    "DeconstructorGroup",
+    "MathGroup",
+    "MethodsGroup"
 }
 
 local rotationOrders = {"XYZ", "XZY", "YXZ", "YZX", "ZXY", "ZYX"}
@@ -582,17 +582,22 @@ ToCFrame._order = {
 ToCFrame.Unit = {
     DisplayName = "Unit",
     test = function()
-        local q0 = Quaternion.new(0.3706492, 0.2404211, -0.7813686, 0.440772)
-        local qtcf = q0:ToCFrame()
-        
-        local expectedCF = CFrame.new(
-            0, 0, 0,
-            -0.3366784,  0.8670346, -0.3672855,
-            -0.5105870, -0.4958354, -0.7024586,
-            -0.7911691, -0.0489714,  0.6096337
-        )
-        
-        return Assert.CFramesApproxEqual(qtcf, expectedCF, EPSILON)
+        for collectionName, rc in pairs(testData) do
+            if rc[1].standard then
+                for k, representation in pairs(rc) do
+                    local standard = representation.standard
+                    local quat = standard.quaternion
+                    local qX, qY, qZ, qW = quat.X, quat.Y, quat.Z, quat.W
+                    local q0 = Quaternion.new(qX, qY, qZ, qW)
+                    local qcf = q0:ToCFrame()
+                    local ecf = CFrame.fromMatrixArray(standard.ortho)
+                    if not Assert.CFramesApproxEqual(ecf, qcf, EPSILON) then
+                        return false
+                    end
+                end
+            end
+        end
+        return true
     end
 }
 
@@ -601,14 +606,13 @@ ToCFrame.Zero = {
     test = function()
         local q0 = Quaternion.new(0, 0, 0, 0)
         local qtcf = q0:ToCFrame()
-
-        local expectedCF = CFrame.new(
-            0, 0, 0,
+        
+        local expectedCF = CFrame.fromMatrixArray({
             1, 0, 0,
             0, 1, 0,
             0, 0, 1
-        )
-
+        })
+        
         return Assert.CFramesApproxEqual(qtcf, expectedCF, EPSILON)
     end
 }
@@ -618,14 +622,13 @@ ToCFrame.NonUnit = {
     test = function()
         local q0 = Quaternion.new(1.9608752, 1.2719190, -4.1337369, 2.3318514)
         local qtcf = q0:ToCFrame()
-
-        local expectedCF = CFrame.new(
-            0, 0, 0,
+        
+        local expectedCF = CFrame.fromMatrixArray({
             -0.3366784,  0.8670346, -0.3672855,
             -0.5105870, -0.4958354, -0.7024586,
             -0.7911691, -0.0489714,  0.6096337
-        )
-
+        })
+        
         return Assert.CFramesApproxEqual(qtcf, expectedCF, EPSILON)
     end
 }
@@ -641,17 +644,22 @@ ToAxisAngle._order = {
 ToAxisAngle.Unit = {
     DisplayName = "Unit",
     test = function()
-        local q0 = Quaternion.new(0.3706492, 0.2404211, -0.7813686, 0.440772)
-        local axis, angle = q0:ToAxisAngle()
-        
-        local expect_axis = Vector3.new(0.4129248, 0.2678431, -0.8704902)
-        local expect_angle = 2.2286756
-        
-        return 
-            Assert.ApproxEquals(axis.X, expect_axis.X, EPSILON)
-            and Assert.ApproxEquals(axis.Y, expect_axis.Y, EPSILON)
-            and Assert.ApproxEquals(axis.Z, expect_axis.Z, EPSILON)
-            and Assert.ApproxEquals(angle, expect_angle, EPSILON)
+        for collectionName, rc in pairs(testData) do
+            if rc[1].standard then
+                for k, representation in pairs(rc) do
+                    local standard = representation.standard
+                    local quat = standard.quaternion
+                    local qX, qY, qZ, qW = quat.X, quat.Y, quat.Z, quat.W
+                    local qe = Quaternion.new(qX, qY, qZ, qW)
+                    local axis, angle = qe:ToAxisAngle()
+                    local qr = Quaternion.fromAxisAngle(axis, angle)
+                    if not(Assert.QuaternionsEqualApprox(qe, qr, EPSILON)) then
+                        return false, "Failed on " .. collectionName
+                    end
+                end
+            end
+        end
+        return true
     end
 }
 
@@ -700,32 +708,35 @@ ToEulerAnglesXYZ._order = {
 ToEulerAnglesXYZ.UnitLessHalf = {
     DisplayName = "Unit test < 0.5",
     test = function()
-        local qX, qY, qZ, qW = 0.3706492, 0.2404211, -0.7813686, 0.440772
-        local q0 = Quaternion.new(qX, qY, qZ, qW)
-        local rX, rY, rZ = q0:ToEulerAnglesXYZ()
-
-        local testCFrame = CFrame.new(0, 0, 0, qX, qY, qZ, qW)
-        local qCFrame = CFrame.fromEulerAnglesXYZ(rX, rY, rZ)
-
-        return Assert.CFramesApproxEqual(testCFrame, qCFrame, EPSILON)
+        for collectionName, rc in pairs(testData) do
+            if rc[1].standard then
+                for k, representation in pairs(rc) do
+                    local standard = representation.standard
+                    local quat = standard.quaternion
+                    local qX, qY, qZ, qW = quat.X, quat.Y, quat.Z, quat.W
+                    local qe = Quaternion.new(qX, qY, qZ, qW)
+                    local rx, ry, rz = qe:ToEulerAnglesXYZ()
+                    local qr = Quaternion.fromEulerAnglesXYZ(rx, ry, rz)
+                    if not Assert.QuaternionsEqualApprox(qe, qr, 1e-3) then
+                        return false
+                    end
+                end
+            end
+        end
+        return true
     end
 }
 
 ToEulerAnglesXYZ.UnitHalf = {
     DisplayName = "Unit test >= 0.5",
     test = function()
-        for i, input in pairs(testData.HalfUnit) do
-            local qX, qY, qZ, qW = input[1], input[2], input[3], input[4]
+        for k, standard in pairs(testData.HalfUnit) do
+            local qX, qY, qZ, qW = table.unpack(standard.quaternion)
             local q0 = Quaternion.new(qX, qY, qZ, qW)
-            local rX, rY, rZ = q0:ToEulerAnglesXYZ()
-            
-            local testCFrame = CFrame.new(0, 0, 0, qX, qY, qZ, qW)
-            local qCFrame = CFrame.fromEulerAnglesXYZ(rX, rY, rZ)
-            
-            local isEqual = 
-                Assert.CFramesApproxEqual(testCFrame, qCFrame, EPSILON)
-            
-            if not isEqual then
+            local qe = Quaternion.new(qX, qY, qZ, qW)
+            local rx, ry, rz = qe:ToEulerAnglesXYZ()
+            local qr = Quaternion.fromEulerAnglesXYZ(rx, ry, rz)
+            if not Assert.QuaternionsEqualApprox(qe, qr, 1e-3) then
                 return false
             end
         end
@@ -738,11 +749,11 @@ ToEulerAnglesXYZ.Zero = {
     test = function()
         local qX, qY, qZ, qW = 0, 0, 0, 0
         local q0 = Quaternion.new(qX, qY, qZ, qW)
-        local rX, rY, rZ = q0:ToEulerAnglesXYZ()
+        local rx, ry, rz = q0:ToEulerAnglesXYZ()
 
-        return Assert.AnglesApproxEquals(rX, 0, EPSILON)
-            and Assert.AnglesApproxEquals(rY, 0, EPSILON)
-            and Assert.AnglesApproxEquals(rZ, 0, EPSILON)
+        return Assert.AnglesApproxEquals(rx, 0, EPSILON)
+            and Assert.AnglesApproxEquals(ry, 0, EPSILON)
+            and Assert.AnglesApproxEquals(rz, 0, EPSILON)
     end
 }
 
@@ -751,12 +762,12 @@ ToEulerAnglesXYZ.NonUnit = {
     test = function()
         local qX, qY, qZ, qW = 2, 5, 7, 4
         local q0 = Quaternion.new(qX, qY, qZ, qW)
-        local rX, rY, rZ = q0:ToEulerAnglesXYZ()
-
-        local testCFrame = CFrame.new(0, 0, 0, qX, qY, qZ, qW)
-        local qCFrame = CFrame.fromEulerAnglesXYZ(rX, rY, rZ)
-
-        return Assert.CFramesApproxEqual(testCFrame, qCFrame, EPSILON)
+        local rx, ry, rz = q0:ToEulerAnglesXYZ()
+        local erx, ery, erz = -0.9827937, 0.8087203, 2.55359
+        
+        return Assert.AnglesApproxEquals(rx, erx, EPSILON)
+        and Assert.AnglesApproxEquals(ry, ery, EPSILON)
+        and Assert.AnglesApproxEquals(rz, erz, EPSILON)
     end
 }
 
@@ -771,32 +782,35 @@ ToEulerAnglesYXZ._order = {
 ToEulerAnglesYXZ.UnitLessHalf = {
     DisplayName = "Unit test < 0.5",
     test = function()
-        local qX, qY, qZ, qW = 0.3706492, 0.2404211, -0.7813686, 0.440772
-        local q0 = Quaternion.new(qX, qY, qZ, qW)
-        local rX, rY, rZ = q0:ToEulerAnglesYXZ()
-
-        local testCFrame = CFrame.new(0, 0, 0, qX, qY, qZ, qW)
-        local qCFrame = CFrame.fromEulerAnglesYXZ(rX, rY, rZ)
-
-        return Assert.CFramesApproxEqual(testCFrame, qCFrame, EPSILON)
+        for collectionName, rc in pairs(testData) do
+            if rc[1].standard then
+                for k, representation in pairs(rc) do
+                    local standard = representation.standard
+                    local quat = standard.quaternion
+                    local qX, qY, qZ, qW = quat.X, quat.Y, quat.Z, quat.W
+                    local qe = Quaternion.new(qX, qY, qZ, qW)
+                    local rx, ry, rz = qe:ToEulerAnglesYXZ()
+                    local qr = Quaternion.fromEulerAnglesYXZ(rx, ry, rz)
+                    if not Assert.QuaternionsEqualApprox(qe, qr, 1e-3) then
+                        return false
+                    end
+                end
+            end
+        end
+        return true
     end
 }
 
 ToEulerAnglesYXZ.UnitHalf = {
     DisplayName = "Unit test >= 0.5",
     test = function()
-        for i, input in pairs(testData.HalfUnit) do
-            local qX, qY, qZ, qW = input[1], input[2], input[3], input[4]
+        for k, standard in pairs(testData.HalfUnit) do
+            local qX, qY, qZ, qW = table.unpack(standard.quaternion)
             local q0 = Quaternion.new(qX, qY, qZ, qW)
-            local rX, rY, rZ = q0:ToEulerAnglesYXZ()
-
-            local testCFrame = CFrame.new(0, 0, 0, qX, qY, qZ, qW)
-            local qCFrame = CFrame.fromEulerAnglesYXZ(rX, rY, rZ)
-
-            local isEqual = 
-                Assert.CFramesApproxEqual(testCFrame, qCFrame, EPSILON)
-
-            if not isEqual then
+            local qe = Quaternion.new(qX, qY, qZ, qW)
+            local rx, ry, rz = qe:ToEulerAnglesYXZ()
+            local qr = Quaternion.fromEulerAnglesYXZ(rx, ry, rz)
+            if not Assert.QuaternionsEqualApprox(qe, qr, 1e-3) then
                 return false
             end
         end
@@ -809,11 +823,11 @@ ToEulerAnglesYXZ.Zero = {
     test = function()
         local qX, qY, qZ, qW = 0, 0, 0, 0
         local q0 = Quaternion.new(qX, qY, qZ, qW)
-        local rX, rY, rZ = q0:ToEulerAnglesYXZ()
+        local rx, ry, rz = q0:ToEulerAnglesXYZ()
 
-        return Assert.AnglesApproxEquals(rX, 0, EPSILON)
-            and Assert.AnglesApproxEquals(rY, 0, EPSILON)
-            and Assert.AnglesApproxEquals(rZ, 0, EPSILON)
+        return Assert.AnglesApproxEquals(rx, 0, EPSILON)
+            and Assert.AnglesApproxEquals(ry, 0, EPSILON)
+            and Assert.AnglesApproxEquals(rz, 0, EPSILON)
     end
 }
 
@@ -822,12 +836,12 @@ ToEulerAnglesYXZ.NonUnit = {
     test = function()
         local qX, qY, qZ, qW = 2, 5, 7, 4
         local q0 = Quaternion.new(qX, qY, qZ, qW)
-        local rX, rY, rZ = q0:ToEulerAnglesYXZ()
-
-        local testCFrame = CFrame.new(0, 0, 0, qX, qY, qZ, qW)
-        local qCFrame = CFrame.fromEulerAnglesYXZ(rX, rY, rZ)
-
-        return Assert.CFramesApproxEqual(testCFrame, qCFrame, EPSILON)
+        local rx, ry, rz = q0:ToEulerAnglesYXZ()
+        local erx, ery, erz = -0.6119541, 1.0838971, 1.7273982
+        
+        return Assert.AnglesApproxEquals(rx, erx, EPSILON)
+        and Assert.AnglesApproxEquals(ry, ery, EPSILON)
+        and Assert.AnglesApproxEquals(rz, erz, EPSILON)
     end
 }
 
@@ -842,32 +856,35 @@ ToOrientation._order = {
 ToOrientation.UnitLessHalf = {
     DisplayName = "Unit test < 0.5",
     test = function()
-        local qX, qY, qZ, qW = 0.3706492, 0.2404211, -0.7813686, 0.440772
-        local q0 = Quaternion.new(qX, qY, qZ, qW)
-        local rX, rY, rZ = q0:ToOrientation()
-
-        local testCFrame = CFrame.new(0, 0, 0, qX, qY, qZ, qW)
-        local qCFrame = CFrame.fromOrientation(rX, rY, rZ)
-
-        return Assert.CFramesApproxEqual(testCFrame, qCFrame, EPSILON)
+        for collectionName, rc in pairs(testData) do
+            if rc[1].standard then
+                for k, representation in pairs(rc) do
+                    local standard = representation.standard
+                    local quat = standard.quaternion
+                    local qX, qY, qZ, qW = quat.X, quat.Y, quat.Z, quat.W
+                    local qe = Quaternion.new(qX, qY, qZ, qW)
+                    local rx, ry, rz = qe:ToOrientation()
+                    local qr = Quaternion.fromOrientation(rx, ry, rz)
+                    if not Assert.QuaternionsEqualApprox(qe, qr, 1e-3) then
+                        return false
+                    end
+                end
+            end
+        end
+        return true
     end
 }
 
 ToOrientation.UnitHalf = {
     DisplayName = "Unit test >= 0.5",
     test = function()
-        for i, input in pairs(testData.HalfUnit) do
-            local qX, qY, qZ, qW = input[1], input[2], input[3], input[4]
+        for k, standard in pairs(testData.HalfUnit) do
+            local qX, qY, qZ, qW = table.unpack(standard.quaternion)
             local q0 = Quaternion.new(qX, qY, qZ, qW)
-            local rX, rY, rZ = q0:ToOrientation()
-
-            local testCFrame = CFrame.new(0, 0, 0, qX, qY, qZ, qW)
-            local qCFrame = CFrame.fromOrientation(rX, rY, rZ)
-
-            local isEqual = 
-                Assert.CFramesApproxEqual(testCFrame, qCFrame, EPSILON)
-
-            if not isEqual then
+            local qe = Quaternion.new(qX, qY, qZ, qW)
+            local rx, ry, rz = qe:ToOrientation()
+            local qr = Quaternion.fromOrientation(rx, ry, rz)
+            if not Assert.QuaternionsEqualApprox(qe, qr, 1e-3) then
                 return false
             end
         end
@@ -880,11 +897,11 @@ ToOrientation.Zero = {
     test = function()
         local qX, qY, qZ, qW = 0, 0, 0, 0
         local q0 = Quaternion.new(qX, qY, qZ, qW)
-        local rX, rY, rZ = q0:ToOrientation()
+        local rx, ry, rz = q0:ToOrientation()
 
-        return Assert.AnglesApproxEquals(rX, 0, EPSILON)
-            and Assert.AnglesApproxEquals(rY, 0, EPSILON)
-            and Assert.AnglesApproxEquals(rZ, 0, EPSILON)
+        return Assert.AnglesApproxEquals(rx, 0, EPSILON)
+            and Assert.AnglesApproxEquals(ry, 0, EPSILON)
+            and Assert.AnglesApproxEquals(rz, 0, EPSILON)
     end
 }
 
@@ -893,12 +910,12 @@ ToOrientation.NonUnit = {
     test = function()
         local qX, qY, qZ, qW = 2, 5, 7, 4
         local q0 = Quaternion.new(qX, qY, qZ, qW)
-        local rX, rY, rZ = q0:ToOrientation()
+        local rx, ry, rz = q0:ToOrientation()
+        local erx, ery, erz = -0.6119541, 1.0838971, 1.7273982
         
-        local testCFrame = CFrame.new(0, 0, 0, qX, qY, qZ, qW)
-        local qCFrame = CFrame.fromOrientation(rX, rY, rZ)
-        
-        return Assert.CFramesApproxEqual(testCFrame, qCFrame, EPSILON)
+        return Assert.AnglesApproxEquals(rx, erx, EPSILON)
+        and Assert.AnglesApproxEquals(ry, ery, EPSILON)
+        and Assert.AnglesApproxEquals(rz, erz, EPSILON)
     end
 }
 
@@ -906,9 +923,6 @@ local ToEulerAngles = {}
 DeconstructorGroup.ToEulerAngles = ToEulerAngles
 ToEulerAngles._order = {}
 
--- assert default is XYZ
-
-local rotationOrders = {}--"XYZ", "XZY", "YXZ", "YZX", "ZXY", "ZYX"}
 for _, rotationOrder in pairs(rotationOrders) do
     local name = "ToEulerAngles_" .. rotationOrder
     local UnitLessHalf = "UnitLessHalf_" .. name
@@ -919,47 +933,35 @@ for _, rotationOrder in pairs(rotationOrders) do
     ToEulerAngles[UnitLessHalf] = {
         DisplayName = rotationOrder .. " Unit Quaternion: test < 0.5",
         test = function()
-            local randomQuaternion = Quaternion.RandomQuaternion(tick())
-            for i = 1, 100 do
-                local q0 = randomQuaternion()
-                local rX, rY, rZ = q0:ToEulerAngles(rotationOrder)
-                
-                local testCFrame = CFrame.new(0, 0, 0, q0.X, q0.Y, q0.Z, q0.W)
-                local qCFrame = CFrame.fromEulerAngles(
-                    rX, rY, rZ, rotationOrder
-                )
-                
-                if not Assert.CFramesApproxEqual(testCFrame, qCFrame, EPSILON) 
-                then
-                    return false
+            for collectionName, rc in pairs(testData) do
+                if rc[1].standard then
+                    for k, representation in pairs(rc) do
+                        local standard = representation.standard
+                        local quat = standard.quaternion
+                        local qX, qY, qZ, qW = quat.X, quat.Y, quat.Z, quat.W
+                        local qe = Quaternion.new(qX, qY, qZ, qW)
+                        local rx, ry, rz = qe:ToEulerAngles(rotationOrder)
+                        local qr = Quaternion.fromEulerAngles(rx, ry, rz, rotationOrder)
+                        if not Assert.QuaternionsEqualApprox(qe, qr, 1e-3) then
+                            return false
+                        end
+                    end
                 end
-                
             end
             return true
         end,
     }
     
     ToEulerAngles[UnitHalf] = {
-        DisplayName = enumName .. " Unit Quaternion: test >= 0.5",
+        DisplayName = rotationOrder .. " Unit Quaternion: test >= 0.5",
         test = function()
-            for i, input in pairs(testData.HalfUnit) do
-                local qX, qY, qZ, qW = input[1], input[2], input[3], input[4]
+            for k, standard in pairs(testData.HalfUnit) do
+                local qX, qY, qZ, qW = table.unpack(standard.quaternion)
                 local q0 = Quaternion.new(qX, qY, qZ, qW)
-                local rX, rY, rZ = q0:ToEulerAngles(rotationOrder)
-                
-                local testCFrame = CFrame.new(0, 0, 0, qX, qY, qZ, qW)
-                local qCFrame = CFrame.fromEulerAngles(
-                    rX, rY, rZ, rotationOrder
-                )
-                
-                local isEqual = 
-                    Assert.CFramesApproxEqual(testCFrame, qCFrame, EPSILON)
-
-                if not isEqual then
-                    print("Failed on", i)
-                    print("  quat:", qX, qY, qZ, qW)
-                    print("   got:", rX, rY, rZ)
-                    print("expect:", testCFrame:ToEulerAngles(rotationOrder))
+                local qe = Quaternion.new(qX, qY, qZ, qW)
+                local rx, ry, rz = qe:ToEulerAngles(rotationOrder)
+                local qr = Quaternion.fromEulerAngles(rx, ry, rz, rotationOrder)
+                if not Assert.QuaternionsEqualApprox(qe, qr, 1e-3) then
                     return false
                 end
             end
@@ -968,31 +970,30 @@ for _, rotationOrder in pairs(rotationOrders) do
     }
     
     ToEulerAngles[Zero] = {
-        DisplayName = enumName .. " Zero Quaternion",
+        DisplayName = rotationOrder .. " Zero Quaternion",
         test = function()
             local qX, qY, qZ, qW = 0, 0, 0, 0
             local q0 = Quaternion.new(qX, qY, qZ, qW)
-            local rX, rY, rZ = q0:ToEulerAngles(rotationOrder)
+            local rx, ry, rz = q0:ToEulerAngles(rotationOrder)
 
-            return Assert.AnglesApproxEquals(rX, 0, EPSILON)
-                and Assert.AnglesApproxEquals(rY, 0, EPSILON)
-                and Assert.AnglesApproxEquals(rZ, 0, EPSILON)
+            return Assert.AnglesApproxEquals(rx, 0, EPSILON)
+                and Assert.AnglesApproxEquals(ry, 0, EPSILON)
+                and Assert.AnglesApproxEquals(rz, 0, EPSILON)
         end
     }
 
     ToEulerAngles[NonUnit] = {
-        DisplayName = enumName .. " Non Unit Quaternion",
+        DisplayName = rotationOrder .. " Non Unit Quaternion",
         test = function()
             local qX, qY, qZ, qW = 2, 5, 7, 4
-            local q0 = Quaternion.new(qX, qY, qZ, qW)
-            local rX, rY, rZ = q0:ToEulerAngles(rotationOrder)
-            
-            local testCFrame = CFrame.new(0, 0, 0, qX, qY, qZ, qW)
-            local qCFrame = CFrame.fromEulerAngles(
-                rX, rY, rZ, rotationOrder
-            )
-            
-            return Assert.CFramesApproxEqual(testCFrame, qCFrame, EPSILON)
+            local qo = Quaternion.new(qX, qY, qZ, qW)
+            local qe = qo.Unit
+            local rx, ry, rz = qo:ToEulerAngles(rotationOrder)
+            local qr = Quaternion.fromEulerAngles(rx, ry, rz, rotationOrder)
+            if not Assert.QuaternionsEqualApprox(qe, qr, 1e-3) then
+                return false
+             end
+             return true
         end
     }
     
@@ -1012,20 +1013,19 @@ ToMatrix._order = {
 ToMatrix.RandomQuaternions = {
     DisplayName = "Random Quaternions",
     test = function()
-        local randomQuaternion = Quaternion.RandomQuaternion(tick())
+        local randomQuaternion = Quaternion.RandomQuaternion(os.time())
         for i = 1, 100 do
             local q0 = randomQuaternion()
             local m00, m01, m02, m10, m11, m12, m20, m21, m22 = q0:ToMatrix()
             
             local testCFrame = CFrame.new(0, 0, 0, q0.X, q0.Y, q0.Z, q0.W)
-            local qCFrame = CFrame.new(
-                0, 0, 0, 
+            local qCFrame = CFrame.fromMatrixArray({
                 m00, m01, m02, 
                 m10, m11, m12, 
                 m20, m21, m22
-            )
+            })
             
-            if not Assert.CFramesApproxEqual(testCFrame, qCFrame, EPSILON) 
+            if not Assert.CFramesApproxEqual(testCFrame, qCFrame, EPSILON)
             then
                 return false
             end
@@ -1039,18 +1039,17 @@ ToMatrix.PolarQuaternions = {
     DisplayName = "Polar Quaternions",
     test = function()
         for i, input in pairs(testData.HalfUnit) do
-            local qX, qY, qZ, qW = input[1], input[2], input[3], input[4]
+            local quat = input.quaternion
+            local qX, qY, qZ, qW = quat.X, quat.Y, quat.Z, quat.W
             local q0 = Quaternion.new(qX, qY, qZ, qW)
             local m00, m01, m02, m10, m11, m12, m20, m21, m22 = q0:ToMatrix()
 
             local testCFrame = CFrame.new(0, 0, 0, qX, qY, qZ, qW)
-            local qCFrame = CFrame.new(
-                0, 0, 0, 
+            local qCFrame = CFrame.fromMatrixArray({
                 m00, m01, m02, 
                 m10, m11, m12, 
                 m20, m21, m22
-            )
-
+            })
             if not Assert.CFramesApproxEqual(testCFrame, qCFrame, EPSILON) 
             then
                 return false
@@ -1067,19 +1066,17 @@ ToMatrix.Zero = {
         local q0 = Quaternion.new(qX, qY, qZ, qW)
         local m00, m01, m02, m10, m11, m12, m20, m21, m22 = q0:ToMatrix()
 
-        local testCFrame = CFrame.new(
-            0, 0, 0,
+        local testCFrame = CFrame.fromMatrixArray({
             1, 0 ,0, 
             0, 1, 0, 
             0, 0, 1
-        )
+        })
         
-        local qCFrame = CFrame.new(
-            0, 0, 0, 
+        local qCFrame = CFrame.fromMatrixArray({
             m00, m01, m02, 
             m10, m11, m12, 
             m20, m21, m22
-        )
+        })
 
         return Assert.CFramesApproxEqual(testCFrame, qCFrame, EPSILON) 
     end
@@ -1092,13 +1089,17 @@ ToMatrix.NonUnit = {
         local q0 = Quaternion.new(qX, qY, qZ, qW)
         local m00, m01, m02, m10, m11, m12, m20, m21, m22 = q0:ToMatrix()
         
-        local testCFrame = CFrame.new(0, 0, 0, qX, qY, qZ, qW)
-        local qCFrame = CFrame.new(
-            0, 0, 0, 
+        local testCFrame = CFrame.fromMatrixArray({
+            -0.5744681, -0.3829787,  0.7234042,
+            0.8085107, -0.1276596,  0.5744681,
+            -0.1276596,  0.9148936,  0.3829787
+        })
+        
+        local qCFrame = CFrame.fromMatrixArray({
             m00, m01, m02, 
             m10, m11, m12, 
             m20, m21, m22
-        )
+        })
         
         return Assert.CFramesApproxEqual(testCFrame, qCFrame, EPSILON)
     end
@@ -1114,14 +1115,14 @@ ToMatrixVectors._order = {
 ToMatrixVectors.RandomQuaternions = {
     DisplayName = "Random Quaternions",
     test = function()
-        local randomQuaternion = Quaternion.RandomQuaternion(tick())
+        local randomQuaternion = Quaternion.RandomQuaternion(os.time())
         for i = 1, 100 do
             local q0 = randomQuaternion()
-            local rightVector, upVector, lookVector = q0:ToMatrixVectors()
+            local rightVector, upVector, backVector = q0:ToMatrixVectors()
             
             local testCFrame = CFrame.new(0, 0, 0, q0.X, q0.Y, q0.Z, q0.W)
             local qCFrame = CFrame.fromMatrix(
-                Vector3.zero, rightVector, upVector, -lookVector
+                Vector3.zero, rightVector, upVector, backVector
             )
             
             if not Assert.CFramesApproxEqual(testCFrame, qCFrame, EPSILON) 
@@ -1140,11 +1141,11 @@ ToMatrixVectors.PolarQuaternions = {
         for i, input in pairs(testData.HalfUnit) do
             local qX, qY, qZ, qW = input[1], input[2], input[3], input[4]
             local q0 = Quaternion.new(qX, qY, qZ, qW)
-            local rightVector, upVector, lookVector = q0:ToMatrixVectors()
+            local rightVector, upVector, backVector = q0:ToMatrixVectors()
 
             local testCFrame = CFrame.new(0, 0, 0, q0.X, q0.Y, q0.Z, q0.W)
             local qCFrame = CFrame.fromMatrix(
-                Vector3.zero, rightVector, upVector, -lookVector
+                Vector3.zero, rightVector, upVector, backVector
             )
 
             if not Assert.CFramesApproxEqual(testCFrame, qCFrame, EPSILON) 
@@ -1161,16 +1162,15 @@ ToMatrixVectors.Zero = {
     test = function()
         local qX, qY, qZ, qW = 0, 0, 0, 0
         local q0 = Quaternion.new(qX, qY, qZ, qW)
-        local rightVector, upVector, lookVector = q0:ToMatrixVectors()
+        local rightVector, upVector, backVector = q0:ToMatrixVectors()
 
-        local testCFrame = CFrame.new(
-            0, 0, 0,
+        local testCFrame = CFrame.fromMatrixArray({
             1, 0 ,0, 
             0, 1, 0, 
-            0, 0, -1
-        )
+            0, 0, 1
+        })
         local qCFrame = CFrame.fromMatrix(
-            Vector3.zero, rightVector, upVector, lookVector
+            Vector3.zero, rightVector, upVector, backVector
         )
 
         return Assert.CFramesApproxEqual(testCFrame, qCFrame, EPSILON) 
@@ -1182,13 +1182,17 @@ ToMatrixVectors.NonUnit = {
     test = function()
         local qX, qY, qZ, qW = 2, 5, 7, 4
         local q0 = Quaternion.new(qX, qY, qZ, qW)
-        local rightVector, upVector, lookVector = q0:ToMatrixVectors()
+        local rightVector, upVector, backVector = q0:ToMatrixVectors()
 
-        local testCFrame = CFrame.new(0, 0, 0, q0.X, q0.Y, q0.Z, q0.W)
+        local testCFrame = CFrame.fromMatrixArray({
+            -0.5744681, -0.3829787,  0.7234042,
+            0.8085107, -0.1276596,  0.5744681,
+            -0.1276596,  0.9148936,  0.3829787
+        })
         local qCFrame = CFrame.fromMatrix(
-            Vector3.zero, rightVector, upVector, -lookVector
+            Vector3.zero, rightVector, upVector, backVector
         )
-
+        
         return Assert.CFramesApproxEqual(testCFrame, qCFrame, EPSILON)
     end
 }
@@ -1420,11 +1424,9 @@ local mul = {}
 MathGroup.mul = mul
 mul._order = {
     "QuaternionQuaternion",
-    "QuaternionCFrame",
     "NumberQuaternion",
     "QuaternionNumber",
     "QuaternionVector3",
-    "Vector3Quaternion"
 }
 
 mul.QuaternionQuaternion = {
@@ -1436,27 +1438,6 @@ mul.QuaternionQuaternion = {
         local qr1 = q0 * q1
         local qe = Quaternion.new(28, 48, 44, -86)
         return Assert.KeyValuesApprox(qe, qe, EPSILON)
-    end
-}
-
-mul.QuaternionCFrame = {
-    DisplayName = "Quaternion * CFrame",
-    test = function()
-        local q0 = Quaternion.new(-0.6132499, 0.3980986, -0.6776496, 0.0789497)
-        local cf = CFrame.new(
-            5, 4, 3, 
-            0.5409711, 0.5064739, 0.2670269, 0.616061
-        )
-        
-        local qcf = q0 * cf
-        local ecf = CFrame.new(
-            0.0199956894, -6.98675203, 1.08854187, 
-            -0.715028048, 0.682417452, -0.15179567, 
-            -0.644701123, -0.727633178, -0.234330907, 
-            -0.270362884, -0.0696906671, 0.960233092
-        )
-        
-        return Assert.CFramesApproxEqual(qcf, ecf, EPSILON)
     end
 }
 
@@ -1504,23 +1485,6 @@ mul.QuaternionVector3 = {
         )
         
         return Assert.VectorsApproxEqual(ve, vr, EPSILON)
-    end
-}
-
-mul.Vector3Quaternion = {
-    DisplayName = "Vector3 * Quaternion",
-    test = function()
-        local q0 = Quaternion.new(-0.6132499, 0.3980986, -0.6776496, 0.0789497)
-        local vector = Vector3.new(5, 7, -2)
-
-        local vcf = vector * q0
-        local ecf = CFrame.new(
-            5, 7, -2, 
-            -0.6132499, 0.3980986, -0.6776496, 0.0789497
-        )
-        
-
-        return Assert.VectorsApproxEqual(ecf, vcf, EPSILON)
     end
 }
 

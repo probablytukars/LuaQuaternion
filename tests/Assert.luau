@@ -36,7 +36,7 @@ function Assert.EqualsAll(...)
 end
 
 function Assert.ApproxEquals(a, b, epsilon)
-    if not epsilon then warn("Epsilon not passed!") epsilon = 1e-6 end
+    if not epsilon then error("Epsilon not passed!") end
     local aIsNaN = a ~= a
     local bIsNaN = b ~= b
     
@@ -44,7 +44,7 @@ function Assert.ApproxEquals(a, b, epsilon)
 end
 
 function Assert.AnglesApproxEquals(a, b, epsilon)
-    if not epsilon then warn("Epsilon not passed!") epsilon = 1e-6 end
+    if not epsilon then error("Epsilon not passed!") end
     local aIsNaN = a ~= a
     local bIsNaN = b ~= b
     
@@ -70,6 +70,7 @@ end
 
 
 function Assert.CFramesApproxEqual(a, b, epsilon, includePosition)
+    if not epsilon then error("Epsilon not passed!") end
     
     local ax, ay, az, 
     am00, am01, am02, 
@@ -146,7 +147,7 @@ function Assert.KeyValues(a, tab)
 end
 
 function Assert.KeyValuesApprox(a, tab, epsilon)
-    if not epsilon then warn("Epsilon not passed!") epsilon = 1e-6 end
+    if not epsilon then error("Epsilon not passed!") end
     for key, value in pairs(tab) do
         if key:sub(0, 1) ~= "_" then
             if a[key] then
