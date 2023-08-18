@@ -1,8 +1,8 @@
 -- Version: 0.0.2
 
 --@lua
-local Vector3 = require("../mocks/Vector3")
-local CFrame = require("../mocks/CFrame")
+local Vector3 = require("mocks/Vector3")
+local CFrame = require("mocks/CFrame")
 --@luaend
 
 --@luau
