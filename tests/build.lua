@@ -109,6 +109,7 @@ if file then
        end
     end
     file:close()
+    print("Build was successful!")
 else
     error("Error opening the file.")
 end
