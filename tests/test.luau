@@ -1,4 +1,4 @@
-local Tester = require("Tester")
+local Tester = require("tests/Tester")
 local Quaternion = require("../src/Quaternion")
 local TestLibrary = require("QuaternionTest")
 local testData = require("TestData")
