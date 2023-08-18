@@ -26,6 +26,9 @@ jobs:
         run: npm i -g moonwave
 
       - name: Create documentation
-        run: moonwave build --publish
+        run: |
+          git config user.email "${{ secrets.EMAIL }}"
+          git config user.name "probablytukars"
+          moonwave build --publish
 
         
