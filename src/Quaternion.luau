@@ -1,8 +1,11 @@
 -- Version: 0.0.2
 
+--@lua
 local Vector3 = require("../mocks/Vector3")
 local CFrame = require("../mocks/CFrame")
+--@luaend
 
+--@luau
 export type Quaternion = {
     
     -- Constructors
@@ -139,6 +142,7 @@ export type Quaternion = {
     components: (q0: Quaternion) -> (number, number, number, number),
     ToString: (q0: Quaternion, decimalPlaces: number?) -> string,
 }
+--@luauend
 
 local EPSILON = 1e-6
 
@@ -193,6 +197,7 @@ local Quaternion = {_type = "Quaternion"}
 
 -- Internal functions for type checking and throwing errors
 
+--@dev
 local function ArgumentError(
     argPlace: number, expectedType: string, gotType: string
 )
@@ -248,6 +253,7 @@ local function _safeUnit(vector: Vector3, default: Vector3): Vector3
         return default
     end
 end
+--@devend
 
 
 --[=[
@@ -268,10 +274,12 @@ local function new(
     qX: number?, qY: number?, qZ: number?, qW: number?
 ): Quaternion
     
+    --@dev
     AssertType(1, qX, "number", "nil")
     AssertType(2, qY, "number", "nil")
     AssertType(3, qZ, "number", "nil")
     AssertType(4, qW, "number", "nil")
+    --@devend
 
     local self = setmetatable({
         X = qX or 0,
@@ -374,8 +382,10 @@ end
     @tag Constructor
 ]=]
 local function fromAxisAngle(axis: Vector3, angle: number): Quaternion
+    --@dev
     AssertType(1, axis, "Vector3")
     AssertType(2, angle, "number")
+    --@devend
     
     axis = _safeUnit(axis, Vector3.xAxis)
     
@@ -404,8 +414,10 @@ Quaternion.fromAxisAngle = fromAxisAngle
     @tag Constructor
 ]=]
 local function fromAxisAngleFast(axis: Vector3, angle: number): Quaternion
+    --@dev
     AssertType(1, axis, "Vector3")
     AssertType(2, angle, "number")
+    --@devend
     
     local ha = angle / 2
     local sha = math.sin(ha)
@@ -432,7 +444,9 @@ Quaternion.fromAxisAngleFast = fromAxisAngleFast
     @tag Constructor
 ]=]
 local function fromCFrame(cframe: CFrame): Quaternion
+    --@dev
     AssertType(1, cframe, "CFrame")
+    --@devend
     
     local Rv, Uv, Lv = cframe.RightVector, cframe.UpVector, -cframe.LookVector
     return _fromOrthonormalizedMatrix(_Orthonormalize(Rv, Uv, Lv))
@@ -454,9 +468,11 @@ Quaternion.fromCFrame = fromCFrame
     @tag Constructor
 ]=]
 local function fromMatrix(vX: Vector3, vY: Vector3, vZ: Vector3?): Quaternion
+    --@dev
     AssertType(1, vX, "Vector3")
     AssertType(2, vY, "Vector3")
     AssertType(3, vZ, "Vector3", "nil")
+    --@devend
     
     local vXo, vYo = vX.Unit, vY.Unit
     local vZo = 
@@ -484,9 +500,11 @@ Quaternion.fromMatrix = fromMatrix
     @tag Constructor
 ]=]
 local function lookAt(from: Vector3, lookAt: Vector3, up: Vector3?): Quaternion
+    --@dev
     AssertType(1, from, "Vector3")
     AssertType(2, lookAt, "Vector3")
     AssertType(3, up, "Vector3", "nil")
+    --@devend
     
     local lookVector = _safeUnit(lookAt - from, Vector3.zAxis)
     local _up = _safeUnit(up or Vector3.yAxis, Vector3.yAxis)
@@ -531,9 +549,11 @@ local function fromEulerAnglesXYZ(
     rx: number, ry: number, rz: number
 ): Quaternion
     
+    --@dev
     AssertType(1, rx, "number")
     AssertType(2, ry, "number")
     AssertType(3, rz, "number")
+    --@devend
     
     local xCos = math.cos(rx / 2)
     local xSin = math.sin(rx / 2)
@@ -583,10 +603,11 @@ local function fromEulerAnglesYXZ(
     rx: number, ry: number, rz: number
 ): Quaternion 
     
+    --@dev
     AssertType(1, rx, "number")
     AssertType(2, ry, "number")
     AssertType(3, rz, "number")
-    
+    --@devend
     
     local xCos = math.cos(rx / 2)
     local xSin = math.sin(rx / 2)
@@ -639,10 +660,12 @@ local function fromEulerAngles(
     rx: number, ry: number, rz: number, rotationOrder: string?
 ): Quaternion 
     
+    --@dev
     AssertType(1, rx, "number")
     AssertType(2, ry, "number")
     AssertType(3, rz, "number")
     AssertType(4, rotationOrder, "string", "nil")
+    --@devend
     
     if not rotationOrder then rotationOrder = "XYZ" end
 
@@ -709,7 +732,9 @@ Quaternion.fromEulerAngles = fromEulerAngles
     @tag Constructor
 ]=]
 local function fromVector(vector: Vector3): Quaternion
+    --@dev
     AssertType(1, vector, "Vector3")
+    --@devend
     
     return new(vector.X, vector.Y, vector.Z, 0)
 end
@@ -730,7 +755,9 @@ local function RandomQuaternion(seed: number): () -> Quaternion
     local seed = seed or 1
     
     --@luau
-    --local random = Random.new(seed)
+    --[=[
+    local random = Random.new(seed)
+    --]=]
     --@luauend
     --@lua
     math.randomseed(seed)
@@ -741,9 +768,11 @@ local function RandomQuaternion(seed: number): () -> Quaternion
     local cos = math.cos
     return function()
         --@luau
-        --local u = random:NextNumber(0, 1)
-        --local v = random:NextNumber(0, 1)
-        --local w = random:NextNumber(0, 1)
+        --[=[
+        local u = random:NextNumber(0, 1)
+        local v = random:NextNumber(0, 1)
+        local w = random:NextNumber(0, 1)
+        --]=]
         --@luauend
         
         --@lua
@@ -957,18 +986,22 @@ Quaternion.RandomQuaternion = RandomQuaternion
 ]=]
 
 local function Add(q0: Quaternion, q1: Quaternion): Quaternion
+    --@dev
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
-
+    --@devend
+    
     return new(q0.X + q1.X, q0.Y + q1.Y, q0.Z + q1.Z, q0.W + q1.W)
 end
 
 Quaternion.__add = Add
 
 local function Sub(q0: Quaternion, q1: Quaternion): Quaternion
+    --@dev
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
-
+    --@devend
+    
     return new(q0.X - q1.X, q0.Y - q1.Y, q0.Z - q1.Z, q0.W - q1.W)
 end
 
@@ -979,13 +1012,15 @@ local function Mul(
     op1: Quaternion | CFrame | Vector3 | number
 ): Quaternion | CFrame | Vector3
     
+    --@dev
     local op0type = AssertType(
         1, op0, "Quaternion", "CFrame", "Vector3", "number"
     )
     local op1type = AssertType(
         2, op1, "Quaternion", "CFrame", "Vector3", "number"
     )
-
+    --@devend
+    
     if op0type == "Quaternion" and op1type == "Quaternion" then
         local q0X, q0Y, q0Z, q0W = op0.X, op0.Y, op0.Z, op0.W
         local q1X, q1Y, q1Z, q1W = op1.X, op1.Y, op1.Z, op1.W
@@ -999,13 +1034,17 @@ local function Mul(
         return new(op0 * op1.X, op0 * op1.Y, op0 * op1.Z, op0 * op1.W)
     elseif op0type == "Quaternion" and op1type == "number" then
         return new(op0.X * op1, op0.Y * op1, op0.Z * op1, op0.W * op1)
+    --@luau
     elseif op0type == "Quaternion" and op1type == "CFrame" then 
         return op0:ToCFrame() * op1
+    --@luauend
     elseif op0type == "Quaternion" and op1type == "Vector3" then
         local op0 = op0:Normalize()
         return (op0 * fromVector(op1) * op0:Conjugate()):Vector()
+    --@luau
     elseif op0type == "Vector3" and op1type == "Quaternion" then
         return CFrame.new(op0.X, op0.Y, op0.Z, op1.X, op1.Y, op1.Z, op1.W)
+    --@luauend
     else
         if op0type == "Quaternion" then
             error("Cannot multiply Quaternion with " .. op1type .. ".", 2)
@@ -1029,8 +1068,10 @@ local function Div(
     op0: Quaternion | number, op1: number | Quaternion
 ): Quaternion
     
+    --@dev
     local op0type = AssertType(1, op0, "Quaternion", "number")
     local op1type = AssertType(2, op1, "Quaternion", "number")
+    --@devend
     
     if op0type == "Quaternion" and op1type == "number" then
         return new(op0.X / op1, op0.Y / op1, op0.Z / op1, op0.W / op1)
@@ -1050,7 +1091,9 @@ end
 Quaternion.__div = Div
 
 local function unm(q0: Quaternion): Quaternion
+    --@dev
     AssertType(1, q0, "Quaternion")
+    --@devend
     
     return new(-q0.X, -q0.Y, -q0.Z, -q0.W)
 end
@@ -1059,8 +1102,10 @@ Quaternion.__unm = unm
 Quaternion.Negate = unm
 
 local function Pow(q0: Quaternion, number: number)
+    --@dev
     local op0type = AssertType(1, q0, "Quaternion")
     local op1type = AssertType(2, number, "number")
+    --@devend
     
     if op0type == "Quaternion" and op1type == "number" then
         local aW, aX, aY, aZ = q0.W, q0.X, q0.Y, q0.Z
@@ -1109,9 +1154,11 @@ Quaternion.__eq = eq
 
 -- honestly have no idea, just checks which is closer to identity
 local function lt(q0: Quaternion, q1:Quaternion)
+    --@dev
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
-
+    --@devend
+    
     local q0l = q0:Length()
     local q1l = q1:Length()
 
@@ -1121,9 +1168,11 @@ end
 Quaternion.__lt = lt
 
 local function le(q0: Quaternion, q1:Quaternion)
+    --@dev
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
-
+    --@devend
+    
     local q0l = q0:Length()
     local q1l = q1:Length()
     
@@ -1142,7 +1191,9 @@ Quaternion.__le = le
     @tag Method
 ]=]
 local function Exp(q0: Quaternion): Quaternion
+    --@dev
     AssertType(1, q0, "Quaternion")
+    --@devend
     
     local qX, qY, qZ, qW = q0.X, q0.Y, q0.Z, q0.W
     
@@ -1171,8 +1222,10 @@ Quaternion.Exp = Exp
     @tag Method
 ]=]
 local function ExpMap(q0: Quaternion, q1: Quaternion): Quaternion
+    --@dev
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
+    --@devend
     
     return Mul(q0, Exp(q1))
 end
@@ -1191,8 +1244,10 @@ Quaternion.ExpMap = ExpMap
     @tag Method
 ]=]
 local function ExpMapSym(q0: Quaternion, q1: Quaternion): Quaternion
+    --@dev
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
+    --@devend
     
     local sqrtQ = Pow(q0, 0.5)
     return Mul(Mul(sqrtQ, Exp(q1)), sqrtQ)
@@ -1210,7 +1265,9 @@ Quaternion.ExpMapSym = ExpMapSym
     @tag Method
 ]=]
 local function Log(q0: Quaternion): Quaternion
+    --@dev
     AssertType(1, q0, "Quaternion")
+    --@devend
     
     local qX, qY, qZ, qW = q0.X, q0.Y, q0.Z, q0.W
     
@@ -1242,8 +1299,10 @@ Quaternion.Log = Log
     @tag Method
 ]=]
 local function LogMap(q0: Quaternion, q1: Quaternion): Quaternion
+    --@dev
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
+    --@devend
     
     return Log(Mul(q0:Inverse(), q1))
 end
@@ -1262,8 +1321,10 @@ Quaternion.LogMap = LogMap
     @tag Method
 ]=]
 local function LogMapSym(q0: Quaternion, q1: Quaternion): Quaternion
+    --@dev
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
+    --@devend
     
     local invSqrtq0 = Pow(q0, -0.5)
     return Log(Mul(Mul(invSqrtq0, q1), invSqrtq0))
@@ -1281,8 +1342,10 @@ Quaternion.LogMapSym = LogMapSym
     @tag Method
 ]=]
 local function Length(q0: Quaternion): number 
+    --@dev
     AssertType(1, q0, "Quaternion")
-
+    --@devend
+    
     local qX, qY, qZ, qW = q0.X, q0.Y, q0.Z, q0.W
     return (qX * qX + qY * qY + qZ * qZ + qW * qW) ^ 0.5
 end
@@ -1299,9 +1362,11 @@ Quaternion.__len = Length
     @return number
     @tag Method
 ]=]
-local function LengthSquared(q0: Quaternion): number 
+local function LengthSquared(q0: Quaternion): number
+    --@dev
     AssertType(1, q0, "Quaternion")
-
+    --@devend
+    
     local qX, qY, qZ, qW = q0.X, q0.Y, q0.Z, q0.W
     return qX * qX + qY * qY + qZ * qZ + qW * qW
 end
@@ -1317,8 +1382,10 @@ Quaternion.LengthSquared = LengthSquared
     @return number
     @tag Method
 ]=]
-local function Hypot(q0: Quaternion): number 
+local function Hypot(q0: Quaternion): number
+    --@dev
     AssertType(1, q0, "Quaternion")
+    --@devend
     
     local qX, qY, qZ, qW = q0.X, q0.Y, q0.Z, q0.W
     local maxComp = math.max(qX, qY, qZ, qW)
@@ -1343,9 +1410,11 @@ Quaternion.Hypot = Hypot
     @return Quaternion
     @tag Method
 ]=]
-local function Normalize(q0: Quaternion): Quaternion 
+local function Normalize(q0: Quaternion): Quaternion
+    --@dev
     AssertType(1, q0, "Quaternion")
-
+    --@devend
+    
     local length = Length(q0)
     if length > 0 then
         return Div(q0, length)
@@ -1368,7 +1437,9 @@ Quaternion.Normalize = Normalize
     @tag Method
 ]=]
 local function IsUnit(q0: Quaternion, epsilon: number): boolean
+    --@dev
     AssertType(1, q0, "Quaternion")
+    --@devend
     
     if not epsilon then epsilon = EPSILON end
     return math.abs(1 - Length(q0)) < epsilon
@@ -1389,8 +1460,10 @@ Quaternion.IsUnit = IsUnit
     @tag Method
 ]=]
 local function ToCFrame(q0: Quaternion, position: Vector3?): CFrame
+    --@dev
     AssertType(1, q0, "Quaternion")
     AssertType(2, position, "Vector3", "nil")
+    --@devend
     
     q0 = Normalize(q0)
 
@@ -1413,10 +1486,12 @@ Quaternion.ToCFrame = ToCFrame
     @return number
     @tag Method
 ]=]
-local function Dot(q0: Quaternion, q1: Quaternion): number 
+local function Dot(q0: Quaternion, q1: Quaternion): number
+    --@dev
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
-
+    --@devend
+    
     return q0.X * q1.X + q0.Y * q1.Y + q0.Z * q1.Z + q0.W * q1.W
 end
 
@@ -1432,9 +1507,11 @@ Quaternion.Dot = Dot
     @return Quaternion
     @tag Method
 ]=]
-local function Conjugate(q0: Quaternion): Quaternion 
+local function Conjugate(q0: Quaternion): Quaternion
+    --@dev
     AssertType(1, q0, "Quaternion")
-
+    --@devend
+    
     return new(-q0.X, -q0.Y, -q0.Z, q0.W)
 end
 
@@ -1450,8 +1527,10 @@ Quaternion.Conjugate = Conjugate
     @return Quaternion
     @tag Method
 ]=]
-local function Inverse(q0: Quaternion): Quaternion 
+local function Inverse(q0: Quaternion): Quaternion
+    --@dev
     AssertType(1, q0, "Quaternion")
+    --@devend
     
     local qX, qY, qZ, qW = q0.X, q0.Y, q0.Z, q0.W
     local length = qX * qX + qY * qY + qZ * qZ + qW * qW
@@ -1471,9 +1550,11 @@ Quaternion.Inverse = Inverse
     @return Quaternion
     @tag Method
 ]=]
-local function LogInv(q0: Quaternion, q1: Quaternion): Quaternion 
+local function LogInv(q0: Quaternion, q1: Quaternion): Quaternion
+    --@dev
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
+    --@devend
     
     return Log(Mul(q0, Inverse(q1)))
 end
@@ -1489,9 +1570,11 @@ Quaternion.LogInv = LogInv
     @return Quaternion
     @tag Method
 ]=]
-local function Negate(q0: Quaternion): Quaternion 
+local function Negate(q0: Quaternion): Quaternion
+    --@dev
     AssertType(1, q0, "Quaternion")
-
+    --@devend
+    
     return new(-q0.X, -q0.Y, -q0.Z, -q0.W)
 end
 
@@ -1513,9 +1596,11 @@ Quaternion.__unm = Negate
     @return Quaternion
     @tag Method
 ]=]
-local function Difference(q0: Quaternion, q1: Quaternion): Quaternion 
+local function Difference(q0: Quaternion, q1: Quaternion): Quaternion
+    --@dev
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
+    --@devend
     
     if Dot(q0, q1) < 0 then
         q0 = unm(q0)
@@ -1537,9 +1622,11 @@ Quaternion.Difference = Difference
     @tag Method
 ]=]
 local function Distance(q0: Quaternion, q1: Quaternion): number
+    --@dev
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
-
+    --@devend
+    
     return Length(LogMap(q0, q1)) * 2
 end
 
@@ -1557,8 +1644,10 @@ Quaternion.Distance = Distance
     @tag Method
 ]=]
 local function DistanceSym(q0: Quaternion, q1: Quaternion): number
+    --@dev
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
+    --@devend
     
     return Length(Log(Difference(q0, q1))) * 2
 end
@@ -1577,9 +1666,11 @@ Quaternion.DistanceSym = DistanceSym
     @tag Method
 ]=]
 local function DistanceChord(q0: Quaternion, q1: Quaternion): number
+    --@dev
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
-
+    --@devend
+    
     return math.sin(DistanceSym(q0, q1) / 2) * 2
 end
 
@@ -1597,8 +1688,10 @@ Quaternion.DistanceChord = DistanceChord
     @tag Method
 ]=]
 local function DistanceAbs(q0: Quaternion, q1: Quaternion): number
+    --@dev
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
+    --@devend
     
     local q0minusq1 = Sub(q0, q1)
     local q0plusq1 = Add(q0, q1)
@@ -1626,11 +1719,13 @@ Quaternion.DistanceAbs = DistanceAbs
     @return Quaternion
     @tag Method
 ]=]
-local function Slerp(q0: Quaternion, q1: Quaternion, alpha: number): Quaternion 
+local function Slerp(q0: Quaternion, q1: Quaternion, alpha: number): Quaternion
+    --@dev
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
     AssertType(3, alpha, "number")
-
+    --@devend
+    
     q0 = Normalize(q0)
     q1 = Normalize(q1)
 
@@ -1671,8 +1766,10 @@ Quaternion.Slerp = Slerp
     @tag Method
 ]=]
 local function IdentitySlerp(q1: Quaternion, alpha: number): Quaternion 
+    --@dev
     AssertType(1, q1, "Quaternion")
     AssertType(2, alpha, "number")
+    --@devend
     
     local q0 = 1
     q1 = Normalize(q1)
@@ -1722,9 +1819,11 @@ local function SlerpFunction(
     q0: Quaternion, q1: Quaternion
 ): (alpha: number) -> Quaternion
     
+    --@dev
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
-
+    --@devend
+    
     q0 = Normalize(q0)
     q1 = Normalize(q1)
 
@@ -1780,10 +1879,12 @@ local function Intermediates(
     q0: Quaternion, q1: Quaternion, n: number, includeEndpoints: boolean?
 ): {Quaternion}
     
+    --@dev
     AssertType(1, q0, "Quaternion")
     AssertType(1, q1, "Quaternion")
     AssertType(2, n, "number")
     AssertType(2, includeEndpoints, "boolean", "nil")
+    --@devend
     
     includeEndpoints = includeEndpoints or false
     
@@ -1821,8 +1922,10 @@ Quaternion.Intermediates = Intermediates
     @tag Method
 ]=]
 local function Derivative(q0: Quaternion, rate: Vector3): Quaternion
+    --@dev
     AssertType(1, q0, "Quaternion")
     AssertType(2, rate, "Vector3")
+    --@devend
     
     return Mul(Mul(0.5, q0), fromVector(rate))
 end
@@ -1847,9 +1950,11 @@ local function Integrate(
     q0: Quaternion, rate: Vector3, timestep: number
 ): Quaternion
     
+    --@dev
     AssertType(1, q0, "Quaternion")
     AssertType(2, rate, "Vector3")
     AssertType(3, timestep, "number")
+    --@devend
     
     q0 = Normalize(q0)
     
@@ -1883,9 +1988,11 @@ local function ApproxEq(
     q0: Quaternion, q1: Quaternion, epsilon: number?
 ): boolean 
     
+    --@dev
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
     AssertType(3, epsilon, "number", "nil")
+    --@devend
     
     epsilon = epsilon or EPSILON
     return DistanceSym(q0, q1) < epsilon
@@ -1902,8 +2009,10 @@ Quaternion.ApproxEq = ApproxEq
     @return boolean
     @tag Method
 ]=]
-local function IsNaN(q0: Quaternion): boolean 
+local function IsNaN(q0: Quaternion): boolean
+    --@dev
     AssertType(1, q0, "Quaternion")
+    --@devend
     
     local qX, qY, qZ, qW = q0.X, q0.Y, q0.Z, q0.W
     return qX ~= qX or qY ~= qY or qZ ~= qZ or qW ~= qW
@@ -1953,7 +2062,9 @@ end
     @tag Deconstructor
 ]=]
 local function ToAxisAngle(q0: Quaternion): (Vector3, number)
+    --@dev
     AssertType(1, q0, "Quaternion")
+    --@devend
     
     q0 = Normalize(q0)
     local qX, qY, qZ, qW = q0.X, q0.Y, q0.Z, q0.W
@@ -1987,8 +2098,10 @@ local function ToMatrix(q0: Quaternion):
         number, number, number,
         number, number, number
     ) 
+    --@dev
     AssertType(1, q0, "Quaternion")
-
+    --@devend
+    
     return _toRotationMatrix(q0)
 end
 
@@ -2007,7 +2120,9 @@ Quaternion.ToMatrix = ToMatrix
     @tag Deconstructor
 ]=]
 local function ToMatrixVectors(q0: Quaternion): (Vector3, Vector3, Vector3) 
+    --@dev
     AssertType(1, q0, "Quaternion")
+    --@devend
     
     local m00, m01, m02, m10, m11, m12, m20, m21, m22 = _toRotationMatrix(q0)
     
@@ -2030,7 +2145,9 @@ Quaternion.ToMatrixVectors = ToMatrixVectors
     @tag Deconstructor
 ]=]
 local function Vector(q0: Quaternion): Vector3 
+    --@dev
     AssertType(1, q0, "Quaternion")
+    --@devend
     
     return Vector3.new(q0.X, q0.Y, q0.Z)
 end
@@ -2048,7 +2165,9 @@ Quaternion.Vector = Vector
     @tag Deconstructor
 ]=]
 local function Real(q0: Quaternion): Quaternion 
+    --@dev
     AssertType(1, q0, "Quaternion")
+    --@devend
     
     return new(0, 0, 0, q0.W)
 end
@@ -2066,7 +2185,9 @@ Quaternion.Real = Real
     @tag Deconstructor
 ]=]
 local function Imaginary(q0: Quaternion): Quaternion 
+    --@dev
     AssertType(1, q0, "Quaternion")
+    --@devend
     
     return new(q0.X, q0.Y, q0.Z, 0)
 end
@@ -2084,7 +2205,9 @@ Quaternion.Imaginary = Imaginary
     @tag Deconstructor
 ]=]
 local function ToEulerAnglesXYZ(q0: Quaternion): (number, number, number) 
+    --@dev
     AssertType(1, q0, "Quaternion")
+    --@devend
     
     q0 = Normalize(q0)
     local qX, qY, qZ, qW = q0.X, q0.Y, q0.Z, q0.W
@@ -2108,7 +2231,9 @@ local function ToEulerAnglesXYZ(q0: Quaternion): (number, number, number)
 end
 
 local function ToEulerAnglesXZY(q0: Quaternion): (number, number, number)
+    --@dev
     AssertType(1, q0, "Quaternion")
+    --@devend
     
     q0 = Normalize(q0)
     local qX, qY, qZ, qW = q0.X, q0.Y, q0.Z, q0.W
@@ -2142,7 +2267,9 @@ end
     @tag Deconstructor
 ]=]
 local function ToEulerAnglesYXZ(q0: Quaternion): (number, number, number) 
+    --@dev
     AssertType(1, q0, "Quaternion")
+    --@devend
     
     q0 = Normalize(q0)
     local qX, qY, qZ, qW = q0.X, q0.Y, q0.Z, q0.W
@@ -2190,7 +2317,9 @@ local function ToEulerAnglesYZX(q0: Quaternion): (number, number, number)
 end
 
 local function ToEulerAnglesZXY(q0: Quaternion): (number, number, number) 
+    --@dev
     AssertType(1, q0, "Quaternion")
+    --@devend
     
     q0 = Normalize(q0)
     local qX, qY, qZ, qW = q0.X, q0.Y, q0.Z, q0.W
@@ -2214,7 +2343,9 @@ local function ToEulerAnglesZXY(q0: Quaternion): (number, number, number)
 end
 
 local function ToEulerAnglesZYX(q0: Quaternion): (number, number, number) 
+    --@dev
     AssertType(1, q0, "Quaternion")
+    --@devend
     
     q0 = Normalize(q0)
     local qX, qY, qZ, qW = q0.X, q0.Y, q0.Z, q0.W
@@ -2262,7 +2393,9 @@ local function ToEulerAngles(
     q0: Quaternion, rotationOrder: string?
 ): (number, number, number) 
     
+    --@dev
     AssertType(2, rotationOrder, "string", "nil")
+    --@devend
     
     if not rotationOrder then rotationOrder = "XYZ" end
 
@@ -2293,6 +2426,9 @@ Quaternion.ToOrientation = ToEulerAnglesYXZ
     @tag Deconstructor
 ]=]
 local function GetComponents(q0: Quaternion): (number, number, number, number)
+    --@dev
+    AssertType(1, q0, "Quaternion")
+    --@devend
     return q0.X, q0.Y, q0.Z, q0.W
 end
 
@@ -2308,8 +2444,10 @@ Quaternion.GetComponents = GetComponents
 Quaternion.components = GetComponents
 
 local function round(number: number, decimalPlaces: number?): string
+    --@dev
     AssertType(1, number, "number")
     AssertType(2, decimalPlaces, "number", "nil")
+    --@devend
     
     if decimalPlaces then
         decimalPlaces = math.max(0, decimalPlaces)
@@ -2333,9 +2471,11 @@ end
     @tag Deconstructor
 ]=]
 local function ToString(q0: Quaternion, decimalPlaces: number?): string
+    --@dev
     AssertType(1, q0, "Quaternion")
     AssertType(2, decimalPlaces, "number", "nil")
-
+    --@devend
+    
     return 
         round(q0.X, decimalPlaces) .. ", "
         .. round(q0.Y, decimalPlaces) .. ", "
