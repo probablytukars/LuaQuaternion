@@ -27,11 +27,8 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Run tests
-        run: |
-          chmod +x binaries/ubuntu/luau
-          binaries/ubuntu/luau tests/test.luau
+        run: binaries/ubuntu/luau tests/test.luau
 
       # Runs a set of commands using the runners shell
       - name: Build code
-        run: |
-          binaries/ubuntu/lua54 tests/build.lua
+        run: binaries/ubuntu/lua54 tests/build.lua

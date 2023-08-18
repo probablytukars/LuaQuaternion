@@ -1,4 +1,4 @@
-local OutputBuffer = require("OutputBuffer")
+local OutputBuffer = require("tests/OutputBuffer")
 
 local buffer = OutputBuffer.new()
 
