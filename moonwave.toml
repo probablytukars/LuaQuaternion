@@ -9,4 +9,4 @@ apiCategories = [
 onBrokenLinks = "throw"
 onBrokenMarkdownLinks = "warn"
 url = "https://probablytukars.github.io"
-baseUrl = "/Quaternion"
+baseUrl = "/LuaQuaternion"
