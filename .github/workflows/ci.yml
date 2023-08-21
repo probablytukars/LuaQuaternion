@@ -23,4 +23,5 @@ jobs:
           npm i -g moonwave
           git config --global user.email "89352810+probablytukars@users.noreply.github.com"
           git config --global user.name "probablytukars"
+          git remote set-url origin https://probablytukars:${{ secrets.GITHUB_TOKEN }}@github.com/probablytukars/probablytukars.git
           moonwave build --publish
