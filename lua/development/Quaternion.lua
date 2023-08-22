@@ -1,7 +1,7 @@
 -- Version: 0.0.2
 
-local Vector3 = require("../mocks/Vector3")
-local CFrame = require("../mocks/CFrame")
+local Vector3 = require("mocks/Vector3")
+local CFrame = require("mocks/CFrame")
 
 
 local EPSILON = 1e-6
@@ -621,7 +621,7 @@ end
 
 Quaternion.RandomQuaternion = RandomQuaternion
 
---[=[
+--[==[
     Adds the the second quaternion to the first quaternion using 
     component-wise addition.
     
@@ -629,9 +629,9 @@ Quaternion.RandomQuaternion = RandomQuaternion
     @within Quaternion
     @return Quaternion
     @tag Math Operations
-]=]
+]==]
 
---[=[
+--[==[
     Subtracts the the second quaternion from the first quaternion
     using component-wise subtraction.
     
@@ -639,9 +639,9 @@ Quaternion.RandomQuaternion = RandomQuaternion
     @within Quaternion
     @return Quaternion
     @tag Math Operations
-]=]
+]==]
 
---[=[
+--[==[
     Multiplies the first quaternion by the second quaternion using
     the Hamilton product. The order of multiplication is crucial, and in 
     nearly all cases, (where q0 and q1 are quaternions) q0 \* q1 is not 
@@ -651,26 +651,26 @@ Quaternion.RandomQuaternion = RandomQuaternion
     @within Quaternion
     @return Quaternion
     @tag Math Operations
-]=]
+]==]
 
---[=[
+--[==[
     Multiplies each component of a quaternion by a scalar value.
     
     @method Quaternion * number
     @within Quaternion
     @return Quaternion
     @tag Math Operations
-]=]
---[=[
+]==]
+--[==[
     Multiplies each component of a quaternion by a scalar value.
     
     @method number * Quaternion
     @within Quaternion
     @return Quaternion
     @tag Math Operations
-]=]
+]==]
 
---[=[
+--[==[
     Converts the Quaternion to a CFrame and multiplies them 
     together. Equivalent to `Quaternion:ToCFrame() * CFrame`.
     
@@ -678,18 +678,18 @@ Quaternion.RandomQuaternion = RandomQuaternion
     @within Quaternion
     @return Quaternion
     @tag Math Operations
-]=]
+]==]
 
---[=[
+--[==[
     Rotates a Vector3 by a Quaternion.
     
     @method Quaternion * Vector3
     @within Quaternion
     @return Vector3
     @tag Math Operations
-]=]
+]==]
 
---[=[
+--[==[
     Creates a CFrame with the position given by Vector3 and the
     rotation given by Quaternion. 
     
@@ -697,27 +697,27 @@ Quaternion.RandomQuaternion = RandomQuaternion
     @within Quaternion
     @return CFrame
     @tag Math Operations
-]=]
+]==]
 
---[=[
+--[==[
     Divides each component of the quaternion by the given scalar.
     
     @method Quaternion / number
     @within Quaternion
     @return Quaternion
     @tag Math Operations
-]=]
+]==]
 
---[=[
+--[==[
     Each component divides the given scalar.
     
     @method number / Quaternion
     @within Quaternion
     @return Quaternion
     @tag Math Operations
-]=]
+]==]
 
---[=[
+--[==[
     Multiplies the the first quaternion by the inverse of the
     second quaternion. Equivalent to `q0 * q1:Inverse()`.
     
@@ -725,18 +725,18 @@ Quaternion.RandomQuaternion = RandomQuaternion
     @within Quaternion
     @return Quaternion
     @tag Math Operations
-]=]
+]==]
 
---[=[
+--[==[
     Negates each component of the Quaternion.
     
     @method -Quaternion
     @within Quaternion
     @return Quaternion
     @tag Math Operations
-]=]
+]==]
 
---[=[
+--[==[
     Raises quaternion by the given power. Has the effect of
     scaling a rotation around the identity quaternion. For example,
     if a quaternion `q0` represents a rotation of 60 degrees around the
@@ -748,9 +748,9 @@ Quaternion.RandomQuaternion = RandomQuaternion
     @within Quaternion
     @return Quaternion
     @tag Math Operations
-]=]
+]==]
 
---[=[
+--[==[
     Checks if each component of one quaternion is exactly equal
     to the components of another quaternion.
     
@@ -758,9 +758,9 @@ Quaternion.RandomQuaternion = RandomQuaternion
     @within Quaternion
     @return boolean
     @tag Math Operations
-]=]
+]==]
 
---[=[
+--[==[
     Returns true if the first Quaternion has a smaller length than the
     second Quaternion.
     
@@ -768,9 +768,9 @@ Quaternion.RandomQuaternion = RandomQuaternion
     @within Quaternion
     @return boolean
     @tag Math Operations
-]=]
+]==]
 
---[=[
+--[==[
     Returns true if the first quaternion has a smaller or equal
     length than the second Quaternion.
     
@@ -778,34 +778,34 @@ Quaternion.RandomQuaternion = RandomQuaternion
     @within Quaternion
     @return boolean
     @tag Math Operations
-]=]
+]==]
 
---[=[
+--[==[
     Returns true if the first quaternion has a greater length than the second Quaternion.
     
     @method Quaternion > Quaternion
     @within Quaternion
     @return boolean
     @tag Math Operations
-]=]
+]==]
 
---[=[
+--[==[
     Returns true if the first quaternion has a greater or equal length than the second Quaternion.
     
     @method Quaternion >= Quaternion
     @within Quaternion
     @return boolean
     @tag Math Operations
-]=]
+]==]
 
---[=[
+--[==[
     The length of the quaternion.
     
     @method #Quaternion
     @within Quaternion
     @return number
     @tag Math Operations
-]=]
+]==]
 
 local function Add(q0: Quaternion, q1: Quaternion): Quaternion
     AssertType(1, q0, "Quaternion")
