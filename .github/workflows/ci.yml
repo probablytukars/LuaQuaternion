@@ -28,7 +28,7 @@ jobs:
       - name: Moonwave
         run: |
           npm i -g moonwave
-          moonwave build --publish
+          moonwave build
       
       - name: Deploy to GitHub Pages
         id: deployment
