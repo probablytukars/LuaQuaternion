@@ -15,19 +15,20 @@ jobs:
   Deployment:
     runs-on: ubuntu-latest
     steps:
-      - name: Install Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16'
-
-      - name: Install moonwave
-        run: npm i -g moonwave
-      
       - name: Configure github
         run: |
           git config --global user.email "support+actions@github.com"
           git config --global user.name "github-actions-bot"
-          git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/probablytukars/LuaQuaternion.git
+          git remote set-url origin https://${GH_TOKEN}@github.com/probablytukars/LuaQuaternion.git
+        env:
+          GH_TOKEN: ${{secrets.SECRET_GITHUB_TOKEN}}
+        
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
       
-      - name: Create documentation
-        run: moonwave build --publish
+      - name: Moonwave
+        run: |
+          npm i -g moonwave
+          moonwave build --publish
