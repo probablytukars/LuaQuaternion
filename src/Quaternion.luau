@@ -742,7 +742,7 @@ end
 Quaternion.fromVector = fromVector
 
 --[=[
-    Return function which will return a new random quaternion every
+    Return a function which will return a new random quaternion every
     time that it is called.
     
     @within Quaternion
