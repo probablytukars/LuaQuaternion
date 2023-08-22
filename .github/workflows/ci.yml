@@ -8,20 +8,14 @@ permissions:
   contents: write
 
 jobs:
-  CICD:
-    permissions:
-      pages: write
-      id-token: write
-    
+  Integration:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Run tests
         run: binaries/ubuntu/luau tests/test.luau
-      
       - name: Build code
         run: binaries/ubuntu/lua54 tests/build.lua
-      
       - name: Push changes
         run: |
           git config --global user.name "github-actions-bot"
@@ -29,6 +23,14 @@ jobs:
           git add .
           git commit -m "${{ github.event.head_commit.message }}"
           git push
+  Deployment:
+    permissions:
+      pages: write
+      id-token: write
+    
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
       
       - name: Install Node.js
         uses: actions/setup-node@v3
