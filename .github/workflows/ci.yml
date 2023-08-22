@@ -21,7 +21,7 @@ jobs:
           git config --global user.name "github-actions-bot"
           git config --global user.email "support+actions@github.com"
           git add .
-          git commit -m "Build lua files"
+          git commit -m "${{ github.event.head_commit.message }}"
           git push
   Deployment:
     permissions:
