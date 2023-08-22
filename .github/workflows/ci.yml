@@ -43,6 +43,7 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v2
         with:
-          token: ${{ secrets.SECRET_GITHUB_TOKEN }} 
+          token: ${{ secrets.SECRET_GITHUB_TOKEN }}
+          artifact_name: "build"
       
       
