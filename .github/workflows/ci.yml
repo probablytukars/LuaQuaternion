@@ -4,7 +4,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  tests:
+  ci:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -12,7 +12,9 @@ jobs:
         run: binaries/ubuntu/luau tests/test.luau
       - name: Build code
         run: binaries/ubuntu/lua54 tests/build.lua
-        
+  cd:
+    runs-on: ubuntu-latest
+    steps:
       - name: Install Node.js
         uses: actions/setup-node@v2
         with:
@@ -20,6 +22,11 @@ jobs:
 
       - name: Install moonwave
         run: npm i -g moonwave
-
+      
+      - name: Configure github
+        run: |
+          git config --global user.email "89352810+probablytukars@users.noreply.github.com"
+          git config --global user.name "probablytukars"
+      
       - name: Create documentation
         run: moonwave build --publish
