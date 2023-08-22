@@ -1,8 +1,8 @@
 name: CI/CD
 on:
   push:
-    paths:
-      - 'src/**'
+    branches:
+      [ "main" ]
 
 permissions:
   contents: write
@@ -21,33 +21,28 @@ jobs:
           git config --global user.name "github-actions-bot"
           git config --global user.email "support+actions@github.com"
           git add .
-          git commit -m "${{ github.event.head_commit.message }}"
+          git commit -m "[action] - Build lua/u files"
           git push
-  build:
+  deploy:
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
     permissions:
-      pages: write
-      id-token: write
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
     
+    
+
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    # Specify runner + deployment step
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      
-      - name: Install Node.js
-        uses: actions/setup-node@v3
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
         with:
-          node-version: '16'
-      
-      - name: Moonwave
-        run: |
-          npm i -g moonwave
-          moonwave build
-      - name: Deploy
-        uses: s0/git-publish-subdir-action@develop
-        env:
-          REPO: self
-          BRANCH: gh-pages
-          FOLDER: build
-          GITHUB_TOKEN: ${{ secrets.SECRET_GITHUB_TOKEN }}
-        
+          token: ${{ secrets.SECRET_GITHUB_TOKEN }}
       
       
