@@ -261,7 +261,7 @@ end
     
     @return Quaternion
     @tag Constructor
-]=]
+]=] 
 local function new(
     qX: number?, qY: number?, qZ: number?, qW: number?
 ): Quaternion
