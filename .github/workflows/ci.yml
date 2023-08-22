@@ -1,10 +1,10 @@
-name: CI
+name: CI/CD
 on:
   push:
     branches: [ "main" ]
 
 jobs:
-  ci:
+  Integration:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -12,7 +12,7 @@ jobs:
         run: binaries/ubuntu/luau tests/test.luau
       - name: Build code
         run: binaries/ubuntu/lua54 tests/build.lua
-  cd:
+  Deployment:
     runs-on: ubuntu-latest
     steps:
       - name: Install Node.js
@@ -27,6 +27,7 @@ jobs:
         run: |
           git config --global user.email "89352810+probablytukars@users.noreply.github.com"
           git config --global user.name "probablytukars"
+          git remote set-url origin https://github.com/probablytukars/repo.git -t gh-pages
       
       - name: Create documentation
         run: moonwave build --publish
