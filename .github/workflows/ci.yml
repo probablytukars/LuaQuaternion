@@ -23,6 +23,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      
+      - name: Moonwave
+        run: |
+          npm i -g moonwave
+          moonwave build
+        
       - name: Deploy
         uses: s0/git-publish-subdir-action@develop
         env:
