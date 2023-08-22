@@ -16,6 +16,13 @@ jobs:
         run: binaries/ubuntu/luau tests/test.luau
       - name: Build code
         run: binaries/ubuntu/lua54 tests/build.lua
+      - name: Push changes
+        run: |
+          git config --global user.name "github-actions-bot"
+          git config --global user.email "support+actions@github.com"
+          git add .
+          git commit -m "Build lua files"
+          git push
   Deployment:
     permissions:
       pages: write
