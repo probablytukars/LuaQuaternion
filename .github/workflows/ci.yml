@@ -18,11 +18,16 @@ jobs:
         run: binaries/ubuntu/lua54 tests/build.lua
       - name: Push changes
         run: |
-          git config --global user.name "github-actions-bot"
-          git config --global user.email "support+actions@github.com"
-          git add .
-          git commit -m "[action] - Build lua/u files"
-          git push
+          if [[ `git status --porcelain` ]]; then
+            git config --global user.name "github-actions-bot"
+            git config --global user.email "support+actions@github.com"
+            git add .
+            git commit -m "[action] - Build lua/u files"
+            git push
+          else
+            echo "WARNING: No changes were detected. git commit push action aborted."
+          fi
+          
   build:
     permissions:
       pages: write
