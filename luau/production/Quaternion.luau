@@ -862,7 +862,7 @@ Quaternion.RandomQuaternion = RandomQuaternion
     @within Quaternion
     @return number
     @tag Math Operations
-]==]
+]==] 
 
 local function Add(q0: Quaternion, q1: Quaternion): Quaternion
     
