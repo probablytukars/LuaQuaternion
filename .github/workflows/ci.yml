@@ -13,15 +13,17 @@ jobs:
       - name: Build code
         run: binaries/ubuntu/lua54 tests/build.lua
   Deployment:
+    permissions:
+      pages: write
+      id-token: write
+
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
     runs-on: ubuntu-latest
     steps:
-      - name: Configure github
-        run: |
-          git config --global user.email "support+actions@github.com"
-          git config --global user.name "github-actions-bot"
-          git remote set-url origin https://${GH_TOKEN}@github.com/probablytukars/LuaQuaternion.git
-        env:
-          GH_TOKEN: ${{secrets.SECRET_GITHUB_TOKEN}}
         
       - name: Install Node.js
         uses: actions/setup-node@v2
@@ -32,3 +34,7 @@ jobs:
         run: |
           npm i -g moonwave
           moonwave build --publish
+      
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
