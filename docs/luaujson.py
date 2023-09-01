@@ -1,7 +1,8 @@
 import json
 import re
 
-luau_input_file = "Quaternion.luau"
+luau_input_file = "src/Quaternion.luau"
+output_file = "docs/docs.json"
 
 doc_store = []
 
@@ -192,7 +193,7 @@ for doc in doc_store:
             target_list["list"].append(doc)
 
 
-with open("docs.json", "w") as outfile:
+with open(output_file, "w") as outfile:
     json.dump(doc_out_tab, outfile, indent=4)
 
 #print(json.dumps(doc_out_tab, indent=4))

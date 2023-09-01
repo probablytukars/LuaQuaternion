@@ -2,14 +2,14 @@ import copy
 import json
 import re
 
-from bs4 import BeautifulSoup, Comment
+from bs4 import BeautifulSoup
 from moonwave.tokens import tokenize
 
 global class_name
 
-html_input_file = "template.html"
-html_output_file = "index.html"
-json_docs_file = "docs.json"
+html_input_file = "docs/template.html"
+html_output_file = "build/index.html"
+json_docs_file = "docs/docs.json"
 
 html_content = ""
 with open(html_input_file, "r") as template_file:
