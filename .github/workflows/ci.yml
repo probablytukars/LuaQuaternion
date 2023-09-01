@@ -53,8 +53,6 @@ jobs:
         run: python docs/htmlgen.py
       
       - name: Deploy
-        with:
-          repo-token: 
         run: |
           if [[ `git status --porcelain` ]]; then
             git config --global user.name "GitHub Actions"
