@@ -48,6 +48,9 @@ jobs:
       
       - name: Generate Json from Luau
         run: |
+          cd docs
+          ls
+          cd ..
           ls
           python docs/luatojson.py
         
