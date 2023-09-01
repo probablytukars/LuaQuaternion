@@ -534,6 +534,20 @@ end
 Quaternion.lookAt = lookAt
 
 --[=[
+    made up function
+        
+    @within Quaternion
+    @function madeup
+    
+    @param callback <T>(internal: () -> T) -> string
+    @return {string | number}
+    @tag method
+]=]
+function Quaternion.madeup(callback: <T>(internal: () -> T) -> string): {string | number}
+    return "string"
+end
+
+--[=[
     Creates a quaternion using angles `rx`, `ry`, and `rz` in
     radians. Rotation is applied in Z, Y, X order.
     
