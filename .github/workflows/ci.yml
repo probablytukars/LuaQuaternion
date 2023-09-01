@@ -53,10 +53,13 @@ jobs:
         run: python docs/htmlgen.py
       
       - name: Deploy
+        with:
+          repo-token: 
         run: |
           if [[ `git status --porcelain` ]]; then
             git config --global user.name "GitHub Actions"
             git config --global user.email "actions@github.com"
+            git remote add origin https://${{ secrets.GITHUB_TOKEN }}@github.com/probablytukars/LuaQuaternion
             git checkout -b gh-pages
             git add build/*
             git commit -m "Update gh-pages with generated files"
@@ -64,5 +67,7 @@ jobs:
           else
             echo "WARNING: No changes were detected. git commit push action aborted."
           fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       
