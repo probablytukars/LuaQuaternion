@@ -297,7 +297,6 @@ def function_to_html(item, call_syntax):
     class_call_syntax = "dot-call" if call_syntax == "." else "colon-call"
     quick_add_template(insert_span, "punc", call_syntax, class_call_syntax)
     quick_add_template(insert_span, "method-name", item["name"])
-    print(item)
     parse_type(insert_span, item["definition"])
     
     group_similar_items(insert_span)
