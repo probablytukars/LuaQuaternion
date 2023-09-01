@@ -53,10 +53,10 @@ jobs:
           pip install beautifulsoup4
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       
-      -name: Generate Json from Luau
+      - name: Generate Json from Luau
         run: python docs/luatojson.py
         
-      -name: Generate HTML from Json
+      - name: Generate HTML from Json
         run: python docs/htmlgen.py
       
       - name: Deploy
