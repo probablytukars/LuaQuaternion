@@ -40,8 +40,5 @@ luac.out
 *.hex
 
 
-
-build/
-
 node_modules/
 node_modules
