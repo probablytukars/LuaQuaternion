@@ -18,10 +18,28 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install beautifulsoup4
+      
+      - name: Generate Json from Luau
+        run: python docs/luaujson.py
+        
+      - name: Generate HTML from Json
+        run: python docs/htmlgen.py
+      
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
           path: 'build'
+        
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
