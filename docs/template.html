@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>LuaQuaternion</title>
+        <meta name="viewport" content="height=device-height, 
+        width=device-width, initial-scale=1.0, 
+        minimum-scale=1.0, maximum-scale=1.0, 
+        user-scalable=no, target-densitydpi=device-dpi"/>
+        <meta charset="utf-8"/>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter|Fira+Mono">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@24,500,1,0" />
+        <link rel="stylesheet" href="index.css"/>
+        <template id="template-title-description">
+            <li class="description">
+                <h1 id=""></h1>
+                <p class="class-description"></p>
+            </li>
+        </template>
+        <template id="template-group-component">
+            <li class="group-component">
+                <h2 class="group-title" id=""></h2>
+                <ul class="group-list">
+
+                </ul>
+            </li>
+        </template>
+        <template id="template-group-item">
+            <li class="group-item">
+                <h3 class="item-title" id=""></h3>
+                <p class="item-description"></p>
+                <div class="box-container">
+                    <span class="definition">
+                        
+                    </span>
+                </div>
+            </li>
+        </template>
+        <template id="template-operation-item">
+            <li class="group-item operation-item">
+                <div class="box-container"></div>
+                <p class="item-description"></p>
+            </li>
+        </template>
+        <template id="template-class-name">
+            <code class="token class-name" href=""></code>
+        </template>
+        <template id="template-method-name">
+            <code class="token method-name" href=""></code>
+        </template>
+        <template id="template-prop-name">
+            <code class="token prop-name" href=""></code>
+        </template>
+        <template id="template-tuple">
+            <code class="token tuple" href=""></code>
+        </template>
+        <template id="template-indexer">
+            <code class="token indexer" href=""></code>
+        </template>
+        <template id="template-table">
+            <code class="token table" href=""></code>
+        </template>
+        <template id="template-separator">
+            <code class="token separator" href=""></code>
+        </template>
+        <template id="template-arrow">
+            <code class="token arrow" href="">&nbsp;&rarr;&nbsp;</code>
+        </template>
+        <template id="template-union">
+            <code class="token union" href=""></code>
+        </template>
+        <template id="template-intersection">
+            <code class="token intersection" href=""></code>
+        </template>
+        <template id="template-punc">
+            <code class="token punc" href=""></code>
+        </template>
+        <template id="template-identifier">
+            <code class="token identifier" href=""></code>
+        </template>
+        <template id="template-lua-type">
+            <a class="token lua-type" href=""></a>
+        </template>
+        <template id="template-operator">
+            <code class="token operator" href=""></code>
+        </template>
+        <template id="template-grouping">
+            <span class="token token-group" href=""></code>
+        </template>
+        <template id="template-sidebar-super">
+            <li class="sidebar-super sidebar-item"><a href=""><span></span></a></li>
+        </template>
+        <template id="template-sidebar-sub">
+            <li class="sidebar-sub sidebar-item"><a href=""><span></span></a></li>
+        </template>
+        <template id="template-special-tag-info">
+            <div class="special-tag tag-info">
+                <span class="material-symbols-outlined">info</span>
+                <span class="special-tag-text"></span></div>
+        </template>
+    </head>
+    <body>
+        <header>
+            <div class="header-content">
+                <div class="left">
+                    <button class="material-symbols-sharp menu-button">menu</button>
+                    <a class="github-link" href="https://github.com/probablytukars/LuaQuaternion" target="_blank">
+                        <span class="repository-name">
+                            LuaQuaternion
+                        </span>
+                        <span class="material-symbols-sharp">open_in_new</span>
+                    </a>
+                </div>
+                <div class="right">
+                    <div class="search-bar">
+                        <div class="overflow-container">
+                            <div class="search-box-container">
+                                <div class="search-container">
+                                    <input type="search" id="api-search" name="q" placeholder="Search" />
+                                    <button class="clear-search material-symbols-sharp">close</button>
+                                    <div class="divider vertical"></div>
+                                    <button class="complete-search material-symbols-sharp">search</button>
+                                </div>
+                                <div class="divider horizontal"></div>
+                                <ul class="search-results">
+                                        
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lightmode-switch">
+                        <input type="checkbox" class="checkbox" id="checkbox" checked="true">
+                        <label for="checkbox" class="checkbox-label">
+                            <span class="material-symbols-sharp moon">dark_mode</span>
+                            <span class="material-symbols-sharp sun">light_mode</span>
+                            <span class="ball"></span>
+                        </label>
+                    </div>
+                </div>
+                
+            </div>
+        </header>
+        <div class="content">
+            <main>
+                <ul class="content-list">
+                    
+                </ul>
+            </main>
+            <nav class="sidebar">
+                <div class="sticky">
+                    <a class="github-link" href="https://github.com/probablytukars/LuaQuaternion" target="_blank">
+                        <span class="repository-name">
+                        LuaQuaternion
+                        </span>
+                        <span class="material-symbols-sharp">open_in_new</span>
+                    </a>
+                    <h4>ON THIS PAGE</h4>
+                    <ul class="sidebar-list">
+                        
+                    </ul>
+                </div>
+            </nav>
+        </div>
+        <footer><div class="copyright">Documentation by probablytukars. Content available under MIT License.</div></footer>
+        <script src="https://cdn.jsdelivr.net/npm/fuzzysort/fuzzysort.min.js"></script>
+        <script src="index.js"></script>
+	</body>
+</html>
