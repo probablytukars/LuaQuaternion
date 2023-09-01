@@ -47,12 +47,7 @@ jobs:
           pip install beautifulsoup4
       
       - name: Generate Json from Luau
-        run: |
-          cd docs
-          ls
-          cd ..
-          ls
-          python docs/luatojson.py
+        run: python docs/luaujson.py
         
       - name: Generate HTML from Json
         run: python docs/htmlgen.py
