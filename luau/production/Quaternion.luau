@@ -157,16 +157,10 @@ local EPSILON = 1e-6
     @class Quaternion
     @grouporder ["Constructors", "Methods", "Deconstructors", "Math Operations"]
     
-    Quaternions represent rotations in 3D space in a memory 
-    efficient manner (4 numbers, compared to rotation matrices 9), and 
-    without suffering from gimbal lock (as euler angles do).
-    However, quaternions can suffer from gimbal lock if you only construct
-    them from euler angles and do not use quaternion operations themselves.
-    Once you have converted from euler angles to quaternions it is best
-    to stay in that form.
+    Quaternions represent rotations in 3D space.
     
     It is important to note that quaternions have double cover, meaning 
-    that q0 and -q0 encode the same rotation.
+    that `q0` and `-q0` encode the same rotation.
     
     
     This class is **immutable** which means once a quaternion has been
@@ -174,7 +168,7 @@ local EPSILON = 1e-6
     quaternions.
 ]=]
 --[=[
-    @prop X
+    @prop X number
 --]=]
 --[=[
     @prop Y number

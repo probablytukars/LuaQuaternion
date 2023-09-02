@@ -39,6 +39,9 @@ luac.out
 *.x86_64
 *.hex
 
+__pycache__
+build/docs.json
+build/index.html
 
 node_modules/
 node_modules

@@ -2,7 +2,7 @@ import json
 import re
 
 luau_input_file = "src/Quaternion.luau"
-output_file = "docs/docs.json"
+output_file = "build/docs.json"
 
 doc_store = []
 
@@ -90,7 +90,7 @@ def parse_doc_line(file, doc):
             read_desc = True
             if len(doc.keys()) > 0:
                 doc_store.append(doc)
-            if doc["tag"] == "method" or doc["tag"] == "function":
+            if doc["tag"] == "method" or doc["tag"] == "function" or doc["tag"] == "alias":
                 read_function_definition = True
             else:
                 return
@@ -100,13 +100,24 @@ def parse_doc_line(file, doc):
             if not name_found:
                 if line.startswith("local function"):
                     doc["name"] = re.findall("local function (\S+)\(", line)[0]
+                    doc["remove_first"] = True
                 elif line.startswith("function"):
-                    doc["name"] = re.findall("function (\S+)\(", line)[0].split(".")[-1]
+                    find = re.findall("function (\S+)\(", line)[0]
+                    if "." in find:
+                        doc["name"] = find.split(".")[-1].strip()
+                        doc["remove_first"] = True
+                    elif ":" in find:
+                        doc["name"] = find.split(":")[-1].strip()
+                        doc["remove_first"] = False
+                    else:
+                        doc["name"] = find.strip()
+                        doc["remove_first"] = True
                 else:
                     dot_find = re.findall("(\S+)\s*=\s*(\S+)", line)
                     if dot_find:
                         setter, equals = dot_find[0]
                         doc["name"] = setter.split(".")[-1]
+                        doc["remove_first"] = True
                         if not equals.startswith("function("):
                             return
                     else:

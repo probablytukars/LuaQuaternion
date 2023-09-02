@@ -9,7 +9,7 @@ global class_name
 
 html_input_file = "docs/template.html"
 html_output_file = "build/index.html"
-json_docs_file = "docs/docs.json"
+json_docs_file = "build/docs.json"
 
 html_content = ""
 with open(html_input_file, "r") as template_file:
@@ -55,10 +55,7 @@ def escape_html(string):
         "<": "&lt;",
         ">": "&gt;",
         '"': "&quot;",
-        "'": "&#39;",
-        "\*": "&#42;",
-        "\_": "&#95;",
-        "\`": "&#96;"
+        "'": "&#39;"
     }
 
     def replace(match):
@@ -154,7 +151,8 @@ def setup_group_item(item, delete_h3=False):
         group_item.h3.string = item["name"]
         group_item.h3["id"] = item["name"]
     insert_special_tag(group_item, item)
-    group_item.p.append(description_array_to_html(item["desc"]))
+    if len(item["desc"]) > 0:
+        group_item.p.append(description_array_to_html(item["desc"]))
     return group_item
 
 # quick_add_template(append_to, "", "", depth_class)
@@ -218,7 +216,9 @@ class_compatability = {
     "table": ["lua-type", "table"],
     "lua-type": ["separator", "generic", "table"],
     "identifier": ["tuple"],
-    "separator": ["lua-type"]
+    "separator": ["lua-type"],
+    "operand2": ["op-colon"],
+    "op-colon": []
 }
     
 
@@ -328,6 +328,7 @@ def operation_to_string(item):
 
 def operation_to_html(item):
     group_item = setup_group_item(item, True)
+    add_class(group_item, "operation-item")
     group_item["id"] = operation_to_string(item)
     insert_span = group_item.find("span", class_="definition")
     
@@ -343,7 +344,26 @@ def operation_to_html(item):
         quick_add_template(insert_span, "operator", "\u00A0" + operation_map[operator] + "\u00A0")
         parse_type(insert_span, item["operand2"])
     
+    if "return" in item:
+        quick_add_template(insert_span, "punc", ":" + "\u00A0", "op-colon")
+        parse_type(insert_span, item["return"])
+    
     group_similar_items(insert_span)
+    
+    return group_item
+
+def alias_to_html(item):
+    group_item = setup_group_item(item)
+    alias_link = "#" + item["alias"]
+    alias_anchor = soup.new_tag("a")
+    alias_anchor["href"] = alias_link
+    alias_anchor.string = item["alias"]
+    add_class(alias_anchor, "color-link")
+    group_item.p.append("Alias for ")
+    group_item.p.append(alias_anchor)
+    group_item.p.append(".")
+    
+    group_item.find("div", class_="box-container").extract()
     
     return group_item
 
@@ -366,10 +386,7 @@ def process_list_json(function_group, soup):
         if "name" in item:
             target_name = item["name"]
         else:
-            if tag == "alias":
-                target_name = item["alias"]
-            else:
-                target_name = operation_to_string(item)
+            target_name = operation_to_string(item)
         
         sidebar_sub.a.string = target_name
         sidebar_sub.a["href"] = "#" + target_name
@@ -385,6 +402,8 @@ def process_list_json(function_group, soup):
             group_component.ul.append(function_to_html(item, ":"))
         elif tag == "operation":
             group_component.ul.append(operation_to_html(item))
+        elif tag == "alias":
+            group_component.ul.append(alias_to_html(item))
     
     return group_component
 
