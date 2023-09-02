@@ -1,5 +1,18 @@
 -- Version: 0.0.2
 
+--@test
+local Vector3 = require("mocks/Vector3")
+local CFrame = require("mocks/CFrame")
+local Enum = {}
+Enum.RotationOrder = {
+    XYZ = {Value = 0, Name = "XYZ"},
+    XZY = {Value = 1, Name = "XZY"},
+    YZX = {Value = 2, Name = "YZX"},
+    YXZ = {Value = 3, Name = "YXZ"},
+    ZXY = {Value = 4, Name = "ZXY"},
+    ZYX = {Value = 5, Name = "ZYX"}
+}
+--@testend
 
 export type Quaternion = {
     
@@ -16,7 +29,7 @@ export type Quaternion = {
     fromEulerAnglesYXZ: (rx: number, ry: number, rz: number) -> Quaternion,
     fromOrientation: (rx: number, ry: number, rz: number) -> Quaternion,
     fromEulerAngles: (
-        rx: number, ry: number, rz: number, rotationOrder: string?
+        rx: number, ry: number, rz: number, rotationOrder: Enum.RotationOrder?
     ) -> Quaternion,
     fromVector: (vector: Vector3) -> Quaternion,
     RandomQuaternion: (seed: number) -> () -> Quaternion,
@@ -121,7 +134,7 @@ export type Quaternion = {
     ToEulerAnglesYXZ: (q0: Quaternion) -> (number, number, number),
     ToOrientation: (q0: Quaternion) -> (number, number, number),
     ToEulerAngles: (
-        q0: Quaternion, rotationOrder: string?
+        q0: Quaternion, rotationOrder: Enum.RotationOrder?
     ) -> (number, number, number),
     ToMatrix: (q0: Quaternion) ->
     (
@@ -142,6 +155,7 @@ local EPSILON = 1e-6
 
 --[=[
     @class Quaternion
+    @grouporder ["Constructors", "Methods", "Deconstructors", "Math Operations"]
     
     Quaternions represent rotations in 3D space in a memory 
     efficient manner (4 numbers, compared to rotation matrices 9), and 
@@ -150,42 +164,52 @@ local EPSILON = 1e-6
     them from euler angles and do not use quaternion operations themselves.
     Once you have converted from euler angles to quaternions it is best
     to stay in that form.
+    
     It is important to note that quaternions have double cover, meaning 
     that q0 and -q0 encode the same rotation.
+    
     
     This class is **immutable** which means once a quaternion has been
     created, its components cannot be changed. All methods create new
     quaternions.
 ]=]
 --[=[
-    A quaternion with unit length. Result is cached.
-    
+    @prop X
+--]=]
+--[=[
+    @prop Y number
+--]=]
+--[=[
+    @prop Z number
+--]=]
+--[=[
+    @prop W number
+--]=]
+--[=[
     @prop Unit Quaternion
-    @within Quaternion
+    
+    A quaternion with unit length. Result is cached.
 ]=]
 --[=[
+    @prop Magnitude number
+    
     Returns the magnitude of the quaternion.
     Result is cached.
-    
-    @prop Magnitude number
-    @within Quaternion
 ]=]
 --[=[
+    @prop identity Quaternion
+    
     An identity quaternion with no rotation. 
     This is constant and should be accessed through the Quaternion class 
     rather than an individual Quaternion object.
-    
-    @prop identity Quaternion
-    @within Quaternion
 ]=]
 --[=[
+    @prop zero Quaternion
+    
     The zero quaternion, this does not represent any 
     rotation as it has a magnitude of zero. This is a constant and should 
     be  accessed through the Quaternion class rather than an individual 
     Quaternion object.
-    
-    @prop zero Quaternion
-    @within Quaternion
 ]=]
 local Quaternion = {_type = "Quaternion"}
 
@@ -194,22 +218,14 @@ local Quaternion = {_type = "Quaternion"}
 
 
 --[=[
+    @function
+    @group Constructors
+    
     Creates a new quaternion with X, Y, Z, W values, where the 
     X, Y, Z are the imaginary components and the W component is the real 
     component.
-    
-    @within Quaternion
-    @param qX number? -- the X component, defaults to 0.
-    @param qY number? -- the Y component, defaults to 0.
-    @param qZ number? -- the Z component, defaults to 0.
-    @param qW number? -- the W component, defaults to 1.
-    
-    @return Quaternion
-    @tag Constructor
 ]=]
-local function new(
-    qX: number?, qY: number?, qZ: number?, qW: number?
-): Quaternion
+local function new(qX: number?, qY: number?, qZ: number?, qW: number?): Quaternion
     
 
     local self = setmetatable({
@@ -231,9 +247,7 @@ Quaternion.zero = new(0, 0, 0, 0)
 
 -- Private Methods
 
-local function _Orthonormalize(
-    rightVector: Vector3, upVector: Vector3, backVector: Vector3
-): (Vector3, Vector3, Vector3)
+local function _Orthonormalize(rightVector: Vector3, upVector: Vector3, backVector: Vector3): (Vector3, Vector3, Vector3)
     
     local xBasis = _safeUnit(rightVector, Vector3.xAxis)
     local _upVector = _safeUnit(upVector, Vector3.yAxis)
@@ -258,9 +272,7 @@ local function _Orthonormalize(
 end
 
 
-local function _fromOrthonormalizedMatrix(
-    vX: Vector3, vY: Vector3, vZ: Vector3
-): Quaternion
+local function _fromOrthonormalizedMatrix(vX: Vector3, vY: Vector3, vZ: Vector3): Quaternion
     
     local m00, m10, m20 = vX.X, vX.Y, vX.Z
     local m01, m11, m21 = vY.X, vY.Y, vY.Z
@@ -302,15 +314,11 @@ end
 -- Public Methods
 
 --[=[
+    @function
+    @group Constructors
+    
     Creates a quaternion from an axis and angle. 
     Will always return a valid unit quaternion. Normalizes axis.
-    
-    @within Quaternion
-    @param axis Vector3 -- The axis of rotation
-    @param angle number -- The angle of rotation around the axis
-    
-    @return Quaternion
-    @tag Constructor
 ]=]
 local function fromAxisAngle(axis: Vector3, angle: number): Quaternion
     
@@ -330,15 +338,11 @@ end
 Quaternion.fromAxisAngle = fromAxisAngle
 
 --[=[
+    @function
+    @group Constructors
+    
     Creates a quaternion from an axis and angle. 
     Assumes axis is already normalized.
-    
-    @within Quaternion
-    @param axis Vector3 -- The axis of rotation
-    @param angle number -- The angle of rotation around the axis
-    
-    @return Quaternion
-    @tag Constructor
 ]=]
 local function fromAxisAngleFast(axis: Vector3, angle: number): Quaternion
     
@@ -357,14 +361,11 @@ end
 Quaternion.fromAxisAngleFast = fromAxisAngleFast
 
 --[=[
+    @function
+    @group Constructors
+    
     Creates a quaternion from a CFrame. 
     Will always return a valid unit quaternion.
-    
-    @within Quaternion
-    @param cframe CFrame -- The CFrame to construct quaternion from
-    
-    @return Quaternion
-    @tag Constructor
 ]=]
 local function fromCFrame(cframe: CFrame): Quaternion
     
@@ -375,17 +376,12 @@ end
 Quaternion.fromCFrame = fromCFrame
 
 --[=[
+    @function
+    @group Constructors
+    
     Creates a quaternion from three vectors describing a rotation
     matrix.
     Will always return a valid unit quaternion.
-    
-    @within Quaternion
-    @param vX Vector3 -- The right vector component (r00, r10, r20)
-    @param vY Vector3 -- The up vector component (r01, r11, r21)
-    @param vZ Vector3? -- The back vector component (r02, r12, r22). If not provided, will be calculated as `vX:Cross(vY).Unit`.
-    
-    @return Quaternion
-    @tag Constructor
 ]=]
 local function fromMatrix(vX: Vector3, vY: Vector3, vZ: Vector3?): Quaternion
     
@@ -401,18 +397,13 @@ end
 Quaternion.fromMatrix = fromMatrix
 
 --[=[
+    @function
+    @group Constructors
+    
     Returns a quaternion looking at Vector3 `lookAt`, from the
     Vector3 `from`, with an optional upVector Vector3 `up`. Maintains
     the same functionality as Roblox's `CFrame.lookAt`.
     Will always return a valid unit quaternion.
-    
-    @within Quaternion
-    @param from Vector3 -- The position to look from
-    @param lookAt Vector3 -- The position to look at
-    @param up Vector3? -- The up vector to keep look vector relative to. Defaults to Vector3.yAxis
-    
-    @return Quaternion
-    @tag Constructor
 ]=]
 local function lookAt(from: Vector3, lookAt: Vector3, up: Vector3?): Quaternion
     
@@ -444,20 +435,13 @@ end
 Quaternion.lookAt = lookAt
 
 --[=[
+    @function
+    @group Constructors
+    
     Creates a quaternion using angles `rx`, `ry`, and `rz` in
     radians. Rotation is applied in Z, Y, X order.
-    
-    @within Quaternion
-    @param rx number
-    @param ry number
-    @param rz number
-    
-    @return Quaternion
-    @tag Constructor
 ]=]
-local function fromEulerAnglesXYZ(
-    rx: number, ry: number, rz: number
-): Quaternion
+local function fromEulerAnglesXYZ(rx: number, ry: number, rz: number): Quaternion
     
     
     local xCos = math.cos(rx / 2)
@@ -484,29 +468,20 @@ Quaternion.fromEulerAnglesXYZ = fromEulerAnglesXYZ
 
 
 --[=[
-    Alias for fromEulerAnglesXYZ.
-    
-    @function Angles
-    @within Quaternion
-    @tag Constructor
+    @function
+    @group Constructors
+    @alias fromEulerAnglesXYZ
 ]=]
 Quaternion.Angles = fromEulerAnglesXYZ
 
 --[=[
+    @function
+    @group Constructors
+    
     Creates a quaternion using angles `rx`, `ry`, and `rz` in
-        radians. Rotation is applied in Z, X, Y order.
-    
-    @within Quaternion
-    @param rx number
-    @param ry number
-    @param rz number
-    
-    @return Quaternion
-    @tag Constructor
+    radians. Rotation is applied in Z, X, Y order.
 ]=]
-local function fromEulerAnglesYXZ(
-    rx: number, ry: number, rz: number
-): Quaternion 
+local function fromEulerAnglesYXZ(rx: number, ry: number, rz: number): Quaternion 
     
     
     local xCos = math.cos(rx / 2)
@@ -535,33 +510,22 @@ Quaternion.fromEulerAnglesYXZ = fromEulerAnglesYXZ
 
 
 --[=[
-    Alias for fromEulerAnglesYXZ
-    
-    @function fromOrientation
-    @within Quaternion
-    @tag Constructor
+    @function
+    @group Constructors
+    @alias fromEulerAnglesYXZ
 ]=]
 Quaternion.fromOrientation = fromEulerAnglesYXZ
 
 --[=[
+    @function
+    @group Constructors
+    
     Creates a quaternion using angles `rx`, `ry`, and `rz` in
     radians. Rotation is applied in the order given by `rotationOrder`.
-    
-    @within Quaternion
-    @param rx number
-    @param ry number
-    @param rz number
-    @param rotationOrder string? -- defaults to "XYZ".
-    
-    @return Quaternion
-    @tag Constructor
 ]=]
-local function fromEulerAngles(
-    rx: number, ry: number, rz: number, rotationOrder: string?
-): Quaternion 
+local function fromEulerAngles(rx: number, ry: number, rz: number, rotationOrder: Enum.RotationOrder?): Quaternion 
     
-    
-    if not rotationOrder then rotationOrder = "XYZ" end
+    if not rotationOrder then rotationOrder = Enum.RotationOrder.XYZ end
 
     local xCos = math.cos(rx / 2)
     local yCos = math.cos(ry / 2)
@@ -578,32 +542,33 @@ local function fromEulerAngles(
     
     local qX, qY, qZ, qW
     
-    if rotationOrder == "XYZ" then
+    local order = rotationOrder.Name
+    if order == "XYZ" then
         qX = xSinyCos * zCos + xCosySin * zSin;
         qY = xCosySin * zCos - xSinyCos * zSin;
         qZ = xCosyCos * zSin + xSinySin * zCos;
         qW = xCosyCos * zCos - xSinySin * zSin;
-    elseif rotationOrder == "YXZ" then
+    elseif order == "YXZ" then
         qX = xSinyCos * zCos + xCosySin * zSin;
         qY = xCosySin * zCos - xSinyCos * zSin;
         qZ = xCosyCos * zSin - xSinySin * zCos;
         qW = xCosyCos * zCos + xSinySin * zSin;
-    elseif rotationOrder == "ZXY" then
+    elseif order == "ZXY" then
         qX = xSinyCos * zCos - xCosySin * zSin;
         qY = xCosySin * zCos + xSinyCos * zSin;
         qZ = xCosyCos * zSin + xSinySin * zCos;
         qW = xCosyCos * zCos - xSinySin * zSin;
-    elseif rotationOrder == "ZYX" then
+    elseif order == "ZYX" then
         qX = xSinyCos * zCos - xCosySin * zSin;
         qY = xCosySin * zCos + xSinyCos * zSin;
         qZ = xCosyCos * zSin - xSinySin * zCos;
         qW = xCosyCos * zCos + xSinySin * zSin;
-    elseif rotationOrder == "YZX" then
+    elseif order == "YZX" then
         qX = xSinyCos * zCos + xCosySin * zSin;
         qY = xCosySin * zCos + xSinyCos * zSin;
         qZ = xCosyCos * zSin - xSinySin * zCos;
         qW = xCosyCos * zCos - xSinySin * zSin;
-    elseif rotationOrder == "XZY" then
+    elseif order == "XZY" then
         qX = xSinyCos * zCos - xCosySin * zSin;
         qY = xCosySin * zCos - xSinyCos * zSin;
         qZ = xCosyCos * zSin + xSinySin * zCos;
@@ -616,14 +581,11 @@ end
 Quaternion.fromEulerAngles = fromEulerAngles
 
 --[=[
+    @function
+    @group Constructors
+    
     Creates a quaternion from a vector, where the imaginary
     components of the quaternion are set by the vector components.
-    
-    @within Quaternion
-    @param vector Vector3 -- The vector to use to set the imaginary components.
-    
-    @return Quaternion
-    @tag Constructor
 ]=]
 local function fromVector(vector: Vector3): Quaternion
     
@@ -633,32 +595,41 @@ end
 Quaternion.fromVector = fromVector
 
 --[=[
+    @function
+    @group Constructors
+    
     Returns a function which will return a new random quaternion every
     time that it is called.
-    
-    @within Quaternion
-    @param seed number -- The seed to use for random rotation generation.
-    
-    @return () -> Quaternion
-    @tag Constructor
 ]=]
 local function RandomQuaternion(seed: number): () -> Quaternion
     local seed = seed or 1
     
+    --@build
     --[==[
     local random = Random.new(seed)
     --]==]
+    --@buildend
+    --@test
+    math.randomseed(seed)
+    --@testend
     local tau = 2 * math.pi
     local sqrt = math.sqrt
     local sin = math.sin
     local cos = math.cos
     return function()
+        --@build
         --[==[
         local u = random:NextNumber(0, 1)
         local v = random:NextNumber(0, 1)
         local w = random:NextNumber(0, 1)
         --]==]
+        --@buildend
         
+        --@test
+        local u = math.random()
+        local v = math.random()
+        local w = math.random()
+        --@testend
         
         local omu = 1 - u
         local squ = sqrt(u)
@@ -678,191 +649,197 @@ end
 
 Quaternion.RandomQuaternion = RandomQuaternion
 
---[==[
+--[=[
+    @operator add
+    @operand1 Quaternion
+    @operand2 Quaternion
+    @return Quaternion
+    @group Math Operations
+    
     Adds the the second quaternion to the first quaternion using 
     component-wise addition.
-    
-    @method Quaternion + Quaternion
-    @within Quaternion
-    @return Quaternion
-    @tag Math Operations
-]==]
+]=]
 
---[==[
+--[=[
+    @operator sub
+    @operand1 Quaternion
+    @operand2 Quaternion
+    @return Quaternion
+    @group Math Operations
+    
     Subtracts the the second quaternion from the first quaternion
     using component-wise subtraction.
-    
-    @method Quaternion - Quaternion
-    @within Quaternion
-    @return Quaternion
-    @tag Math Operations
-]==]
+]=]
 
---[==[
+--[=[
+    @operator mul
+    @operand1 Quaternion
+    @operand2 Quaternion
+    @return Quaternion
+    @group Math Operations
+    
     Multiplies the first quaternion by the second quaternion using
     the Hamilton product. The order of multiplication is crucial, and in 
     nearly all cases, (where q0 and q1 are quaternions) q0 \* q1 is not 
     equal to q1 \* q0.
-    
-    @method Quaternion * Quaternion
-    @within Quaternion
-    @return Quaternion
-    @tag Math Operations
-]==]
+]=]
 
---[==[
-    Multiplies each component of a quaternion by a scalar value.
-    
-    @method Quaternion * number
-    @within Quaternion
+--[=[
+    @operator mul
+    @operand1 Quaternion
+    @operand2 number
     @return Quaternion
-    @tag Math Operations
-]==]
---[==[
-    Multiplies each component of a quaternion by a scalar value.
+    @group Math Operations
     
-    @method number * Quaternion
-    @within Quaternion
+    Multiplies each component of a quaternion by a scalar value.
+]=]
+--[=[
+    @operator mul
+    @operand1 number
+    @operand2 Quaternion
     @return Quaternion
-    @tag Math Operations
-]==]
+    @group Math Operations
+    
+    Multiplies each component of a quaternion by a scalar value.
+]=]
 
---[==[
+--[=[
+    @operator mul
+    @operand1 Quaternion
+    @operand2 CFrame
+    @return CFrame
+    @group Math Operations
+    
     Converts the Quaternion to a CFrame and multiplies them 
     together. Equivalent to `Quaternion:ToCFrame() * CFrame`.
-    
-    @method Quaternion * CFrame
-    @within Quaternion
-    @return Quaternion
-    @tag Math Operations
-]==]
+]=]
 
---[==[
-    Rotates a Vector3 by a Quaternion.
-    
-    @method Quaternion * Vector3
-    @within Quaternion
+--[=[
+    @operator mul
+    @operand1 Quaternion
+    @operand2 Vector3
     @return Vector3
-    @tag Math Operations
-]==]
-
---[==[
-    Creates a CFrame with the position given by Vector3 and the
-    rotation given by Quaternion. 
+    @group Math Operations
     
-    @method Vector3 * Quaternion
-    @within Quaternion
-    @return CFrame
-    @tag Math Operations
-]==]
+    Rotates a Vector3 by a Quaternion.
+]=]
 
---[==[
+--[=[
+    @operator div
+    @operand1 Quaternion
+    @operand2 number
+    @return Quaternion
+    @group Math Operations
+    
     Divides each component of the quaternion by the given scalar.
-    
-    @method Quaternion / number
-    @within Quaternion
-    @return Quaternion
-    @tag Math Operations
-]==]
+]=]
 
---[==[
+--[=[
+    @operator div
+    @operand1 number
+    @operand2 Quaternion
+    @return Quaternion
+    @group Math Operations
+    
     Each component divides the given scalar.
-    
-    @method number / Quaternion
-    @within Quaternion
-    @return Quaternion
-    @tag Math Operations
-]==]
+]=]
 
---[==[
+--[=[
+    @operator div
+    @operand1 Quaternion
+    @operand2 Quaternion
+    @return Quaternion
+    @group Math Operations
+    
     Multiplies the the first quaternion by the inverse of the
     second quaternion. Equivalent to `q0 * q1:Inverse()`.
-    
-    @method Quaternion / Quaternion
-    @within Quaternion
-    @return Quaternion
-    @tag Math Operations
-]==]
+]=]
 
---[==[
+--[=[
+    @operator unm
+    @operand1 Quaternion
+    @return Quaternion
+    @group Math Operations
+    
     Negates each component of the Quaternion.
-    
-    @method -Quaternion
-    @within Quaternion
-    @return Quaternion
-    @tag Math Operations
-]==]
+]=]
 
---[==[
+--[=[
+    @operator pow
+    @operand1 Quaternion
+    @operand2 number
+    @return Quaternion
+    @group Math Operations
+    
     Raises quaternion by the given power. Has the effect of
     scaling a rotation around the identity quaternion. For example,
     if a quaternion `q0` represents a rotation of 60 degrees around the
     X axis, doing `q0 ^ 0.5` will return a quaternion with a rotation of
     of 30 degrees around the X axis. Doing `q0 ^ 2` will return a rotation
     of 120 degrees around the X axis. The power can be any real number.
-    
-    @method Quaternion ^ number
-    @within Quaternion
-    @return Quaternion
-    @tag Math Operations
-]==]
+]=]
 
---[==[
+--[=[
+    @operator eq
+    @operand1 Quaternion
+    @operand2 Quaternion
+    @return Quaternion
+    @group Math Operations
+    
     Checks if each component of one quaternion is exactly equal
     to the components of another quaternion.
-    
-    @method Quaternion == Quaternion
-    @within Quaternion
-    @return boolean
-    @tag Math Operations
-]==]
+]=]
 
---[==[
+--[=[
+    @operator lt
+    @operand1 Quaternion
+    @operand2 Quaternion
+    @return boolean
+    @group Math Operations
+    
     Returns true if the first Quaternion has a smaller length than the
     second Quaternion.
-    
-    @method Quaternion < Quaternion
-    @within Quaternion
-    @return boolean
-    @tag Math Operations
-]==]
+]=]
 
---[==[
+--[=[
+    @operator le
+    @operand1 Quaternion
+    @operand2 Quaternion
+    @return boolean
+    @group Math Operations
+    
     Returns true if the first quaternion has a smaller or equal
     length than the second Quaternion.
+]=]
     
-    @method Quaternion <= Quaternion
-    @within Quaternion
+--[=[
+    @operator gt
+    @operand1 Quaternion
+    @operand2 Quaternion
     @return boolean
-    @tag Math Operations
-]==]
-
---[==[
+    @group Math Operations
+    
     Returns true if the first quaternion has a greater length than the second Quaternion.
-    
-    @method Quaternion > Quaternion
-    @within Quaternion
-    @return boolean
-    @tag Math Operations
-]==]
+]=]
 
---[==[
+--[=[
+    @operator ge
+    @operand1 Quaternion
+    @operand2 Quaternion
+    @return boolean
+    @group Math Operations
+    
     Returns true if the first quaternion has a greater or equal length than the second Quaternion.
-    
-    @method Quaternion >= Quaternion
-    @within Quaternion
-    @return boolean
-    @tag Math Operations
-]==]
+]=]
 
---[==[
-    The length of the quaternion.
-    
-    @method #Quaternion
-    @within Quaternion
+--[=[
+    @operator len
+    @operand1 Quaternion
     @return number
-    @tag Math Operations
-]==] 
+    @group Math Operations
+    
+    The length of the quaternion.
+]=] 
 
 local function Add(q0: Quaternion, q1: Quaternion): Quaternion
     
@@ -878,11 +855,7 @@ end
 
 Quaternion.__sub = Sub
 
-local function Mul(
-    op0: Quaternion | CFrame | Vector3 | number, 
-    op1: Quaternion | CFrame | Vector3 | number
-): Quaternion | CFrame | Vector3
-    
+local function Mul(op0: Quaternion | Vector3 | number, op1: Quaternion | CFrame | Vector3 | number): Quaternion | CFrame | Vector3
     
     if op0type == "Quaternion" and op1type == "Quaternion" then
         local q0X, q0Y, q0Z, q0W = op0.X, op0.Y, op0.Z, op0.W
@@ -897,13 +870,13 @@ local function Mul(
         return new(op0 * op1.X, op0 * op1.Y, op0 * op1.Z, op0 * op1.W)
     elseif op0type == "Quaternion" and op1type == "number" then
         return new(op0.X * op1, op0.Y * op1, op0.Z * op1, op0.W * op1)
-    elseif op0type == "Quaternion" and op1type == "CFrame" then 
-        return op0:ToCFrame() * op1
+    --@build
+    --elseif op0type == "Quaternion" and op1type == "CFrame" then 
+        --return op0:ToCFrame() * op1
+    --@buildend
     elseif op0type == "Quaternion" and op1type == "Vector3" then
         local op0 = op0:Normalize()
         return (op0 * fromVector(op1) * op0:Conjugate()):Vector()
-    elseif op0type == "Vector3" and op1type == "Quaternion" then
-        return CFrame.new(op0.X, op0.Y, op0.Z, op1.X, op1.Y, op1.Z, op1.W)
     else
         if op0type == "Quaternion" then
             error("Cannot multiply Quaternion with " .. op1type .. ".", 2)
@@ -923,9 +896,7 @@ end
 
 Quaternion.__mul = Mul
 
-local function Div(
-    op0: Quaternion | number, op1: number | Quaternion
-): Quaternion
+local function Div(op0: Quaternion | number, op1: number | Quaternion): Quaternion
     
     
     if op0type == "Quaternion" and op1type == "number" then
@@ -1000,7 +971,6 @@ end
 
 Quaternion.__eq = eq
 
--- honestly have no idea, just checks which is closer to identity
 local function lt(q0: Quaternion, q1:Quaternion)
     
     local q0l = q0:Length()
@@ -1022,13 +992,10 @@ end
 Quaternion.__le = le
 
 --[=[
+    @method
+    @group Methods
+    
     The exponential of a quaternion.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    
-    @return Quaternion
-    @tag Method
 ]=]
 local function Exp(q0: Quaternion): Quaternion
     
@@ -1048,15 +1015,11 @@ end
 Quaternion.Exp = Exp
 
 --[=[
+    @method
+    @group Methods
+    
     The exponential map on the Riemannian manifold described by
     the quaternion space.
-    
-    @within Quaternion
-    @param q0 Quaternion -- The base point of the exponential map
-    @param q1 Quaternion -- The tangent vector argument of the exponential map 
-    
-    @return Quaternion
-    @tag Method
 ]=]
 local function ExpMap(q0: Quaternion, q1: Quaternion): Quaternion
     
@@ -1066,15 +1029,11 @@ end
 Quaternion.ExpMap = ExpMap
 
 --[=[
+    @method
+    @group Methods
+    
     The symmetrized exponential map on the quaternion Riemannian
     manifold.
-    
-    @within Quaternion
-    @param q0 Quaternion -- The base point of the exponential map
-    @param q1 Quaternion -- The tangent vector argument of the exponential map
-    
-    @return Quaternion
-    @tag Method
 ]=]
 local function ExpMapSym(q0: Quaternion, q1: Quaternion): Quaternion
     
@@ -1085,13 +1044,10 @@ end
 Quaternion.ExpMapSym = ExpMapSym
 
 --[=[
+    @method
+    @group Methods
+    
     The logarithm of a quaternion.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    
-    @return Quaternion
-    @tag Method
 ]=]
 local function Log(q0: Quaternion): Quaternion
     
@@ -1115,14 +1071,10 @@ end
 Quaternion.Log = Log
 
 --[=[
+    @method
+    @group Methods
+    
     The logarithm map on the quaternion Riemannian manifold.
-    
-    @within Quaternion
-    @param q0 Quaternion -- The base point of the logarathmic map
-    @param q1 Quaternion -- The argument of the quaternion map
-    
-    @return Quaternion
-    @tag Method
 ]=]
 local function LogMap(q0: Quaternion, q1: Quaternion): Quaternion
     
@@ -1132,15 +1084,11 @@ end
 Quaternion.LogMap = LogMap
 
 --[=[
+    @method
+    @group Methods
+    
     The symmetrized logarithm map on the quaternion Riemannian 
     manifold.
-    
-    @within Quaternion
-    @param q0 Quaternion -- The base point of the logarathmic map
-    @param q1 Quaternion -- The argument of the quaternion map
-    
-    @return Quaternion
-    @tag Method
 ]=]
 local function LogMapSym(q0: Quaternion, q1: Quaternion): Quaternion
     
@@ -1151,13 +1099,10 @@ end
 Quaternion.LogMapSym = LogMapSym
 
 --[=[
+    @method
+    @group Methods
+    
     The length of the quaternion.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    
-    @return number
-    @tag Method
 ]=]
 local function Length(q0: Quaternion): number 
     
@@ -1169,13 +1114,10 @@ Quaternion.Length = Length
 Quaternion.__len = Length
 
 --[=[
+    @method
+    @group Methods
+    
     The sum of the squares length of the quaternion.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    
-    @return number
-    @tag Method
 ]=]
 local function LengthSquared(q0: Quaternion): number
     
@@ -1186,13 +1128,10 @@ end
 Quaternion.LengthSquared = LengthSquared
 
 --[=[
+    @method
+    @group Methods
+    
     A numerically stable way to get the length of a quaternion.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    
-    @return number
-    @tag Method
 ]=]
 local function Hypot(q0: Quaternion): number
     
@@ -1210,14 +1149,11 @@ end
 Quaternion.Hypot = Hypot
 
 --[=[
+    @method
+    @group Methods
+    
     The normalized quaternion with a length of one. Passing the
     zero Quaternion into this will return the identity Quaternion.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    
-    @return Quaternion
-    @tag Method
 ]=]
 local function Normalize(q0: Quaternion): Quaternion
     
@@ -1232,15 +1168,11 @@ end
 Quaternion.Normalize = Normalize
 
 --[=[
+    @method
+    @group Methods
+    
     Returns true if the given quaternion has a length close to
     one, within 1 +- epsilon range.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    @param epsilon number
-    
-    @return boolean
-    @tag Method
 ]=]
 local function IsUnit(q0: Quaternion, epsilon: number): boolean
     
@@ -1251,16 +1183,12 @@ end
 Quaternion.IsUnit = IsUnit
 
 --[=[
+    @method
+    @group Methods
+    
     Returns a CFrame with the same rotation as the given 
     quaternion. If a position is supplied, the CFrame will have that
     position. The given quaternion will be normalized.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    @param position Vector3?
-    
-    @return CFrame
-    @tag Method
 ]=]
 local function ToCFrame(q0: Quaternion, position: Vector3?): CFrame
     
@@ -1276,14 +1204,10 @@ end
 Quaternion.ToCFrame = ToCFrame
 
 --[=[
+    @method
+    @group Methods
+    
     Returns the dot product between two quaternions.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    @param q1 Quaternion
-    
-    @return number
-    @tag Method
 ]=]
 local function Dot(q0: Quaternion, q1: Quaternion): number
     
@@ -1293,14 +1217,11 @@ end
 Quaternion.Dot = Dot
 
 --[=[
+    @method
+    @group Methods
+    
     The conjugate of the Quaternion. The imaginary components are
     negated.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    
-    @return Quaternion
-    @tag Method
 ]=]
 local function Conjugate(q0: Quaternion): Quaternion
     
@@ -1310,14 +1231,11 @@ end
 Quaternion.Conjugate = Conjugate
 
 --[=[
+    @method
+    @group Methods
+    
     The inverse of the Quaternion. Mulitplying a quaternion by
     its own inverse will result in the identity Quaternion.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    
-    @return Quaternion
-    @tag Method
 ]=]
 local function Inverse(q0: Quaternion): Quaternion
     
@@ -1330,14 +1248,10 @@ end
 Quaternion.Inverse = Inverse
 
 --[=[
+    @method
+    @group Methods
+    
     Returns the angular velocity between two quaternions.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    @param q1 Quaternion
-    
-    @return Quaternion
-    @tag Method
 ]=]
 local function LogInv(q0: Quaternion, q1: Quaternion): Quaternion
     
@@ -1347,13 +1261,10 @@ end
 Quaternion.LogInv = LogInv
 
 --[=[
+    @method
+    @group Methods
+    
     Returns the negated version of the given quaternion.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    
-    @return Quaternion
-    @tag Method
 ]=]
 local function Negate(q0: Quaternion): Quaternion
     
@@ -1364,19 +1275,15 @@ Quaternion.Negate = Negate
 Quaternion.__unm = Negate
 
 --[=[
+    @method
+    @group Methods
+    
     Returns the quaternion which has the minimal rotation to get
     from `q0` to `q1` using the double cover property of quaternions.
-    If `q2 = q0:Difference(q1)`, then `q0 * q2 = q1`, or `q0 * q2 = -q1` 
+    If `q2 = q0:Difference(q1)`, then `q0 \* q2 = q1`, or `q0 \* q2 = -q1` 
     (the same rotation). If you don't want to take advantage of the double 
-    cover property, then you can do `q2 = q0 * q1:Inverse()`, where
-    `q0 * q2 = q1` all of the time.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    @param q1 Quaternion
-    
-    @return Quaternion
-    @tag Method
+    cover property, then you can do `q2 = q0 \* q1:Inverse()`, where
+    `q0 \* q2 = q1` all of the time.
 ]=]
 local function Difference(q0: Quaternion, q1: Quaternion): Quaternion
     
@@ -1389,15 +1296,11 @@ end
 Quaternion.Difference = Difference
 
 --[=[
+    @method
+    @group Methods
+    
     Returns the intrinsic geodesic distance between two 
     quaternions. Output will be in the range 0-2pi for unit quaternions.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    @param q1 Quaternion
-    
-    @return number
-    @tag Method
 ]=]
 local function Distance(q0: Quaternion, q1: Quaternion): number
     
@@ -1407,15 +1310,11 @@ end
 Quaternion.Distance = Distance
 
 --[=[
+    @method
+    @group Methods
+    
     Returns the symmetrized geodesic distance between two 
     quaternions. Output will be in the range 0-pi for unit quaternions.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    @param q1 Quaternion
-    
-    @return number
-    @tag Method
 ]=]
 local function DistanceSym(q0: Quaternion, q1: Quaternion): number
     
@@ -1425,15 +1324,11 @@ end
 Quaternion.DistanceSym = DistanceSym
 
 --[=[
+    @method
+    @group Methods
+    
     Returns the chord distance of the shortest path/arc between 
     two quaternions.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    @param q1 Quaternion
-    
-    @return number
-    @tag Method
 ]=]
 local function DistanceChord(q0: Quaternion, q1: Quaternion): number
     
@@ -1443,15 +1338,11 @@ end
 Quaternion.DistanceChord = DistanceChord
 
 --[=[
+    @method
+    @group Methods
+    
     Returns the absolute distance between two 
     quaternions, accounting for sign ambiguity.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    @param q1 Quaternion
-    
-    @return number
-    @tag Method
 ]=]
 local function DistanceAbs(q0: Quaternion, q1: Quaternion): number
     
@@ -1469,17 +1360,12 @@ end
 Quaternion.DistanceAbs = DistanceAbs
 
 --[=[
+    @method
+    @group Methods
+    
     Returns a quaternion along the great circle arc between two
     existing quaternion endpoints lying on the unit radius hypersphere.
     Alpha can be any real number.
-    
-    @within Quaternion
-    @param q0 Quaternion -- The starting quaternion
-    @param q1 Quaternion -- The end quaternion
-    @param alpha number
-    
-    @return Quaternion
-    @tag Method
 ]=]
 local function Slerp(q0: Quaternion, q1: Quaternion, alpha: number): Quaternion
     
@@ -1511,16 +1397,12 @@ end
 Quaternion.Slerp = Slerp
 
 --[=[
+    @method
+    @group Methods
+    
     Returns a quaternion along the great circle arc between the
-        identity quaternion and the given quaternion lying on the unit radius
-        hypersphere. Alpha can be any real number
-    
-    @within Quaternion
-    @param q1 Quaternion
-    @param alpha number
-    
-    @return Quaternion
-    @tag Method
+    identity quaternion and the given quaternion lying on the unit radius
+    hypersphere. Alpha can be any real number.
 ]=]
 local function IdentitySlerp(q1: Quaternion, alpha: number): Quaternion 
     
@@ -1556,21 +1438,15 @@ end
 Quaternion.IdentitySlerp = IdentitySlerp
 
 --[=[
+    @method
+    @group Methods
+    
     Returns a function which can be used to calculate a quaternion
     along the great circle arc between the two given quaternions lying on
     the unit radius hypersphere. For example:
     `slerp = q0:SlerpFunction(q1)`, and then `q2 = slerp(alpha)`.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    @param q1 Quaternion
-    
-    @return (alpha: number) -> Quaternion
-    @tag Method
 ]=]
-local function SlerpFunction(
-    q0: Quaternion, q1: Quaternion
-): (alpha: number) -> Quaternion
+local function SlerpFunction(q0: Quaternion, q1: Quaternion): (alpha: number) -> Quaternion
     
     
     q0 = Normalize(q0)
@@ -1611,22 +1487,14 @@ end
 Quaternion.SlerpFunction = SlerpFunction
 
 --[=[
+    @method
+    @group Methods
+    
     Generates an iterable sequence of n evenly spaces quaternion
     rotations between any two existing quaternion endpoints lying on the
-    unit radius hypersphere. 
-    
-    @within Quaternion
-    @param q0 Quaternion -- The initial rotation
-    @param q1 Quaternion -- The final rotation
-    @param n number -- The number of intermediate quaternion rotations
-    @param includeEndpoints boolean? -- If true, then the sequence of quaternions will have `q0` at the start and `q1` at the end, with a sequence length of n + 2. Defaults to false.
-    
-    @return {Quaternion}
-    @tag Method
+    unit radius hypersphere.
 ]=]
-local function Intermediates(
-    q0: Quaternion, q1: Quaternion, n: number, includeEndpoints: boolean?
-): {Quaternion}
+local function Intermediates(q0: Quaternion, q1: Quaternion, n: number, includeEndpoints: boolean?): {Quaternion}
     
     
     includeEndpoints = includeEndpoints or false
@@ -1654,15 +1522,11 @@ end
 Quaternion.Intermediates = Intermediates
 
 --[=[
+    @method
+    @group Methods
+    
     The instantaneous quaternion derivative representing a 
-    quaternion rotating at a 3D rate vector `rate`
-    
-    @within Quaternion
-    @param q0 Quaternion
-    @param rate Vector3 -- a vector describing rotation rates about the global x, y and z axes respectively.
-    
-    @return Quaternion
-    @tag Method
+    quaternion rotating at a 3D rate vector `rate`.
 ]=]
 local function Derivative(q0: Quaternion, rate: Vector3): Quaternion
     
@@ -1672,22 +1536,15 @@ end
 Quaternion.Derivative = Derivative
 
 --[=[
+    @method
+    @group Methods
+    
     Advance a time varying Quaternion to its value at a time
     `timestep` in the future. The solution is closed form given the
     assumption that rate is constant over the interval of length 
     `timestep`.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    @param rate Vector3 -- a vector describing rotation rates about the global x, y and z axes respectively.
-    @param timestep number -- interval over which to integrate into the future. Assuming *now* is `T=0`, the integration occurs over the interval `T=0` to `T=timestep`. Smaller intervals are more accurate when `rate` changes over time.
-    
-    @return Quaternion
-    @tag Method
 ]=]
-local function Integrate(
-    q0: Quaternion, rate: Vector3, timestep: number
-): Quaternion
+local function Integrate(q0: Quaternion, rate: Vector3, timestep: number): Quaternion
     
     
     q0 = Normalize(q0)
@@ -1707,20 +1564,13 @@ end
 Quaternion.Integrate = Integrate
 
 --[=[
+    @method
+    @group Methods
+    
     Returns true if the symmetrized geodesic distance is less
-        than `epsilon`.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    @param q1 Quaternion
-    @param epsilon number
-    
-    @return boolean
-    @tag Method
+    than `epsilon`.
 ]=]
-local function ApproxEq(
-    q0: Quaternion, q1: Quaternion, epsilon: number?
-): boolean 
+local function ApproxEq(q0: Quaternion, q1: Quaternion, epsilon: number?): boolean 
     
     
     epsilon = epsilon or EPSILON
@@ -1730,13 +1580,10 @@ end
 Quaternion.ApproxEq = ApproxEq
 
 --[=[
+    @method
+    @group Methods
+    
     Returns true if any component of the quaternion is NaN.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    
-    @return boolean
-    @tag Method
 ]=]
 local function IsNaN(q0: Quaternion): boolean
     
@@ -1778,14 +1625,11 @@ local function _toRotationMatrix(q0: Quaternion)
 end
 
 --[=[
+    @method
+    @group Deconstructors
+    
     Converts quaternion to axis angle representation. Quaternion
     is normalized before conversion.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    
-    @return (Vector3, number)
-    @tag Deconstructor
 ]=]
 local function ToAxisAngle(q0: Quaternion): (Vector3, number)
     
@@ -1805,22 +1649,14 @@ end
 Quaternion.ToAxisAngle = ToAxisAngle
 
 --[=[
+    @method
+    @group Deconstructors
+    
     Converts quaternion to it's matrix representation in 
     `m00, m01, m02, m10, m11, m12, m20, m21, m22` order as a tuple. 
     Quaternion is normalized before conversion.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    
-    @return (number, number, number, number, number, number, number, number, number)
-    @tag Deconstructor
 ]=]
-local function ToMatrix(q0: Quaternion): 
-    (
-        number, number, number, 
-        number, number, number,
-        number, number, number
-    ) 
+local function ToMatrix(q0: Quaternion): (number, number, number, number, number, number,number, number, number) 
     
     return _toRotationMatrix(q0)
 end
@@ -1828,16 +1664,13 @@ end
 Quaternion.ToMatrix = ToMatrix
 
 --[=[
+    @method
+    @group Deconstructors
+    
     Converts quaternion to it's matrix representation with three
     vectors, each representation a column of the rotation matrix.
     Quaternion is normalized before conversion.
     Returns RightVector, UpVector, BackVector.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    
-    @return (Vector3, Vector3, Vector3)
-    @tag Deconstructor
 ]=]
 local function ToMatrixVectors(q0: Quaternion): (Vector3, Vector3, Vector3) 
     
@@ -1853,13 +1686,10 @@ end
 Quaternion.ToMatrixVectors = ToMatrixVectors
 
 --[=[
+    @method
+    @group Deconstructors
+    
     Returns the imaginary components of the quaternion as a Vector.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    
-    @return Vector3
-    @tag Deconstructor
 ]=]
 local function Vector(q0: Quaternion): Vector3 
     
@@ -1869,14 +1699,11 @@ end
 Quaternion.Vector = Vector
 
 --[=[
+    @method
+    @group Deconstructors
+    
     Returns a new quaternion with the same real component as
     the given quaternion, but with the imaginary components set to zero.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    
-    @return Quaternion
-    @tag Deconstructor
 ]=]
 local function Real(q0: Quaternion): Quaternion 
     
@@ -1886,14 +1713,11 @@ end
 Quaternion.Real = Real
 
 --[=[
+    @method
+    @group Deconstructors
+    
     Returns a new quaternion with the same imaginary components as
     the given quaternion, but with the real component set to zero.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    
-    @return Quaternion
-    @tag Deconstructor
 ]=]
 local function Imaginary(q0: Quaternion): Quaternion 
     
@@ -1903,14 +1727,11 @@ end
 Quaternion.Imaginary = Imaginary
 
 --[=[
+    @method
+    @group Deconstructors
+    
     Converts the quaternion to euler angles representation in
     X, Y, Z order. Quaternion is normalized before conversion.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    
-    @return (number, number, number)
-    @tag Deconstructor
 ]=]
 local function ToEulerAnglesXYZ(q0: Quaternion): (number, number, number) 
     
@@ -1959,14 +1780,11 @@ local function ToEulerAnglesXZY(q0: Quaternion): (number, number, number)
 end
 
 --[=[
+    @method
+    @group Deconstructors
+    
     Converts the quaternion to euler angles representation in
     Y, X, Z order. Quaternion is normalized before conversion.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    
-    @return (number, number, number)
-    @tag Deconstructor
 ]=]
 local function ToEulerAnglesYXZ(q0: Quaternion): (number, number, number) 
     
@@ -1992,7 +1810,6 @@ local function ToEulerAnglesYXZ(q0: Quaternion): (number, number, number)
 end
 
 local function ToEulerAnglesYZX(q0: Quaternion): (number, number, number) 
-    AssertType(1, q0, "Quaternion")
     
     q0 = Normalize(q0)
     local qX, qY, qZ, qW = q0.X, q0.Y, q0.Z, q0.W
@@ -2071,25 +1888,19 @@ local TO_EULER_ANGLES_MAP = {
 }
 
 --[=[
+    @method
+    @group Deconstructors
+    
     Converts the quaternion to euler angles representation.
     Quaternion is normalized before conversion. The result is dependent
     on the given `rotationOrder`. Defaults to "XYZ".
-    
-    @within Quaternion
-    @param q0 Quaternion
-    @param rotationOrder string?
-    
-    @return (number, number, number)
-    @tag Deconstructor
 ]=]
-local function ToEulerAngles(
-    q0: Quaternion, rotationOrder: string?
-): (number, number, number) 
+local function ToEulerAngles(q0: Quaternion, rotationOrder: Enum.RotationOrder?): (number, number, number) 
     
     
-    if not rotationOrder then rotationOrder = "XYZ" end
+    if not rotationOrder then rotationOrder = Enum.RotationOrder.XYZ end
 
-    return TO_EULER_ANGLES_MAP[rotationOrder](q0)
+    return TO_EULER_ANGLES_MAP[rotationOrder.Name](q0)
 end
 
 
@@ -2098,22 +1909,17 @@ Quaternion.ToEulerAnglesXYZ = ToEulerAnglesXYZ
 Quaternion.ToEulerAnglesYXZ = ToEulerAnglesYXZ
 
 --[=[
-    Alias for ToEulerAnglesYXZ
-    
-    @function ToOrientation
-    @within Quaternion
-    @tag Deconstructor
+    @method
+    @group Deconstructors
+    @alias ToEulerAnglesYXZ
 ]=]
 Quaternion.ToOrientation = ToEulerAnglesYXZ
 
 --[=[
+    @method
+    @group Deconstructors
+    
     Returns the components of the quaternion in X, Y, Z, W order.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    
-    @return (number, number, number, number)
-    @tag Deconstructor
 ]=]
 local function GetComponents(q0: Quaternion): (number, number, number, number)
     return q0.X, q0.Y, q0.Z, q0.W
@@ -2122,11 +1928,9 @@ end
 Quaternion.GetComponents = GetComponents
 
 --[=[
-    Alias for GetComponents
-    
-    @function components
-    @within Quaternion
-    @tag Deconstructor
+    @method
+    @group Deconstructors
+    @alias GetComponents
 ]=]
 Quaternion.components = GetComponents
 
@@ -2142,16 +1946,12 @@ local function round(number: number, decimalPlaces: number?): string
 end
 
 --[=[
+    @method
+    @group Deconstructors
+    
     Converts quaternion to string representation. If
     `decimalPlaces` is given, each component in the string will be rounded
     to the given places.
-    
-    @within Quaternion
-    @param q0 Quaternion
-    @param decimalPlaces number?
-    
-    @return string
-    @tag Deconstructor
 ]=]
 local function ToString(q0: Quaternion, decimalPlaces: number?): string
     
