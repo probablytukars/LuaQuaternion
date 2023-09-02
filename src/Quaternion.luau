@@ -209,6 +209,15 @@ local Quaternion = {_type = "Quaternion"}
 
 -- Internal functions for type checking and throwing errors
 
+local function GetType(obj: any): string
+    if obj == nil then return "nil" end
+    local objMetatable = getmetatable(obj)
+    if type(objMetatable) == "table" and objMetatable._type ~= nil then
+        return tostring(objMetatable._type)
+    else
+        return typeof(obj)
+    end
+end
 --@dev
 local function ArgumentError(
     argPlace: number, expectedType: string, gotType: string
@@ -219,16 +228,6 @@ local function ArgumentError(
             " (expected " .. expectedType .. ", got " .. gotType .. ")", 
         4
     )
-end
-
-local function GetType(obj: any): string
-    if obj == nil then return "nil" end
-    local objMetatable = getmetatable(obj)
-    if type(objMetatable) == "table" and objMetatable._type ~= nil then
-        return tostring(objMetatable._type)
-    else
-        return typeof(obj)
-    end
 end
 
 local function AssertType(
@@ -257,7 +256,7 @@ local function AssertType(
     end
     return ""
 end
-
+--@devend
 local function _safeUnit(vector: Vector3, default: Vector3): Vector3
     if vector.Magnitude > EPSILON then
         return vector.Unit
@@ -265,8 +264,6 @@ local function _safeUnit(vector: Vector3, default: Vector3): Vector3
         return default
     end
 end
---@devend
-
 
 --[=[
     @function
@@ -277,14 +274,12 @@ end
     component.
 ]=]
 local function new(qX: number?, qY: number?, qZ: number?, qW: number?): Quaternion
-    
     --@dev
     AssertType(1, qX, "number", "nil")
     AssertType(2, qY, "number", "nil")
     AssertType(3, qZ, "number", "nil")
     AssertType(4, qW, "number", "nil")
     --@devend
-
     local self = setmetatable({
         X = qX or 0,
         Y = qY or 0,
@@ -305,7 +300,6 @@ Quaternion.zero = new(0, 0, 0, 0)
 -- Private Methods
 
 local function _Orthonormalize(rightVector: Vector3, upVector: Vector3, backVector: Vector3): (Vector3, Vector3, Vector3)
-    
     local xBasis = _safeUnit(rightVector, Vector3.xAxis)
     local _upVector = _safeUnit(upVector, Vector3.yAxis)
     
@@ -330,7 +324,6 @@ end
 
 
 local function _fromOrthonormalizedMatrix(vX: Vector3, vY: Vector3, vZ: Vector3): Quaternion
-    
     local m00, m10, m20 = vX.X, vX.Y, vX.Z
     local m01, m11, m21 = vY.X, vY.Y, vY.Z
     local m02, m12, m22 = vZ.X, vZ.Y, vZ.Z
@@ -704,9 +697,7 @@ local function RandomQuaternion(seed: number): () -> Quaternion
     local seed = seed or 1
     
     --@build
-    --[==[
-    local random = Random.new(seed)
-    --]==]
+    --local random = Random.new(seed)
     --@buildend
     --@test
     math.randomseed(seed)
@@ -717,13 +708,10 @@ local function RandomQuaternion(seed: number): () -> Quaternion
     local cos = math.cos
     return function()
         --@build
-        --[==[
-        local u = random:NextNumber(0, 1)
-        local v = random:NextNumber(0, 1)
-        local w = random:NextNumber(0, 1)
-        --]==]
+        --local u = random:NextNumber(0, 1)
+        --local v = random:NextNumber(0, 1)
+        --local w = random:NextNumber(0, 1)
         --@buildend
-        
         --@test
         local u = math.random()
         local v = math.random()
@@ -971,6 +959,14 @@ local function Mul(op0: Quaternion | Vector3 | number, op1: Quaternion | CFrame 
         2, op1, "Quaternion", "CFrame", "Vector3", "number"
     )
     --@devend
+    --@prod
+    --local op0type = GetType(
+        --1, op0, "Quaternion", "CFrame", "Vector3", "number"
+    --)
+    --local op1type = GetType(
+        --2, op1, "Quaternion", "CFrame", "Vector3", "number"
+    --)
+    --@prodend
     
     if op0type == "Quaternion" and op1type == "Quaternion" then
         local q0X, q0Y, q0Z, q0W = op0.X, op0.Y, op0.Z, op0.W
@@ -985,10 +981,8 @@ local function Mul(op0: Quaternion | Vector3 | number, op1: Quaternion | CFrame 
         return new(op0 * op1.X, op0 * op1.Y, op0 * op1.Z, op0 * op1.W)
     elseif op0type == "Quaternion" and op1type == "number" then
         return new(op0.X * op1, op0.Y * op1, op0.Z * op1, op0.W * op1)
-    --@build
-    --elseif op0type == "Quaternion" and op1type == "CFrame" then 
-        --return op0:ToCFrame() * op1
-    --@buildend
+    elseif op0type == "Quaternion" and op1type == "CFrame" then 
+        return op0:ToCFrame() * op1
     elseif op0type == "Quaternion" and op1type == "Vector3" then
         local op0 = op0:Normalize()
         return (op0 * fromVector(op1) * op0:Conjugate()):Vector()
@@ -1017,6 +1011,10 @@ local function Div(op0: Quaternion | number, op1: number | Quaternion): Quaterni
     local op0type = AssertType(1, op0, "Quaternion", "number")
     local op1type = AssertType(2, op1, "Quaternion", "number")
     --@devend
+    --@prod
+    --local op0type = GetType(1, op0, "Quaternion", "number")
+    --local op1type = GetType(2, op1, "Quaternion", "number")
+    --@prodend
     
     if op0type == "Quaternion" and op1type == "number" then
         return new(op0.X / op1, op0.Y / op1, op0.Z / op1, op0.W / op1)
@@ -1048,38 +1046,36 @@ Quaternion.Negate = unm
 
 local function Pow(q0: Quaternion, number: number)
     --@dev
-    local op0type = AssertType(1, q0, "Quaternion")
-    local op1type = AssertType(2, number, "number")
+    AssertType(1, q0, "Quaternion")
+    AssertType(2, number, "number")
     --@devend
     
-    if op0type == "Quaternion" and op1type == "number" then
-        local aW, aX, aY, aZ = q0.W, q0.X, q0.Y, q0.Z
-        
-        local im = aX*aX + aY*aY + aZ*aZ
-        local aMag = math.sqrt(aW*aW + im)
-        local aIm = math.sqrt(im)
-        local cMag = aMag ^ number
-        
-        if aIm <= EPSILON * aMag then
-            return Quaternion.new(0, 0, 0, cMag)
-        end
-        
-        local rx = aX / aIm
-        local ry = aY / aIm
-        local rz = aZ / aIm
-        
-        local cAng = number * math.atan2(aIm, aW)
-        local cCos = math.cos(cAng)
-        local cSin = math.sin(cAng)
-        local cMagcSin = cMag * cSin
-        
-        local cW = cMag*cCos
-        local cX = cMagcSin * rx
-        local cY = cMagcSin * ry
-        local cZ = cMagcSin * rz
-        
-        return Quaternion.new(cX, cY, cZ, cW)
+    local aW, aX, aY, aZ = q0.W, q0.X, q0.Y, q0.Z
+    
+    local im = aX*aX + aY*aY + aZ*aZ
+    local aMag = math.sqrt(aW*aW + im)
+    local aIm = math.sqrt(im)
+    local cMag = aMag ^ number
+    
+    if aIm <= EPSILON * aMag then
+        return Quaternion.new(0, 0, 0, cMag)
     end
+    
+    local rx = aX / aIm
+    local ry = aY / aIm
+    local rz = aZ / aIm
+    
+    local cAng = number * math.atan2(aIm, aW)
+    local cCos = math.cos(cAng)
+    local cSin = math.sin(cAng)
+    local cMagcSin = cMag * cSin
+    
+    local cW = cMag*cCos
+    local cX = cMagcSin * rx
+    local cY = cMagcSin * ry
+    local cZ = cMagcSin * rz
+    
+    return Quaternion.new(cX, cY, cZ, cW)
 end
 
 Quaternion.__pow = Pow

@@ -1,9 +1,10 @@
 --binaries/windows/lua.exe tests/build.lua
 
 local targetTags = {
-    {"lua", "luaend"},
-    {"luau", "luauend"},
-    {"dev", "devend"},
+    {"test", "testend"}, --remove
+    {"build", "buildend"}, --uncomment
+    {"dev", "devend"}, --remove
+    {"prod", "prodend"} -- uncomment
 }
 
 local function printTable(tbl)
@@ -17,7 +18,7 @@ local function printTable(tbl)
 end
 
 local function countTags(file)
-    local tagCount = {{0, 0}, {0, 0}, {0, 0}}
+    local tagCount = {{0, 0}, {0, 0}, {0, 0}, {0, 0}}
     for line in file:lines() do
         for i, tagpair in pairs(targetTags) do
             local tagStart, tagEnd = tagpair[1], tagpair[2]
@@ -46,48 +47,64 @@ local function countTags(file)
     end
 end
 
-local buildMode = {"production", "development"}
+local buildMode = {"prod", "dev"}
 local className = "Quaternion"
+
+function removeFirstTwoNonWhitespaceChars(inputString)
+    local firstTwoNonWhitespaceChars = inputString:match("^%s*()%S()%S*")
+    if firstTwoNonWhitespaceChars then
+        local startIndex, endIndex = firstTwoNonWhitespaceChars, firstTwoNonWhitespaceChars + 1
+        local modifiedString = inputString:sub(1, startIndex - 1) .. inputString:sub(endIndex + 1)
+        return modifiedString
+    else
+        return inputString
+    end
+end
 
 local function buildFile(readFile, mode)
     local fileToWrite = "luau/" .. mode .. "/" .. className .. ".luau"
     local writeFile = io.open(fileToWrite, "w")
+    if not writeFile then
+        error("Cannot open file!")
+    end
     print(fileToWrite, writeFile)
-    local ignore_mode = false
+    local read_mode = "read"
     local ignored_on = nil
+    local uncomment_on = nil
     for line in readFile:lines() do
         local lineSearch = string.gsub(line, "%s+", "")
         local tagOnLine = false
         for i, tagpair in pairs(targetTags) do
             local tagStart, tagEnd = tagpair[1], tagpair[2]
-            if lineSearch == "--@" .. tagStart
-            or lineSearch == "--@" .. tagEnd then
-                tagOnLine = true
-            end
-            
-            local valid_tag = true
-            if tagStart == "luau" or tagStart == "lua" then
-                valid_tag = language ~= tagStart
-            end
-            if valid_tag and tagStart == "dev" then
-                valid_tag = mode == "production"
-            end
-            if valid_tag then
-                if lineSearch == "--@" .. tagStart then
-                    if not ignore_mode then
-                        ignore_mode = true
+            if lineSearch == "--@" .. tagStart then
+                if read_mode == "read" then
+                    if tagStart == "build"
+                    or mode == "prod" and tagStart == "prod" then
+                        read_mode = "uncomment"
+                        ignored_on = tagStart
+                    elseif not(mode == "dev" and tagStart == "dev") then
+                        read_mode = "ignore"
                         ignored_on = tagStart
                     end
-                elseif lineSearch == "--@" .. tagEnd then
-                    if ignore_mode and ignored_on == tagStart then
-                        ignore_mode = false
-                        ignored_on = nil
-                    end
                 end
+                tagOnLine = true
+                break
+            elseif lineSearch == "--@" .. tagEnd then
+                if read_mode ~= "read" and ignored_on == tagStart then
+                    read_mode = "read"
+                    ignored_on = nil
+                end
+                tagOnLine = true
+                break
             end
         end
-        if (not tagOnLine) and not(ignore_mode) then
-            writeFile:write(line .. "\n")
+        if (not tagOnLine) and read_mode ~= "ignore" then
+            if read_mode ~= "uncomment" then
+                writeFile:write(line .. "\n")
+            else
+                writeFile:write(removeFirstTwoNonWhitespaceChars(line) .. "\n")
+            end
+            
         end
     end
     writeFile:close()
