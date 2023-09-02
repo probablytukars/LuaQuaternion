@@ -50,10 +50,9 @@ local buildMode = {"production", "development"}
 local className = "Quaternion"
 
 local function buildFile(readFile, mode)
-    local writeFile = io.open(
-        "luau/" .. mode .. "/" .. className .. ".luau",
-        "w"
-    )
+    local fileToWrite = "luau/" .. mode .. "/" .. className .. ".luau"
+    local writeFile = io.open(fileToWrite, "w")
+    print(fileToWrite, writeFile)
     local ignore_mode = false
     local ignored_on = nil
     for line in readFile:lines() do
