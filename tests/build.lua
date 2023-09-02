@@ -96,6 +96,12 @@ local function buildFile(readFile, mode)
                 end
                 tagOnLine = true
                 break
+            elseif lineSearch:sub(1, 5) == "--[=[" then
+                tagOnLine = true
+                read_mode = "ignore"
+            elseif lineSearch:sub(-3) == "]=]" then
+                tagOnLine = true
+                read_mode = "read"
             end
         end
         if (not tagOnLine) and read_mode ~= "ignore" then
