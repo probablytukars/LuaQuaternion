@@ -259,12 +259,10 @@ end
     component.
 ]=]
 local function new(qX: number?, qY: number?, qZ: number?, qW: number?): Quaternion
-    
     AssertType(1, qX, "number", "nil")
     AssertType(2, qY, "number", "nil")
     AssertType(3, qZ, "number", "nil")
     AssertType(4, qW, "number", "nil")
-
     local self = setmetatable({
         X = qX or 0,
         Y = qY or 0,
@@ -285,7 +283,6 @@ Quaternion.zero = new(0, 0, 0, 0)
 -- Private Methods
 
 local function _Orthonormalize(rightVector: Vector3, upVector: Vector3, backVector: Vector3): (Vector3, Vector3, Vector3)
-    
     local xBasis = _safeUnit(rightVector, Vector3.xAxis)
     local _upVector = _safeUnit(upVector, Vector3.yAxis)
     
@@ -310,7 +307,6 @@ end
 
 
 local function _fromOrthonormalizedMatrix(vX: Vector3, vY: Vector3, vZ: Vector3): Quaternion
-    
     local m00, m10, m20 = vX.X, vX.Y, vX.Z
     local m01, m11, m21 = vY.X, vY.Y, vY.Z
     local m02, m12, m22 = vZ.X, vZ.Y, vZ.Z
@@ -672,7 +668,6 @@ local function RandomQuaternion(seed: number): () -> Quaternion
         local u = random:NextNumber(0, 1)
         local v = random:NextNumber(0, 1)
         local w = random:NextNumber(0, 1)
-        
         
         local omu = 1 - u
         local squ = sqrt(u)
