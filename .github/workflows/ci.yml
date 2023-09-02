@@ -21,7 +21,7 @@ jobs:
       - name: Push changes
         run: |
           if [[ `git status --porcelain` ]]; then
-            git config --global user.name "github-actions-bot"
+            git config --global user.name "github-actions[bot]"
             git config --global user.email "support+actions@github.com"
             git add .
             git commit -m "[action] - Build luau files"
