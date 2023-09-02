@@ -1118,7 +1118,7 @@ Quaternion.Exp = Exp
     The exponential map on the Riemannian manifold described by
     the quaternion space.
 ]=]
-local function ExpMap(q0, q1): Quaternion
+local function ExpMap(q0: Quaternion, q1: Quaternion): Quaternion
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
     
@@ -1134,7 +1134,7 @@ Quaternion.ExpMap = ExpMap
     The symmetrized exponential map on the quaternion Riemannian
     manifold.
 ]=]
-local function ExpMapSym(q0: Quaternion, q1): Quaternion
+local function ExpMapSym(q0: Quaternion, q1: Quaternion): Quaternion
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
     
@@ -1178,7 +1178,7 @@ Quaternion.Log = Log
     
     The logarithm map on the quaternion Riemannian manifold.
 ]=]
-local function LogMap(q0, q1: Quaternion): Quaternion
+local function LogMap(q0: Quaternion, q1: Quaternion): Quaternion
     AssertType(1, q0, "Quaternion")
     AssertType(2, q1, "Quaternion")
     
