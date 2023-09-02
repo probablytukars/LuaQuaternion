@@ -5,12 +5,13 @@ local buffer = OutputBuffer.new()
 local Tester = {}
 Tester.__index = Tester
 
-function Tester.new(testLibrary, testModule, testData, unsafeMode)
+function Tester.new(testLibrary, testModule, testData, unsafeMode, failThrowsError)
     local self = {}
     
     self.testModule = testModule
     self.testData = testData
     self.unsafeMode = unsafeMode or false
+    self.failThrowsError = failThrowsError or false
     
     testModule.init(testLibrary, testData)
     
@@ -45,7 +46,11 @@ function Tester:runTest(test, call)
         if result then
             return 0, "       [✔] Pass - " .. test.DisplayName
         else
-            return 1, "       [❌] Fail - " .. test.DisplayName
+            local failMessage = "       [❌] Fail - " .. test.DisplayName
+            if self.failThrowsError then
+                error(failMessage)
+            end
+            return 1, failMessage
         end
     else
         return 2, "       ❗❗❗ Unhandled Exception - " .. test.DisplayName
