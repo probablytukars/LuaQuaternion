@@ -46,14 +46,12 @@ local function countTags(file)
     end
 end
 
-local languages = {"lua", "luau"}
 local buildMode = {"production", "development"}
 local className = "Quaternion"
 
-local function buildFile(readFile, language, mode)
+local function buildFile(readFile, mode)
     local writeFile = io.open(
-        language .. "/" .. mode .. "/"
-        .. className .. "." .. language,
+        "luau/" .. mode .. "/" .. className .. ".luau",
         "w"
     )
     local ignore_mode = false
@@ -102,11 +100,9 @@ local file = io.open(fileName, "r")
 if file then
     countTags(file)
     file:seek("set", 0)
-    for _, language in pairs(languages) do
-       for _, mode in pairs(buildMode) do
-            buildFile(file, language, mode)
-            file:seek("set", 0)
-       end
+    for _, mode in pairs(buildMode) do
+        buildFile(file, mode)
+        file:seek("set", 0)
     end
     file:close()
     print("Build was successful!")
