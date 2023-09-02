@@ -120,6 +120,7 @@ def tokenize(code, is_group=False):
             continue
         
         atom = read(lambda char: char != "," and is_atom(char) if is_group else is_atom(char))
+        
         if atom:
             if atom[-1] == ":":
                 tokens.append({

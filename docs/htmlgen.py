@@ -157,14 +157,26 @@ def setup_group_item(item, delete_h3=False):
 
 # quick_add_template(append_to, "", "", depth_class)
 
-def generate_from_tokens(append_to, tokens, depth=0):
+def generate_from_tokens(append_to, tokens, depth=0, remove_first=False):
     indent = '    ' * (depth + 1)
     depth_class = "depth-" + str(depth % 3)
+    found_first_paramater = False
+    found_first_type = False
+    found_first_seperator = False
     for token in tokens:
         token_type = token["type"]
         if token_type == "tuple":
             quick_add_template(append_to, "tuple", "(", depth_class)
-            generate_from_tokens(append_to, token["unseparated_tokens"], depth + 1)
+            generate_from_tokens(
+                append_to, 
+                token["unseparated_tokens"], 
+                depth + 1, 
+                depth == 0 and remove_first
+            )
+            if remove_first:
+                found_first_paramater = True
+                found_first_type = True
+                found_first_seperator = True
             quick_add_template(append_to, "tuple", ")", depth_class)
         elif token_type == "indexer":
             quick_add_template(append_to, "indexer", "[", depth_class)
@@ -175,7 +187,11 @@ def generate_from_tokens(append_to, tokens, depth=0):
             generate_from_tokens(append_to, token["unseparated_tokens"], depth + 1)
             quick_add_template(append_to, "table", "}", depth_class)
         elif token_type == "separator":
-            quick_add_template(append_to, "separator", ",\u00A0")
+            if remove_first and found_first_paramater and not found_first_seperator:
+                found_first_type = True
+                found_first_seperator = True
+            else:
+                quick_add_template(append_to, "separator", ",\u00A0")
         elif token_type == "arrow":
             quick_add_template(append_to, "arrow", None, depth_class)
         elif token_type == "union":
@@ -193,15 +209,21 @@ def generate_from_tokens(append_to, tokens, depth=0):
             if depth == 0 and identifier == "":
                 quick_add_template(append_to, "arrow", None, depth_class)
             else:
-                quick_add_template(append_to, "identifier", identifier + ":\u00A0")
+                if remove_first and not found_first_paramater:
+                    found_first_paramater = True
+                else:
+                    quick_add_template(append_to, "identifier", identifier + ":\u00A0")
         elif token_type == "lua_type":
-            anchor_type_href(append_to, token["lua_type"])
+            if remove_first and found_first_paramater and not found_first_type:
+                found_first_type = True
+            else:
+                anchor_type_href(append_to, token["lua_type"])
         
             
-def parse_type(append_to, type_text):
+def parse_type(append_to, type_text, remove_first=False):
     type_text = ''.join(type_text.split())
     tokens = tokenize(type_text)
-    generate_from_tokens(append_to, tokens)
+    generate_from_tokens(append_to, tokens, remove_first=remove_first)
     
 
 class_compatability = {
@@ -297,7 +319,8 @@ def function_to_html(item, call_syntax):
     class_call_syntax = "dot-call" if call_syntax == "." else "colon-call"
     quick_add_template(insert_span, "punc", call_syntax, class_call_syntax)
     quick_add_template(insert_span, "method-name", item["name"])
-    parse_type(insert_span, item["definition"])
+    
+    parse_type(insert_span, item["definition"], ((call_syntax == ":") and item["remove_first"]))
     
     group_similar_items(insert_span)
     
