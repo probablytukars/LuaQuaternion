@@ -812,6 +812,16 @@ Quaternion.RandomQuaternion = RandomQuaternion
 ]=]
 
 --[=[
+    @operator mul
+    @operand1 Vector3
+    @operand2 Quaternion
+    @return Quaternion
+    @group Math Operations
+    
+    Equivalent to `Quaternion.fromVector(Vector3)*Quaternion`.
+]=]
+
+--[=[
     @operator div
     @operand1 Quaternion
     @operand2 number
@@ -986,6 +996,8 @@ local function Mul(op0: Quaternion | Vector3 | number, op1: Quaternion | CFrame 
     elseif op0type == "Quaternion" and op1type == "Vector3" then
         local op0 = op0:Normalize()
         return (op0 * fromVector(op1) * op0:Conjugate()):Vector()
+    elseif op0type == "Vector3" and op1type == "Quaternion" then
+        return fromVector(op0) * op1
     else
         if op0type == "Quaternion" then
             error("Cannot multiply Quaternion with " .. op1type .. ".", 2)
