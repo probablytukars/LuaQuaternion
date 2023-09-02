@@ -2,6 +2,16 @@ local Assert = require("tests/Assert")
 local Vector3 = require("mocks/Vector3")
 local CFrame = require("mocks/CFrame")
 
+local Enum = {}
+Enum.RotationOrder = {
+    XYZ = {Value = 0, Name = "XYZ"},
+    XZY = {Value = 1, Name = "XZY"},
+    YZX = {Value = 2, Name = "YZX"},
+    YXZ = {Value = 3, Name = "YXZ"},
+    ZXY = {Value = 4, Name = "ZXY"},
+    ZYX = {Value = 5, Name = "ZYX"}
+}
+
 local EPSILON = 5e-4
 
 local QuaternionTest = {}
@@ -506,7 +516,7 @@ fromEulerAngles.Constructor = {
                         local ang = standard[rotationOrder]
                         local rx, ry, rz = table.unpack(ang)
                         local q0 = Quaternion.fromEulerAngles(
-                            rx, ry, rz, rotationOrder
+                            rx, ry, rz, Enum.RotationOrder[rotationOrder]
                         )
                         local qe = standard.quaternion
                         if not(Assert.QuaternionsEqualApprox(qe, q0, EPSILON)) then
@@ -940,8 +950,8 @@ for _, rotationOrder in pairs(rotationOrders) do
                         local quat = standard.quaternion
                         local qX, qY, qZ, qW = quat.X, quat.Y, quat.Z, quat.W
                         local qe = Quaternion.new(qX, qY, qZ, qW)
-                        local rx, ry, rz = qe:ToEulerAngles(rotationOrder)
-                        local qr = Quaternion.fromEulerAngles(rx, ry, rz, rotationOrder)
+                        local rx, ry, rz = qe:ToEulerAngles(Enum.RotationOrder[rotationOrder])
+                        local qr = Quaternion.fromEulerAngles(rx, ry, rz, Enum.RotationOrder[rotationOrder])
                         if not Assert.QuaternionsEqualApprox(qe, qr, 1e-3) then
                             return false
                         end
@@ -959,8 +969,8 @@ for _, rotationOrder in pairs(rotationOrders) do
                 local qX, qY, qZ, qW = table.unpack(standard.quaternion)
                 local q0 = Quaternion.new(qX, qY, qZ, qW)
                 local qe = Quaternion.new(qX, qY, qZ, qW)
-                local rx, ry, rz = qe:ToEulerAngles(rotationOrder)
-                local qr = Quaternion.fromEulerAngles(rx, ry, rz, rotationOrder)
+                local rx, ry, rz = qe:ToEulerAngles(Enum.RotationOrder[rotationOrder])
+                local qr = Quaternion.fromEulerAngles(rx, ry, rz, Enum.RotationOrder[rotationOrder])
                 if not Assert.QuaternionsEqualApprox(qe, qr, 1e-3) then
                     return false
                 end
@@ -974,7 +984,7 @@ for _, rotationOrder in pairs(rotationOrders) do
         test = function()
             local qX, qY, qZ, qW = 0, 0, 0, 0
             local q0 = Quaternion.new(qX, qY, qZ, qW)
-            local rx, ry, rz = q0:ToEulerAngles(rotationOrder)
+            local rx, ry, rz = q0:ToEulerAngles(Enum.RotationOrder[rotationOrder])
 
             return Assert.AnglesApproxEquals(rx, 0, EPSILON)
                 and Assert.AnglesApproxEquals(ry, 0, EPSILON)
@@ -988,8 +998,8 @@ for _, rotationOrder in pairs(rotationOrders) do
             local qX, qY, qZ, qW = 2, 5, 7, 4
             local qo = Quaternion.new(qX, qY, qZ, qW)
             local qe = qo.Unit
-            local rx, ry, rz = qo:ToEulerAngles(rotationOrder)
-            local qr = Quaternion.fromEulerAngles(rx, ry, rz, rotationOrder)
+            local rx, ry, rz = qo:ToEulerAngles(Enum.RotationOrder[rotationOrder])
+            local qr = Quaternion.fromEulerAngles(rx, ry, rz, Enum.RotationOrder[rotationOrder])
             if not Assert.QuaternionsEqualApprox(qe, qr, 1e-3) then
                 return false
              end
