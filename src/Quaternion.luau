@@ -825,8 +825,8 @@ end
 Quaternion.__sub = Sub
 
 local function Mul(op0: Quaternion | Vector3 | number, op1: Quaternion | CFrame | Vector3 | number): Quaternion | CFrame | Vector3
-    local op0type = GetType(1, op0, "Quaternion", "CFrame", "Vector3", "number")
-    local op1type = GetType(2, op1, "Quaternion", "CFrame", "Vector3", "number")
+    local op0type = GetType(op0)
+    local op1type = GetType(op1)
 
     if op0type == "Quaternion" and op1type == "Quaternion" then
         local q0X, q0Y, q0Z, q0W = op0.X, op0.Y, op0.Z, op0.W
@@ -849,27 +849,15 @@ local function Mul(op0: Quaternion | Vector3 | number, op1: Quaternion | CFrame 
     elseif op0type == "Vector3" and op1type == "Quaternion" then
         return fromVector(op0) * op1
     else
-        if op0type == "Quaternion" then
-            error("Cannot multiply Quaternion with " .. op1type .. ".", 2)
-        elseif op1type == "Quaternion" then
-            error("Cannot multiply " .. op0type .. " with Quaternion.", 2)
-        else
-            error(
-                "Attempt to mulitply"
-                .. op0type .. " with " .. op1type
-                .. "inside Quaternion mul function. "
-                .. "Outside of function domain."
-            )
-        end
-
+        error("Cannot multiply " .. op0type .. " by " .. op1type .. ".", 2)
     end
 end
 
 Quaternion.__mul = Mul
 
 local function Div(op0: Quaternion | number, op1: number | Quaternion): Quaternion
-    local op0type = GetType(1, op0, "Quaternion", "number")
-    local op1type = GetType(2, op1, "Quaternion", "number")
+    local op0type = GetType(op0)
+    local op1type = GetType(op1)
     
     if op0type == "Quaternion" and op1type == "number" then
         return new(op0.X / op1, op0.Y / op1, op0.Z / op1, op0.W / op1)
@@ -878,11 +866,7 @@ local function Div(op0: Quaternion | number, op1: number | Quaternion): Quaterni
     elseif op0type == "Quaternion" and op1type == "Quaternion" then
         return Mul(op0, op1:Inverse())
     else
-        if op0type == "Quaternion" then
-            error("Cannot divide Quaternion by " .. op1type .. ".", 2)
-        else
-            error("Cannot divide " .. op0type .. " by Quaternion.", 2)
-        end
+        error("Cannot divide " .. op0type .. " by " .. op1type .. ".", 2)
     end
 end
 
@@ -1147,7 +1131,7 @@ Quaternion.IsUnit = IsUnit
 ]=]
 local function ToCFrame(q0: Quaternion, position: Vector3?): CFrame
     q0 = Normalize(q0)
-
+    
     local vectorPos = position or Vector3.new()
     return CFrame.new(
         vectorPos.X, vectorPos.Y, vectorPos.Z, 

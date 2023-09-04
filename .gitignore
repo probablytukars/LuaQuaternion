@@ -1,8 +1,6 @@
 __pycache__
 build/docs.json
 build/index.html
-
-node_modules/
-node_modules
+/test_build
 
 .vscode

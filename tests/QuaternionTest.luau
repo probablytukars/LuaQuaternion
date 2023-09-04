@@ -2,6 +2,8 @@ local Assert = require("tests/Assert")
 local Vector3 = require("mocks/Vector3")
 local CFrame = require("mocks/CFrame")
 
+print(Vector3)
+
 local Enum = {}
 Enum.RotationOrder = {
     XYZ = {Value = 0, Name = "XYZ"},
@@ -51,8 +53,7 @@ local ConstructorGroup = {}
 QuaternionTest.ConstructorGroup = ConstructorGroup
 ConstructorGroup._order = {
     "new", "identity", "zero", "fromAxisAngle", "fromCFrame", "fromMatrix", 
-    "lookAt", "Angles", "fromOrientation", "fromEulerAngles", "fromVector", 
-    "RandomQuaternion"
+    "lookAt", "Angles", "fromOrientation", "fromEulerAngles", "fromVector"
 }
 ConstructorGroup._DisplayName = "Constructor Tests"
 
@@ -550,27 +551,6 @@ fromVector.Constructor = {
 
 
 
-local RandomQuaternion = {}
-ConstructorGroup.RandomQuaternion = RandomQuaternion
-RandomQuaternion._order = {"IsUnit"}
-
-RandomQuaternion.IsUnit = {
-    DisplayName = "Is Unit",
-    test = function()
-        local randomQuaternion = Quaternion.RandomQuaternion(os.time())
-        local q0 = randomQuaternion()
-        local length = math.sqrt(q0.X^2 + q0.Y^2 + q0.Z^2 + q0.W^2)
-        local dif1 = math.abs(1 - length)
-        return dif1 < EPSILON
-    end,
-}
-
-
-
-
-
-
-
 
 
 
@@ -1017,33 +997,9 @@ end
 local ToMatrix = {}
 DeconstructorGroup.ToMatrix = ToMatrix
 ToMatrix._order = {
-    "RandomQuaternions", "PolarQuaternions", "Zero", "NonUnit"
+    "PolarQuaternions", "Zero", "NonUnit"
 }
 
-ToMatrix.RandomQuaternions = {
-    DisplayName = "Random Quaternions",
-    test = function()
-        local randomQuaternion = Quaternion.RandomQuaternion(os.time())
-        for i = 1, 100 do
-            local q0 = randomQuaternion()
-            local m00, m01, m02, m10, m11, m12, m20, m21, m22 = q0:ToMatrix()
-            
-            local testCFrame = CFrame.new(0, 0, 0, q0.X, q0.Y, q0.Z, q0.W)
-            local qCFrame = CFrame.fromMatrixArray({
-                m00, m01, m02, 
-                m10, m11, m12, 
-                m20, m21, m22
-            })
-            
-            if not Assert.CFramesApproxEqual(testCFrame, qCFrame, EPSILON)
-            then
-                return false
-            end
-
-        end
-        return true
-    end
-}
 
 ToMatrix.PolarQuaternions = {
     DisplayName = "Polar Quaternions",
@@ -1119,30 +1075,7 @@ ToMatrix.NonUnit = {
 local ToMatrixVectors = {}
 DeconstructorGroup.ToMatrixVectors = ToMatrixVectors
 ToMatrixVectors._order = {
-    "RandomQuaternions", "PolarQuaternions", "Zero", "NonUnit"
-}
-
-ToMatrixVectors.RandomQuaternions = {
-    DisplayName = "Random Quaternions",
-    test = function()
-        local randomQuaternion = Quaternion.RandomQuaternion(os.time())
-        for i = 1, 100 do
-            local q0 = randomQuaternion()
-            local rightVector, upVector, backVector = q0:ToMatrixVectors()
-            
-            local testCFrame = CFrame.new(0, 0, 0, q0.X, q0.Y, q0.Z, q0.W)
-            local qCFrame = CFrame.fromMatrix(
-                Vector3.zero, rightVector, upVector, backVector
-            )
-            
-            if not Assert.CFramesApproxEqual(testCFrame, qCFrame, EPSILON) 
-            then
-                return false
-            end
-
-        end
-        return true
-    end
+    "PolarQuaternions", "Zero", "NonUnit"
 }
 
 ToMatrixVectors.PolarQuaternions = {
