@@ -33,6 +33,7 @@ for filename in os.listdir(source_folder):
         # Step 5b: Prepend the constant string to the contents
         modified_contents = constant_string + file_contents
 
+        print(modified_contents)
         # Step 5c: Write the modified contents to the target file
         with open(target_file_path, 'w') as target_file:
             target_file.write(modified_contents)
