@@ -1,5 +1,5 @@
 local Tester = require("tests/Tester")
-local Quaternion = require("src/Quaternion")
+local Quaternion = require("test_build/Quaternion")
 local TestLibrary = require("tests/QuaternionTest")
 local testData = require("tests/TestData")
 

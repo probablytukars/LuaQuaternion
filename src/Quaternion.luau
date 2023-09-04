@@ -1,21 +1,4 @@
--- Version: 0.0.2
-
---@test
-local Vector3 = require("mocks/Vector3")
-local CFrame = require("mocks/CFrame")
-local Enum = {}
-Enum.RotationOrder = {
-    XYZ = {Value = 0, Name = "XYZ"},
-    XZY = {Value = 1, Name = "XZY"},
-    YZX = {Value = 2, Name = "YZX"},
-    YXZ = {Value = 3, Name = "YXZ"},
-    ZXY = {Value = 4, Name = "ZXY"},
-    ZYX = {Value = 5, Name = "ZYX"}
-}
---@testend
-
 export type Quaternion = {
-    
     -- Constructors
     
     new: (qX: number?, qY: number?, qZ: number?, qW: number?) -> Quaternion,
@@ -600,7 +583,6 @@ local function RandomQuaternion(seed: number): () -> Quaternion
     local seed = seed or 1
     local random = Random.new(seed)
     
-    --@testend
     local tau = 2 * math.pi
     local sqrt = math.sqrt
     local sin = math.sin
@@ -1921,13 +1903,10 @@ function Quaternion.__index(q0, key)
     return nil
 end
 
--- Won't throw if we index directly, will instead throw read-only error
--- i.e. this only throws if we try to set anything other than w,x,y,z
 function Quaternion.__newindex(_, key)
     error(tostring(key) .. " cannot be assigned to")
 end
 
--- Prevent identity and zero from being changed (const members)
 table.freeze(Quaternion)
 
 return Quaternion

@@ -13,23 +13,21 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      
+      - name: Prepare files for testing
+        run: python tests/prepareTest.py
+      
       - name: Run tests
         run: binaries/ubuntu/luau tests/test.luau
-      - name: Build code
-        run: binaries/ubuntu/lua54 tests/build.lua
-      - name: Push changes
-        run: |
-          if [[ `git status --porcelain` ]]; then
-            git config --global user.name "github-actions[bot]"
-            git config --global user.email "support+actions@github.com"
-            git add .
-            git commit -m "[action] - Build luau files"
-            git push
-          else
-            echo "WARNING: No changes were detected. git commit push action aborted."
-          fi
-          
+  
+  
   docs:
     needs: test
     environment:

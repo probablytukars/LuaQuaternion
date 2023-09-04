@@ -1,7 +1,5 @@
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local Quaternion = require(replicatedStorage.Quaternion)
-type Quaternion = Quaternion.Quaternion
-
 local ERROR_FORMAT = "%q is not a valid member of QuaternionSpring."
 
 export type QuaternionSpring = {
