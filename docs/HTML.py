@@ -1,7 +1,8 @@
 import copy
 import json
-import re
 import os
+import re
+import markdown
 
 from bs4 import BeautifulSoup
 from moonwave.tokens import tokenize
@@ -22,13 +23,13 @@ def get_soup_template():
 
     return BeautifulSoup(html_content, "html.parser")
 
-soup_template = get_soup_template()
+SOUP_TEMPLATE = get_soup_template()
 
 def get_template_function():
     templates = {}
     
-    for template in soup_template.head.find_all("template"):
-        template_name = template.get("id")[9:]
+    for template in SOUP_TEMPLATE.head.find_all("template"):
+        template_name = template.get("id")[9:] #"template-"
         template_content = template.contents[0]
         templates[template_name] = template_content
         template.extract()
@@ -124,7 +125,7 @@ LUA_TYPE_API = "https://create.roblox.com/docs/luau/"
 ROBLOX_DATATYPE_API = "https://create.roblox.com/docs/reference/engine/datatypes/"
 ENUM_API = "https://create.roblox.com/docs/reference/engine/enums/"
 
-def anchor_type_href(append_to, gtype_):
+def anchor_type_href(class_name, append_to, gtype_):
     anchor = get_template("lua-type")
     anchor.string = gtype_
     append_to.append(anchor)
@@ -167,7 +168,7 @@ def setup_group_item(item, delete_h3=False):
 
 # quick_add_template(append_to, "", "", depth_class)
 
-def generate_from_tokens(append_to, tokens, depth=0, remove_first=False):
+def generate_from_tokens(class_name, append_to, tokens, depth=0, remove_first=False):
     indent = '    ' * (depth + 1)
     depth_class = "depth-" + str(depth % 3)
     found_first_paramater = False
@@ -178,6 +179,7 @@ def generate_from_tokens(append_to, tokens, depth=0, remove_first=False):
         if token_type == "tuple":
             quick_add_template(append_to, "tuple", "(", depth_class)
             generate_from_tokens(
+                class_name, 
                 append_to, 
                 token["unseparated_tokens"], 
                 depth + 1, 
@@ -190,11 +192,21 @@ def generate_from_tokens(append_to, tokens, depth=0, remove_first=False):
             quick_add_template(append_to, "tuple", ")", depth_class)
         elif token_type == "indexer":
             quick_add_template(append_to, "indexer", "[", depth_class)
-            generate_from_tokens(append_to, token["unseparated_tokens"], depth + 1)
+            generate_from_tokens(
+                class_name, 
+                append_to, 
+                token["unseparated_tokens"], 
+                depth + 1
+            )
             quick_add_template(append_to, "indexer", "]", depth_class)
         elif token_type == "table":
             quick_add_template(append_to, "table", "{", depth_class)
-            generate_from_tokens(append_to, token["unseparated_tokens"], depth + 1)
+            generate_from_tokens(
+                class_name, 
+                append_to, 
+                token["unseparated_tokens"], 
+                depth + 1
+            )
             quick_add_template(append_to, "table", "}", depth_class)
         elif token_type == "separator":
             if remove_first and found_first_paramater and not found_first_seperator:
@@ -227,13 +239,17 @@ def generate_from_tokens(append_to, tokens, depth=0, remove_first=False):
             if remove_first and found_first_paramater and not found_first_type:
                 found_first_type = True
             else:
-                anchor_type_href(append_to, token["lua_type"])
+                anchor_type_href(
+                    class_name, 
+                    append_to, 
+                    token["lua_type"]
+                )
         
             
-def parse_type(append_to, type_text, remove_first=False):
+def parse_type(class_name, append_to, type_text, remove_first=False):
     type_text = ''.join(type_text.split())
     tokens = tokenize(type_text)
-    generate_from_tokens(append_to, tokens, remove_first=remove_first)
+    generate_from_tokens(class_name, append_to, tokens, remove_first=remove_first)
     
 
 class_compatability = {
@@ -309,20 +325,20 @@ def group_similar_items(insert_span):
         i += 1
     
 
-def property_to_html(item):
+def property_to_html(class_name, item):
     group_item = setup_group_item(item)
     insert_span = group_item.find("span", class_="definition")
     quick_add_template(insert_span, "class-name", class_name)
     quick_add_template(insert_span, "punc", ".", "prop-dot")
     quick_add_template(insert_span, "prop-name", item["name"])
     quick_add_template(insert_span, "punc", ":\u00A0", "prop-colon")
-    parse_type(insert_span, item["lua_type"])
+    parse_type(class_name, insert_span, item["lua_type"])
     
     group_similar_items(insert_span)
     
     return group_item
 
-def function_to_html(item, call_syntax):
+def function_to_html(class_name, item, call_syntax):
     group_item = setup_group_item(item)
     insert_span = group_item.find("span", class_="definition")
     quick_add_template(insert_span, "class-name", class_name)
@@ -330,7 +346,7 @@ def function_to_html(item, call_syntax):
     quick_add_template(insert_span, "punc", call_syntax, class_call_syntax)
     quick_add_template(insert_span, "method-name", item["name"])
     
-    parse_type(insert_span, item["definition"], ((call_syntax == ":") and item["remove_first"]))
+    parse_type(class_name, insert_span, item["definition"], ((call_syntax == ":") and item["remove_first"]))
     
     group_similar_items(insert_span)
     
@@ -349,7 +365,7 @@ operation_map = {
     "ge": ">=",
 }
 
-def operation_to_string(item):
+def operation_to_string(class_name, item):
     operator = item["operator"]
     if operator == "unm":
         return "-" + item["operand1"]
@@ -359,39 +375,38 @@ def operation_to_string(item):
     else:
         return item["operand1"] + "\u00A0" + operation_map[operator] + "\u00A0" + item["operand2"]
 
-def operation_to_html(item):
+def operation_to_html(class_name, item):
     group_item = setup_group_item(item, True)
     add_class(group_item, "operation-item")
-    group_item["id"] = operation_to_string(item)
+    group_item["id"] = operation_to_string(class_name, item)
     insert_span = group_item.find("span", class_="definition")
     
     operator = item["operator"]
     if operator == "unm":
         quick_add_template(insert_span, "operator", "-")
-        parse_type(insert_span, item["operand1"])
+        parse_type(class_name, insert_span, item["operand1"])
     elif operator == "len":
         quick_add_template(insert_span, "operator", "#")
-        parse_type(insert_span, item["operand1"])
+        parse_type(class_name, insert_span, item["operand1"])
     else:
-        parse_type(insert_span, item["operand1"])
+        parse_type(class_name, insert_span, item["operand1"])
         quick_add_template(insert_span, "operator", "\u00A0" + operation_map[operator] + "\u00A0")
-        parse_type(insert_span, item["operand2"])
+        parse_type(class_name, insert_span, item["operand2"])
     
     if "return" in item:
         quick_add_template(insert_span, "punc", ":" + "\u00A0", "op-colon")
-        parse_type(insert_span, item["return"])
+        parse_type(class_name, insert_span, item["return"])
     
     group_similar_items(insert_span)
     
     return group_item
 
-def alias_to_html(item):
+def alias_to_html(class_name, item):
     group_item = setup_group_item(item)
     alias_link = "#" + item["alias"]
-    alias_anchor = soup.new_tag("a")
+    alias_anchor = get_template("alias")
     alias_anchor["href"] = alias_link
     alias_anchor.string = item["alias"]
-    add_class(alias_anchor, "color-link")
     group_item.p.append("Alias for ")
     group_item.p.append(alias_anchor)
     group_item.p.append(".")
@@ -400,7 +415,7 @@ def alias_to_html(item):
     
     return group_item
 
-def process_list_json(function_group, soup):
+def process_list_json(function_group, soup, class_name):
     group_name = function_group["name"]
     
     group_component = get_template("group-component")
@@ -419,7 +434,7 @@ def process_list_json(function_group, soup):
         if "name" in item:
             target_name = item["name"]
         else:
-            target_name = operation_to_string(item)
+            target_name = operation_to_string(class_name, item)
         
         sidebar_sub.a.string = target_name
         sidebar_sub.a["href"] = "#" + target_name
@@ -428,50 +443,78 @@ def process_list_json(function_group, soup):
         
        
         if tag == "property":
-            group_component.ul.append(property_to_html(item))
+            group_component.ul.append(property_to_html(class_name, item))
         elif tag == "function":
-            group_component.ul.append(function_to_html(item, "."))
+            group_component.ul.append(function_to_html(class_name, item, "."))
         elif tag == "method":
-            group_component.ul.append(function_to_html(item, ":"))
+            group_component.ul.append(function_to_html(class_name, item, ":"))
         elif tag == "operation":
-            group_component.ul.append(operation_to_html(item))
+            group_component.ul.append(operation_to_html(class_name, item))
         elif tag == "alias":
-            group_component.ul.append(alias_to_html(item))
+            group_component.ul.append(alias_to_html(class_name, item))
     
     return group_component
 
+def api_page(filename):
+    json_source_path = os.path.join(source_folder, filename)
+    target_output_path = os.path.join(target_folder, filename[:-4] + "html")
+    
+    with open(json_source_path, 'r') as json_source:
+        json_docs = json.load(json_source)
+    
+    soup = copy.copy(SOUP_TEMPLATE)
+    
+    content_list = soup.find("ul", class_="content-list")
+    class_name = ""
+    for function_group in json_docs:
+        purpose = function_group["purpose"]
+        if purpose == "top":
+            title = get_template("title-description")
+            class_name = function_group["name"]
+            title.h1.string = function_group["name"]
+            title.h1["id"] = function_group["name"]
+            desc = function_group["desc"]
+            title.p.append(description_array_to_html(desc))
+            content_list.append(title)
+        elif purpose == "list":
+            group_component = process_list_json(function_group, soup, class_name)
+            content_list.append(group_component)
 
 
-for filename in os.listdir(source_folder):
-    if filename.endswith('.json'):
-        json_source_path = os.path.join(source_folder, filename)
-        target_output_path = os.path.join(target_folder, filename[:-4] + "html")
-        
-        with open(json_source_path, 'r') as json_source:
-            json_docs = json.load(json_source)
-        
-        soup = copy.copy(soup_template)
-        
-        content_list = soup.find("ul", class_="content-list")
-        for function_group in json_docs:
-            purpose = function_group["purpose"]
-            if purpose == "top":
-                title = get_template("title-description")
-                class_name = function_group["name"]
-                title.h1.string = function_group["name"]
-                title.h1["id"] = function_group["name"]
-                desc = function_group["desc"]
-                title.p.append(description_array_to_html(desc))
-                content_list.append(title)
-            elif purpose == "list":
-                group_component = process_list_json(function_group, soup)
-                content_list.append(group_component)
-        
-        
-        with open(target_output_path, 'w') as target_file:
-          target_file.write(str(soup))
-        
-        print(f'Processed: {filename}')
+    with open(target_output_path, 'w') as target_file:
+        target_file.write(str(soup))
 
-print('All files processed.')
+    print(f'Processed: {filename} -> html')
+
+def create_api_pages():
+    for filename in os.listdir(source_folder):
+        if filename.endswith('.json'):
+            api_page(filename)
+    print('All files processed.')
+
+def create_index_page():
+    with open("README.md", "r") as READ_ME_MD:
+        READ_ME_HTML = markdown.markdown(READ_ME_MD.read())
+    
+    read_me_soup = BeautifulSoup(READ_ME_HTML, "html.parser")
+    soup = copy.copy(SOUP_TEMPLATE)
+    
+    soup.find("ul", class_="content-list").extract()
+    main = soup.find("main")
+    main.append(read_me_soup)
+    
+    with open("build/index.html", "w") as READ_ME_HTML:
+        READ_ME_HTML.write(str(soup))
+    
+
+def main():
+    create_api_pages()
+    create_index_page()
+    
+
+if __name__ == "__main__":
+    main()
+
+
+
 

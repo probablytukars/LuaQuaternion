@@ -230,6 +230,6 @@ for filename in os.listdir(source_folder):
         with open(target_file_path, "w") as target_file:
             json.dump(doc_out_tab, target_file, indent=4)
         
-        print(f'Processed: {filename}')
+        print(f'Processed: {filename} -> json')
 
 print('All files processed.')

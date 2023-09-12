@@ -46,13 +46,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install beautifulsoup4
+          pip install beautifulsoup4 markdown
       
       - name: Generate JSON from Luau
-        run: python docs/luaujson.py
+        run: python docs/JSON.py
         
       - name: Generate HTML from JSON
-        run: python docs/htmlgen.py
+        run: python docs/HTML.py
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
