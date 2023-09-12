@@ -35,11 +35,11 @@ export type QuaternionSpring = {
     Assigning the position will change the spring to have that position.
     
     @prop Position nlerpable
---]=]
+]=]
 --[=[
     @prop p nlerpable
     @alias Position
---]=]
+]=]
 --[=[
     The current velocity. Assigning the velocity will change the spring to have 
     that velocity. The velocity should be in the axis with angle magnitude
@@ -48,44 +48,44 @@ export type QuaternionSpring = {
     The zero vector represents no velocity.
     
     @prop Velocity nlerpable
---]=]
+]=]
 --[=[
     @prop v nlerpable
     @alias Velocity
---]=]
+]=]
 --[=[
     The current target. Assigning the target will change the spring to have 
     that target.
     
     @prop Target nlerpable
---]=]
+]=]
 --[=[
     @prop t nlerpable
     @alias Target
---]=]
+]=]
 --[=[
     The current damper, defaults to 1. At 1 the spring is critically damped. 
     At less than 1, it will be underdamped, and thus, bounce, and at over 1, 
     it will be critically damped.
     
     @prop Damping number
---]=]
+]=]
 --[=[
     @prop d number
     @alias Damping
---]=]
+]=]
 --[=[
     The speed, defaults to 1, but should be between [0, infinity)
     
     @prop Speed number
---]=]
+]=]
 --[=[
     @prop s number
     @alias Speed
---]=]
+]=]
 --[=[
     @prop Clock
---]=]
+]=]
 local QuaternionSpring = {_type = "QuaternionSpring"}
 
 function QuaternionSpring.new(initial: Quaternion, damping: number, speed: number, clock: () -> number)
