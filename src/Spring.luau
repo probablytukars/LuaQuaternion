@@ -29,50 +29,50 @@ export type Spring = {
     This is lazily evaluated meaning it only updates when indexed.
 ]=]
 --[=[
+    @prop Position nlerpable
+    
     The current position at the given clock time. 
     Assigning the position will change the spring to have that position.
-    
-    @prop Position nlerpable
 ]=]
 --[=[
     @prop p nlerpable
     @alias Position
 ]=]
 --[=[
+    @prop Velocity nlerpable
+    
     The current velocity. Assigning the velocity will change the spring to have 
     that velocity.
-    
-    @prop Velocity nlerpable
 ]=]
 --[=[
     @prop v nlerpable
     @alias Velocity
 ]=]
 --[=[
+    @prop Target nlerpable
+    
     The current target. Assigning the target will change the spring to have 
     that target.
-    
-    @prop Target nlerpable
 ]=]
 --[=[
     @prop t nlerpable
     @alias Target
 ]=]
 --[=[
+    @prop Damping number
+    
     The current damper, defaults to 1. At 1 the spring is critically damped. 
     At less than 1, it will be underdamped, and thus, bounce, and at over 1, 
     it will be critically damped.
-    
-    @prop Damping number
 ]=]
 --[=[
     @prop d number
     @alias Damping
 ]=]
 --[=[
-    The speed, defaults to 1, but should be between [0, infinity)
-    
     @prop Speed number
+    
+    The speed, defaults to 1, but should be between [0, infinity)
 ]=]
 --[=[
     @prop s number
