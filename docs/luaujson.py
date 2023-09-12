@@ -70,11 +70,12 @@ tag_map = {
 }
 
 def parse_doc_line(doc_store, file, doc):
-    read_desc = False
-    reading_desc = False
+    read_desc = False # have we already read the description
+    reading_desc = False # are we currently reading the docs description
     function_definition = ""
-    read_function_definition = False
+    read_function_definition = False #read the literal code defition of function
     name_found = False
+    
     prev_line = file.tell()
     while True:
         line = file.readline()
@@ -92,13 +93,16 @@ def parse_doc_line(doc_store, file, doc):
             read_desc = True
             if len(doc.keys()) > 0:
                 doc_store.append(doc)
-            if doc["tag"] == "method" or doc["tag"] == "function" or doc["tag"] == "alias":
+            if doc["tag"] in ["method", "function", "alias"]:
                 read_function_definition = True
             else:
                 return
         elif read_function_definition:
             if line == "":
                 continue
+            if line.endswith("[=["):
+                file.seek(prev_line)
+                return
             if not name_found:
                 if line.startswith("local function"):
                     doc["name"] = re.findall("local function (\S+)\(", line)[0]
@@ -133,9 +137,9 @@ def parse_doc_line(doc_store, file, doc):
             if not read_desc:
                 reading_desc = True
                 doc["desc"].append(line)
-    
         prev_line = file.tell()
-                
+        
+        
 
 def fix_doc_desc(doc):
     new_array = []
@@ -219,8 +223,7 @@ for filename in os.listdir(source_folder):
     if filename.endswith('.luau'):
         source_file_path = os.path.join(source_folder, filename)
         target_file_path = os.path.join(target_folder, filename[:-4] + "json")
-        
-        
+
         with open(source_file_path) as source_file:
             doc_out_tab = read_file(source_file)
         

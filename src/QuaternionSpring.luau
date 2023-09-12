@@ -22,24 +22,24 @@ export type QuaternionSpring = {
 
 --[=[
     @class QuaternionSpring
-    @grouporder ["Constructors", "Methods"]
+    @grouporder ["Constructors"]
     
     This class represents a rotational spring using Quaternions.
     Velocity is a Vector3 where the magnitude is the angle, and the unit
     is the axis (if angle is > 0).
     
     This is lazily evaluated meaning it only updates when indexed.
-]=]
+--]=]
 --[=[
     @prop Position nlerpable
     
     The current position (rotation) at the given clock time. 
     Assigning the position will change the spring to have that position.
-]=]
+--]=]
 --[=[
     @prop p nlerpable
     @alias Position
-]=]
+--]=]
 --[=[
     @prop Velocity nlerpable
     
@@ -48,41 +48,41 @@ export type QuaternionSpring = {
     format, where the magnitude represents the angle, and the unit of that
     vector (if magnitude is > 0) represents the axis of rotation.
     The zero vector represents no velocity.
-]=]
+--]=]
 --[=[
     @prop v nlerpable
     @alias Velocity
-]=]
+--]=]
 --[=[
     @prop Target nlerpable
     
     The current target. Assigning the target will change the spring to have 
     that target.
-]=]
+--]=]
 --[=[
     @prop t nlerpable
     @alias Target
-]=]
+--]=]
 --[=[
     @prop Damping number
     
     The current damper, defaults to 1. At 1 the spring is critically damped. 
     At less than 1, it will be underdamped, and thus, bounce, and at over 1, 
     it will be critically damped.
-]=]
+--]=]
 --[=[
     @prop d number
     @alias Damping
-]=]
+--]=]
 --[=[
     @prop Speed number
     
     The speed, defaults to 1, but should be between [0, infinity)
-]=]
+--]=]
 --[=[
     @prop s number
     @alias Speed
-]=]
+--]=]
 --[=[
     @prop Clock
 ]=]
