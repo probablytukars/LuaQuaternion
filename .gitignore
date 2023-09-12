@@ -1,6 +1,9 @@
 __pycache__
 build/docs.json
 build/index.html
+build/docs
+build/api
+
 /test_build
 
 .vscode

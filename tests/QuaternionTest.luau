@@ -2,8 +2,6 @@ local Assert = require("tests/Assert")
 local Vector3 = require("mocks/Vector3")
 local CFrame = require("mocks/CFrame")
 
-print(Vector3)
-
 local Enum = {}
 Enum.RotationOrder = {
     XYZ = {Value = 0, Name = "XYZ"},
@@ -433,7 +431,7 @@ lookAt.RandomLocations = {
             local q0 = Quaternion.lookAt(fromVec, lookVec)
             local qe = look.quaternion
             if not(Assert.QuaternionsEqualApprox(qe, q0, EPSILON)) then
-                return false, "Failed on " .. collectionName
+                return false
             end
         end
         return true

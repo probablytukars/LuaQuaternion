@@ -1,10 +1,12 @@
 import json
 import re
+import os
 
-luau_input_file = "src/Quaternion.luau"
-output_file = "build/docs.json"
+source_folder = "src"
+target_folder = "build/docs"
 
-doc_store = []
+if not os.path.exists(target_folder):
+    os.makedirs(target_folder)
 
 tag_regex  = r'@(\S+)\s*(.*)'
 prop_regex = r'(\S+)\s*(\S*)'
@@ -67,7 +69,7 @@ tag_map = {
     
 }
 
-def parse_doc_line(file, doc):
+def parse_doc_line(doc_store, file, doc):
     read_desc = False
     reading_desc = False
     function_definition = ""
@@ -158,7 +160,49 @@ def fix_doc_desc(doc):
 
     doc["desc"] = new_array
 
-with open(luau_input_file) as file:
+
+            
+
+def create_doc_json(doc_store):
+    doc_out_tab = []
+
+    head_doc = doc_store[0]
+    grouporder = head_doc["grouporder"]
+    grouporder.insert(0, "Properties")
+
+    doc_out_tab.append({
+        "purpose": "top",
+        "name": head_doc["name"],
+        "desc": head_doc["desc"]
+    })
+
+    for group in grouporder:
+        doc_out_tab.append({
+            "purpose": "list",
+            "name": group,
+            "list": []
+        })
+
+    def get_list_to_append(name):
+        for doc_group in doc_out_tab:
+            if doc_group["name"] == name:
+                if "list" in doc_group:
+                    return doc_group
+        return None
+
+    for doc in doc_store:
+        if "group" in doc:
+            name = doc["group"]
+            target_list = get_list_to_append(name)
+            if target_list:
+                target_list["list"].append(doc)
+    
+    return doc_out_tab
+    
+    
+
+def read_file(file):
+    doc_store = []
     while True:
         line = file.readline()
         if not line:
@@ -166,46 +210,23 @@ with open(luau_input_file) as file:
         line = line.strip()
         if line[0:5] == "--[=[":
             doc = {"desc": []}
-            parse_doc_line(file, doc)
+            parse_doc_line(doc_store, file, doc)
             fix_doc_desc(doc)
-            
-
-doc_out_tab = []
-
-head_doc = doc_store[0]
-grouporder = head_doc["grouporder"]
-grouporder.insert(0, "Properties")
-
-doc_out_tab.append({
-    "purpose": "top",
-    "name": head_doc["name"],
-    "desc": head_doc["desc"]
-})
-
-for group in grouporder:
-    doc_out_tab.append({
-        "purpose": "list",
-        "name": group,
-        "list": []
-    })
-
-def get_list_to_append(name):
-    for doc_group in doc_out_tab:
-        if doc_group["name"] == name:
-            if "list" in doc_group:
-                return doc_group
-    return None
-
-for doc in doc_store:
-    if "group" in doc:
-        name = doc["group"]
-        target_list = get_list_to_append(name)
-        if target_list:
-            target_list["list"].append(doc)
+    return create_doc_json(doc_store)
 
 
-with open(output_file, "w") as outfile:
-    json.dump(doc_out_tab, outfile, indent=4)
+for filename in os.listdir(source_folder):
+    if filename.endswith('.luau'):
+        source_file_path = os.path.join(source_folder, filename)
+        target_file_path = os.path.join(target_folder, filename[:-4] + "json")
+        
+        
+        with open(source_file_path) as source_file:
+            doc_out_tab = read_file(source_file)
+        
+        with open(target_file_path, "w") as target_file:
+            json.dump(doc_out_tab, target_file, indent=4)
+        
+        print(f'Processed: {filename}')
 
-#print(json.dumps(doc_out_tab, indent=4))
-
+print('All files processed.')

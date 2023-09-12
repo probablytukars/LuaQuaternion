@@ -1,33 +1,44 @@
 import copy
 import json
 import re
+import os
 
 from bs4 import BeautifulSoup
 from moonwave.tokens import tokenize
 
-global class_name
+template_input_file = "docs/template.html"
+source_folder = "build/docs"
+target_folder = "build/api"
 
-html_input_file = "docs/template.html"
-html_output_file = "build/index.html"
-json_docs_file = "build/docs.json"
+if not os.path.exists(target_folder):
+    os.makedirs(target_folder)
+    
 
-html_content = ""
-with open(html_input_file, "r") as template_file:
-    for line in template_file.readlines():
-        html_content = html_content + line.strip()
+def get_soup_template():
+    html_content = ""
+    with open(template_input_file, "r") as template_file:
+        for line in template_file.readlines():
+            html_content = html_content + line.strip()
 
-soup = BeautifulSoup(html_content, "html.parser")
+    return BeautifulSoup(html_content, "html.parser")
 
-templates = {}
+soup_template = get_soup_template()
 
-for template in soup.head.find_all("template"):
-    template_name = template.get("id")[9:]
-    template_content = template.contents[0]
-    templates[template_name] = template_content
-    template.extract()
+def get_template_function():
+    templates = {}
+    
+    for template in soup_template.head.find_all("template"):
+        template_name = template.get("id")[9:]
+        template_content = template.contents[0]
+        templates[template_name] = template_content
+        template.extract()
 
-def get_template(template_name):
-    return copy.copy(templates[template_name])
+    def get_template(template_name):
+        return copy.copy(templates[template_name])
+    
+    return get_template
+
+get_template = get_template_function()
 
 def quick_add_template(append_to, template_name, set_string, add_class_=None):
     template = get_template(template_name)
@@ -45,8 +56,7 @@ def remove_class(element, class_name):
     if 'class' in element:
         element['class'] = [c for c in element['class'] if c != class_name]
 
-with open(json_docs_file) as json_file:
-    docs_api = json.load(json_file)
+
 
 
 def escape_html(string):
@@ -430,20 +440,38 @@ def process_list_json(function_group, soup):
     
     return group_component
 
-content_list = soup.find("ul", class_="content-list")
-for function_group in docs_api:
-    purpose = function_group["purpose"]
-    if purpose == "top":
-        title = get_template("title-description")
-        class_name = function_group["name"]
-        title.h1.string = function_group["name"]
-        title.h1["id"] = function_group["name"]
-        desc = function_group["desc"]
-        title.p.append(description_array_to_html(desc))
-        content_list.append(title)
-    elif purpose == "list":
-        group_component = process_list_json(function_group, soup)
-        content_list.append(group_component)
 
-with open(html_output_file, "w") as output_file:
-    output_file.write(str(soup))
+
+for filename in os.listdir(source_folder):
+    if filename.endswith('.json'):
+        json_source_path = os.path.join(source_folder, filename)
+        target_output_path = os.path.join(target_folder, filename[:-4] + "html")
+        
+        with open(json_source_path, 'r') as json_source:
+            json_docs = json.load(json_source)
+        
+        soup = copy.copy(soup_template)
+        
+        content_list = soup.find("ul", class_="content-list")
+        for function_group in json_docs:
+            purpose = function_group["purpose"]
+            if purpose == "top":
+                title = get_template("title-description")
+                class_name = function_group["name"]
+                title.h1.string = function_group["name"]
+                title.h1["id"] = function_group["name"]
+                desc = function_group["desc"]
+                title.p.append(description_array_to_html(desc))
+                content_list.append(title)
+            elif purpose == "list":
+                group_component = process_list_json(function_group, soup)
+                content_list.append(group_component)
+        
+        
+        with open(target_output_path, 'w') as target_file:
+          target_file.write(str(soup))
+        
+        print(f'Processed: {filename}')
+
+print('All files processed.')
+
