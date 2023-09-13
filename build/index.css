@@ -439,7 +439,8 @@ body.light-mode footer {
 .main-flex {
     display: flex;
     width: var(--content-width);
-    margin: auto;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 main {
@@ -592,6 +593,23 @@ aside .class-list {
     padding-bottom: var(--large);
 }
 
+
+.api-sidebar li {
+    padding-left: var(--small);
+    
+}
+
+.api-sidebar a {
+    display: block;
+    width: 100%;
+    margin: 2px 0 2px 0;
+}
+
+.api-sidebar a:hover {
+    color: var(--link);
+    cursor: pointer;
+    
+}
 
 @media screen and (max-aspect-ratio: 3/4), screen and (max-width: 940px) {
     main {width: 100%;}
