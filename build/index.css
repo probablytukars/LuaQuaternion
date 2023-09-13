@@ -118,6 +118,7 @@ body {
     background-size: cover;
     font-weight: 100;
     color: var(--text);
+    position: relative;
 }
 
 body.light-mode {
@@ -139,16 +140,16 @@ code, code * {
 }
 
 
-body::-webkit-scrollbar, .sticky::-webkit-scrollbar {
+*::-webkit-scrollbar {
     width: 10px;
 }
 
-body::-webkit-scrollbar-thumb, .sticky::-webkit-scrollbar-thumb {
+*::-webkit-scrollbar-thumb {
     background-color: hsl(0,0%,67%);
     border-radius: 8px;
 }
 
-body::-webkit-scrollbar-thumb:hover, .sticky::-webkit-scrollbar-thumb:hover {
+*::-webkit-scrollbar-thumb:hover {
     background-color: hsl(0,0%,50%);
     border-radius: 8px;
 }
@@ -184,7 +185,6 @@ body.light-mode header {
 
 .github-link {
     display: flex; 
-    height: 100%; 
     width: fit-content; 
     font-size: 16px;
     font-weight: 800;
@@ -425,12 +425,21 @@ body.light-mode footer {
 .content {
     box-sizing: content-box;
     max-width: 100%;
-    width: var(--content-width);
-    margin: auto;
+    width: 100%;
+    margin: none;
     display: flex;
     flex-direction: row;
-    padding-bottom: var(--large);
     min-height: calc(100vh - var(--large) * 2);
+}
+
+.content > * {
+    display: flex;
+}
+
+.main-flex {
+    display: flex;
+    width: var(--content-width);
+    margin: auto;
 }
 
 main {
@@ -443,54 +452,30 @@ main {
         var(--normal);
 }
 
-.sidebar {
-    width: var(--aside-width); 
-    margin: 0; 
-    padding-left: var(--normal);
-    margin-bottom: var(--normal30);
-    font-size: 16px;
+.api-sidebar {
+    display: flex;
+    flex-basis: 350px;
+    flex-shrink: 1;
+    padding: var(--normal);
+    position: relative;
+    flex-direction: column;
+    margin-top: calc(var(--header-size));
+    background-color: #111;
 }
 
-.sticky {
-    margin-top: var(--normal);
+.api-sticky {
+    display: flex;
+    flex-direction: column;
     position: sticky;
-    top: calc(var(--header-size) + var(--large) + var(--normal));
-    max-height: calc(100vh - var(--header-size) - var(--large) - var(--normal));
-    overflow-y:auto;
-    padding-bottom: var(--large);
+    padding-bottom: var(--normal);
+    top: calc(var(--header-size) + var(--normal));
 }
 
-@media screen and (max-aspect-ratio: 3/4), screen and (max-width: 820px) {
-    main {width: 100%;}
-    header .menu-button {display: block;}
-    header .github-link {display: none;}
-    .sidebar {
-        position: fixed;
-        margin-top: var(--header-size);
-        height: calc(100% - var(--header-size)); 
-        width: 350px;
-        max-width: 100%;
-        background-color: var(--container);
-        z-index: 2;
-        left: -350px;
-        transition: left var(--normal-transition) ease;
-        box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.5);
-    }
-    body.light-mode .sidebar {
-        background-color: #fff;
-    }
-    .sidebar .github-link {
-        display: flex;
-        padding-left: var(--small);
-        margin-bottom: var(--normal);
-    }
-    .sticky {
-        top: unset;
-    }
-    .sidebar.active { /* need active and hidden mode */
-        left: 0px;
-    }
+.api-sticky li {
+    word-break: break-all;
 }
+
+
 
 
 
@@ -576,6 +561,71 @@ body.light-mode .depth-1 {color: hsl(277, 90%, 50%);}
 body.light-mode .depth-2 {color: hsl(180, 85%, 37%);}
 
 .generic, .intersection, .union {color: hsl(36, 80%, 65%);}
+.inline-code{background-color: var(--inline-code);border-radius: 2px;color:#fff;padding:0 4px 0 4px}
+
+
+
+
+aside {
+    display: block;
+    width: var(--aside-width);
+    
+    padding-left: var(--normal);
+    margin-bottom: var(--normal30);
+    font-size: 16px;
+}
+
+aside .github-link {display: none;}
+aside .api-sidebar {display: none;}
+
+aside .class-list {
+    height: 100%;
+    width: 100%;
+}
+
+.right-sidebar {
+    position: sticky;
+    max-height: calc(100vh - var(--header-size) - var(--large) - var(--normal));
+    top: calc(var(--header-size) + var(--large) + var(--normal));
+    overflow-y:auto;
+    padding-bottom: var(--large);
+}
+
+
+@media screen and (max-aspect-ratio: 3/4), screen and (max-width: 940px) {
+    main {width: 100%;}
+    header .menu-button {display: block;}
+    header .github-link {display: none;}
+    aside {
+        position: fixed;
+        margin-top: var(--header-size);
+        height: calc(100% - var(--header-size)); 
+        width: 350px;
+        max-width: 100%;
+        background-color: var(--container);
+        z-index: 2;
+        left: -350px;
+        transition: left var(--normal-transition) ease;
+        box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.5);
+    }
+    .content > .api-sidebar {
+        display: none;
+    }
+    body.light-mode .sidebar {
+        background-color: #fff;
+    }
+    .sidebar .github-link {
+        display: flex;
+        padding-left: var(--small);
+        margin-bottom: var(--normal);
+    }
+    .sticky {
+        top: unset;
+    }
+    aside.active {
+        left: 0px;
+    }
+}
 
 .sidebar h4 {
     font-size: 12px;
@@ -586,7 +636,7 @@ body.light-mode .depth-2 {color: hsl(180, 85%, 37%);}
 body.light-mode .sidebar h4 {
     color: #343434;
 }
-
+*/
 .sidebar-item{
     width: 100%; 
     align-items: center
@@ -602,9 +652,5 @@ body.light-mode .sidebar h4 {
 .sidebar-sub a {
     padding-left: 30px;
 }
-
-
-.inline-code{background-color: var(--inline-code);border-radius: 2px;color:#fff;padding:0 4px 0 4px}
-
 
 

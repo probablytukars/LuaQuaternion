@@ -1,6 +1,6 @@
 const print = console.log;
 const main = document.querySelector("main")
-const sidebar = document.querySelector(".sidebar")
+const sidebar = document.querySelector("aside")
 const sidebarlist = document.querySelector(".sidebar-list")
 const searchbox = document.querySelector(".search-box-container")
 const searchResults = document.querySelector(".search-results")
@@ -20,6 +20,7 @@ checkbox.addEventListener("change", () => {
 var debounce = 0
 
 function sidebar_click(){
+    print("click")
     var current_time = Date.now()
     if (current_time - debounce > 300)  {
         sidebar.classList.toggle("active")
@@ -54,7 +55,7 @@ function changeTheme(e) {
 changeTheme(lightThemeMq)
 lightThemeMq.addEventListener("change", changeTheme)
 
-const detectSizeChange = window.matchMedia("screen and (max-aspect-ratio: 3/4), screen and (max-width: 820px)");
+const detectSizeChange = window.matchMedia("screen and (max-aspect-ratio: 3/4), screen and (max-width: 940px)");
 detectSizeChange.addEventListener("change", (e) => {
     sidebar.classList.remove("active")
 })

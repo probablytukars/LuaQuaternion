@@ -503,6 +503,8 @@ def create_index_page():
     main = soup.find("main")
     main.append(read_me_soup)
     
+    soup.find("nav", class_="class-list").extract()
+    
     with open("build/index.html", "w") as READ_ME_HTML:
         READ_ME_HTML.write(str(soup))
     
