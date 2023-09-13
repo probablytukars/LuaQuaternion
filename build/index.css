@@ -576,7 +576,8 @@ aside {
 }
 
 aside .github-link {display: none;}
-aside .api-sidebar {display: none;}
+aside .sidebar-api {display: none;}
+
 
 aside .class-list {
     height: 100%;
@@ -608,17 +609,39 @@ aside .class-list {
         transition: left var(--normal-transition) ease;
         box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.5);
     }
-    .content > .api-sidebar {
-        display: none;
-    }
+    
     body.light-mode .sidebar {
         background-color: #fff;
     }
-    .sidebar .github-link {
+    aside .github-link {
         display: flex;
         padding-left: var(--small);
         margin-bottom: var(--normal);
     }
+    .api-sidebar {
+        display: none;
+    }
+    aside .sidebar-api {
+        display: block;
+        padding-top: var(--normal);
+        padding-bottom: var(--normal);
+    }
+    aside .sidebar-api li {
+        padding-left: var(--small);
+        
+    }
+    aside .sidebar-api a {
+        display: block;
+        width: 100%;
+        margin: 2px 0 2px 0;
+    }
+    
+    aside .sidebar-api a:hover {
+        color: var(--link);
+        cursor: pointer;
+        
+    }
+    
     .sticky {
         top: unset;
     }
