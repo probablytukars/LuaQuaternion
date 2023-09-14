@@ -258,9 +258,10 @@ function getClosestScroll() {
         const sidebarItems = sidebarlist.children
         for (i = 0; i < sidebarItems.length; i++) {
             const sidebarItem = sidebarItems[i]
-            sidebarItem.scrollIntoView({behavior: "instant"})
+            
             const sidebarText = sidebarItem.firstChild.textContent;
             if (sidebarText == heading) {
+                sidebarItem.scrollIntoView({behavior: "instant"})
                 sidebarItem.classList.add("closest")
             } else {
                 sidebarItem.classList.remove("closest")
