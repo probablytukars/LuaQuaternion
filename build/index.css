@@ -594,7 +594,7 @@ body.light-mode .depth-2 {color: hsl(180, 85%, 37%);}
 
 
 
-
+.sticky {position: relative;}
 
 
 aside .github-link {display: none;}

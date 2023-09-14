@@ -2,6 +2,7 @@ const print = console.log;
 const main = document.querySelector("main")
 const sidebar = document.querySelector("aside")
 const sidebarlist = document.querySelector(".sidebar-list")
+const sticky = document.querySelector(".right-sidebar")
 const searchbox = document.querySelector(".search-box-container")
 const searchResults = document.querySelector(".search-results")
 const searchBar = document.getElementById("api-search");
@@ -234,6 +235,9 @@ document.addEventListener("keydown", (e) => {
     
 })
 
+const minScroll = 0.2;
+const scrollDown = 0.5;
+
 function getClosestScroll() {
     const headings = document.querySelectorAll("h1, h2, h3");
     let closestHeading = null;
@@ -255,13 +259,24 @@ function getClosestScroll() {
     
     if (closestHeading != null) {
         const heading = closestHeading.textContent
+        const scrollTop = sticky.scrollTop
+        const height = sticky.offsetHeight
+        const scrollBottom = scrollTop + height;
         const sidebarItems = sidebarlist.children
         for (i = 0; i < sidebarItems.length; i++) {
             const sidebarItem = sidebarItems[i]
             
             const sidebarText = sidebarItem.firstChild.textContent;
             if (sidebarText == heading) {
-                sidebarItem.scrollIntoView({behavior: "instant"})
+                const offsetTop = sidebarItem.offsetTop;
+                const sidebarHeight = sidebarItem.offsetHeight;
+                if (offsetTop + sidebarHeight > scrollBottom - (height * minScroll)) {
+                    sticky.scrollTop = scrollTop + (height * scrollDown)
+                } else if (offsetTop < scrollTop + (height * minScroll)) {
+                    sticky.scrollTop = scrollTop - (height * scrollDown)
+                } else {
+                    print("is in view")
+                }
                 sidebarItem.classList.add("closest")
             } else {
                 sidebarItem.classList.remove("closest")
