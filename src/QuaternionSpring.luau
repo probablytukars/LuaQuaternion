@@ -1,3 +1,8 @@
+--[[
+    SOURCE: https://github.com/Quenty/NevermoreEngine/blob/main/src/spring/src/Shared/Spring.lua
+    [MIT LICENSE]
+]]
+
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local Quaternion = require(replicatedStorage.Quaternion)
 local ERROR_FORMAT = "%q is not a valid member of QuaternionSpring."

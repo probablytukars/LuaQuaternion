@@ -1,3 +1,8 @@
+--[[
+    SOURCE: https://github.com/Quenty/NevermoreEngine/blob/main/src/spring/src/Shared/Spring.lua
+    [MIT LICENSE]
+--]]
+
 local ERROR_FORMAT = "%q is not a valid member of Spring."
 
 type nlerpable = number | Vector2 | Vector3 | UDim | UDim2
