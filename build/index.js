@@ -55,7 +55,7 @@ function changeTheme(e) {
 changeTheme(lightThemeMq)
 lightThemeMq.addEventListener("change", changeTheme)
 
-const detectSizeChange = window.matchMedia("screen and (max-aspect-ratio: 3/4), screen and (max-width: 940px)");
+const detectSizeChange = window.matchMedia("screen and (max-aspect-ratio: 3/4), screen and (max-width: 920px)");
 detectSizeChange.addEventListener("change", (e) => {
     sidebar.classList.remove("active")
 })

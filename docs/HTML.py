@@ -499,11 +499,14 @@ def create_index_page():
     read_me_soup = BeautifulSoup(READ_ME_HTML, "html.parser")
     soup = copy.copy(SOUP_TEMPLATE)
     
-    soup.find("ul", class_="content-list").extract()
-    main = soup.find("main")
-    main.append(read_me_soup)
+    ul = soup.find("ul", class_="content-list")
+    ul.append(read_me_soup)
     
-    soup.find("nav", class_="class-list").extract()
+    
+    class_list = soup.find("nav", class_="class-list")
+    
+    class_list.find_all("h4")[1].extract()
+    class_list.find("ul", class_="sidebar-list").extract()
     
     with open("build/index.html", "w") as READ_ME_HTML:
         READ_ME_HTML.write(str(soup))

@@ -38,7 +38,7 @@
     --white-filter: invert(100%);
     --link-filter: invert(100%) hue-rotate(202deg) saturate(100%) brightness(58%);
     --search-border-radius: 8px;
-    --search-width: 350px;
+    --search-width: 300px;
 }
 
 
@@ -56,6 +56,11 @@ input[type="search"]::-webkit-search-decoration,
 input[type="search"]::-webkit-search-cancel-button,
 input[type="search"]::-webkit-search-results-button,
 input[type="search"]::-webkit-search-results-decoration { display: none; }
+
+* {
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
 
 a {
     text-decoration:none;
@@ -161,10 +166,15 @@ header {
     background-color: #000;
     z-index: 3;
     box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.5);
+    display: flex;
 }
 
 body.light-mode header {
     background-color: #fff;
+}
+
+.header-center-align {
+    flex: 0 0 300px;
 }
 
 .header-content {
@@ -177,10 +187,13 @@ body.light-mode header {
 
 /* left side of header */
 
+
 .header-content .left {
     display: flex; 
     justify-content: left; 
     align-items: center;
+    padding-left: var(--normal);
+    padding-right: var(--normal);
 }
 
 .github-link {
@@ -231,6 +244,7 @@ body.light-mode header .menu-button:hover {
     justify-content: right;
     align-items: center;
     margin-left: auto;
+    padding-right: var(--normal);
 }
 
 .search-bar {
@@ -438,12 +452,14 @@ body.light-mode footer {
 
 .main-flex {
     display: flex;
-    width: var(--content-width);
+    flex: 1 0;
+    max-width: var(--content-width);
     margin-left: auto;
     margin-right: auto;
 }
 
 main {
+    display: flex;
     width: calc(100% - var(--aside-width)); 
     margin: 0; 
     padding: 
@@ -453,15 +469,27 @@ main {
         var(--normal);
 }
 
+aside {
+    display: block;
+    width: var(--aside-width);
+    
+    padding-left: var(--normal);
+    margin-bottom: var(--normal30);
+    font-size: 16px;
+}
+
 .api-sidebar {
     display: flex;
-    flex-basis: 350px;
-    flex-shrink: 1;
+    flex: 0 1 300px;
     padding: var(--normal);
     position: relative;
     flex-direction: column;
     margin-top: calc(var(--header-size));
     background-color: #111;
+}
+
+body.light-mode .api-sidebar {
+    background-color: #f7f7f7;
 }
 
 .api-sticky {
@@ -567,14 +595,7 @@ body.light-mode .depth-2 {color: hsl(180, 85%, 37%);}
 
 
 
-aside {
-    display: block;
-    width: var(--aside-width);
-    
-    padding-left: var(--normal);
-    margin-bottom: var(--normal30);
-    font-size: 16px;
-}
+
 
 aside .github-link {display: none;}
 aside .sidebar-api {display: none;}
@@ -593,71 +614,73 @@ aside .class-list {
     padding-bottom: var(--large);
 }
 
-
-.api-sidebar li {
-    padding-left: var(--small);
-    
-}
-
 .api-sidebar a {
     display: block;
     width: 100%;
-    margin: 2px 0 2px 0;
-}
-
-.api-sidebar a:hover {
-    color: var(--link);
-    cursor: pointer;
+    padding: 2.5px 2px 2.5px calc(var(--small) + 2px);
     
 }
 
-@media screen and (max-aspect-ratio: 3/4), screen and (max-width: 940px) {
+.api-sidebar a:hover {
+    background-color:#ffffff29;
+    cursor: pointer;
+}
+
+body.light-mode .api-sidebar a:hover {
+    background-color:#00000029;
+    cursor: pointer;
+}
+
+/*screen and (max-aspect-ratio: 3/4), */
+@media screen and (max-aspect-ratio: 3/4), screen and (max-width: 920px) {
     main {width: 100%;}
+    .header-content {margin: 0; width: 100%; max-width: 100%;}
+    header .header-center-align {display: none;}
     header .menu-button {display: block;}
     header .github-link {display: none;}
     aside {
         position: fixed;
         margin-top: var(--header-size);
         height: calc(100% - var(--header-size)); 
-        width: 350px;
+        width: 300px;
         max-width: 100%;
         background-color: var(--container);
         z-index: 2;
-        left: -350px;
+        left: -300px;
         transition: left var(--normal-transition) ease;
         box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.5);
     }
     
-    body.light-mode .sidebar {
+    body.light-mode aside {
         background-color: #fff;
     }
     aside .github-link {
         display: flex;
-        padding-left: var(--small);
-        margin-bottom: var(--normal);
+        margin: var(--small) 0 var(--small) 0;
+        padding: var(--small);
     }
     .api-sidebar {
         display: none;
     }
     aside .sidebar-api {
         display: block;
-        padding-top: var(--normal);
         padding-bottom: var(--normal);
     }
-    aside .sidebar-api li {
-        padding-left: var(--small);
-        
-    }
+    
     aside .sidebar-api a {
         display: block;
         width: 100%;
-        margin: 2px 0 2px 0;
+        padding: 2.5px 2px 2.5px calc(var(--small) + 2px);
     }
     
     aside .sidebar-api a:hover {
-        color: var(--link);
+        background-color:#ffffff29;
         cursor: pointer;
-        
+    }
+    
+    body.light-mode aside .sidebar-api a:hover {
+        background-color:#00000029;
+        cursor: pointer;
     }
     
     .sticky {
@@ -674,10 +697,10 @@ aside .class-list {
     padding: 0 0 4px 8px;
 }
 
-body.light-mode .sidebar h4 {
+body.light-mode aside h4 {
     color: #343434;
 }
-*/
+
 .sidebar-item{
     width: 100%; 
     align-items: center
@@ -690,6 +713,7 @@ body.light-mode .sidebar h4 {
     overflow-wrap: break-word;
 }
 .sidebar-item:hover, .sidebar-item.closest{background-color:#ffffff29; cursor: pointer;}
+body.light-mode .sidebar-item:hover, body.light-mode .sidebar-item.closest{background-color:#00000029; cursor: pointer;}
 .sidebar-sub a {
     padding-left: 30px;
 }
