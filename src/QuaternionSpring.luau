@@ -22,7 +22,7 @@ export type QuaternionSpring = {
 
 --[=[
     @class QuaternionSpring
-    @grouporder ["Constructors"]
+    @grouporder ["Constructors", "Methods"]
     
     This class represents a rotational spring using Quaternions.
     Velocity is a Vector3 where the magnitude is the angle, and the unit
@@ -88,6 +88,12 @@ export type QuaternionSpring = {
 ]=]
 local QuaternionSpring = {_type = "QuaternionSpring"}
 
+--[=[
+    @function
+    @group Constructors
+    
+    Constructs a new Quaternion Spring at the position and target specified.
+]=]
 function QuaternionSpring.new(initial: Quaternion, damping: number, speed: number, clock: () -> number)
     initial = initial or Quaternion.identity
     damping = damping or 1
@@ -105,10 +111,24 @@ function QuaternionSpring.new(initial: Quaternion, damping: number, speed: numbe
     }, QuaternionSpring)
 end
 
+--[=[
+    @method
+    @group Methods
+    
+    Impulses the spring, increasing velocity by the amount given.
+    This is useful to make something shake. Note that the velocity
+    will be a rotation vector, such that the axis is the direction
+    and the magnitude is the angle (compact axis-angle).
+]=]
 function QuaternionSpring:Impulse(velocity: Vector3)
     self.Velocity = self.Velocity + velocity
 end
 
+--[=[
+    @method
+    @group Methods
+    Instantly skips the spring forwards by the given time.
+]=]
 function QuaternionSpring:TimeSkip(delta: number)
     local now = self._clock()
     local position, velocity = self:_positionVelocity(now+delta)

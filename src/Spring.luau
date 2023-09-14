@@ -119,7 +119,7 @@ end
 --[=[
     @method
     @group Methods
-    Instantly skips the spring forwards by that amount time
+    Instantly skips the spring forwards by the given time.
 ]=]
 function Spring:TimeSkip(delta: number)
     local now = self._clock()
