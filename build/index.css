@@ -508,7 +508,7 @@ aside {
 
 aside .github-link {display: none;}
 aside .class-list {height: 100%;width: 100%;}
-aside .sidebar-api {display: none;}
+.sidebar-api {display: none;}
 
 .right-sidebar {
     position: sticky;
