@@ -154,13 +154,10 @@ def anchor_type_href(class_name, append_to, gtype_):
         return
     return
 
-def setup_group_item(item, delete_h3=False):
+def setup_group_item(item):
     group_item = get_template("group-item")
-    if delete_h3:
-        group_item.h3.extract()
-    else:
-        group_item.h3.string = item["name"]
-        group_item.h3["id"] = item["name"]
+    group_item.h3.string = item["name"]
+    group_item.h3["id"] = item["name"]
     insert_special_tag(group_item, item)
     if len(item["desc"]) > 0:
         group_item.p.append(description_array_to_html(item["desc"]))
@@ -376,7 +373,7 @@ def operation_to_string(class_name, item):
         return item["operand1"] + "\u00A0" + operation_map[operator] + "\u00A0" + item["operand2"]
 
 def operation_to_html(class_name, item):
-    group_item = setup_group_item(item, True)
+    group_item = setup_group_item(item)
     add_class(group_item, "operation-item")
     group_item["id"] = operation_to_string(class_name, item)
     insert_span = group_item.find("span", class_="definition")
