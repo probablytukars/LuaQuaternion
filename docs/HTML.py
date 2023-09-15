@@ -506,18 +506,23 @@ def create_index_page():
     ul.append(read_me_soup)
     
     sidebar_list = soup.find("ul", class_="sidebar-list")
-    headings = soup.find_all(re.compile("^[1-6]"))
+    headings = soup.find_all(re.compile("^h[1-3]"))
+    
+    print(headings)
     
     for heading in headings:
-        tag_name = heading.tag
-        if tag_name == "h1" or tag_name == "h2":
-            sidebar_item = get_template("sidebar-super")
-            
-        else:
+        tag_name = heading.name
+        tag_text = heading.text
+        if tag_text in ["ON THIS PAGE", "API"]:
+            continue
+        print(tag_name, tag_text)
+        if tag_name == "h3":
             sidebar_item = get_template("sidebar-sub")
+        else:
+            sidebar_item = get_template("sidebar-super")
         
-        sidebar_item.a.string = group_name
-        sidebar_item.a["href"] = "#" + group_name
+        sidebar_item.a.string = tag_text
+        sidebar_item.a["href"] = "#" + tag_text
         sidebar_list.append(sidebar_item)
     
     
