@@ -497,10 +497,29 @@ def create_index_page():
         READ_ME_HTML = markdown.markdown(READ_ME_MD.read())
     
     read_me_soup = BeautifulSoup(READ_ME_HTML, "html.parser")
+    for link in read_me_soup.find_all("a"):
+        add_class(link, "color-link")
+    
     soup = copy.copy(SOUP_TEMPLATE)
     
     ul = soup.find("ul", class_="content-list")
     ul.append(read_me_soup)
+    
+    sidebar_list = soup.find("ul", class_="sidebar-list")
+    headings = soup.find_all(re.compile("^[1-6]"))
+    
+    for heading in headings:
+        tag_name = heading.tag
+        if tag_name == "h1" or tag_name == "h2":
+            sidebar_item = get_template("sidebar-super")
+            
+        else:
+            sidebar_item = get_template("sidebar-sub")
+        
+        sidebar_item.a.string = group_name
+        sidebar_item.a["href"] = "#" + group_name
+        sidebar_list.append(sidebar_item)
+    
     
     with open("build/index.html", "w") as READ_ME_HTML:
         READ_ME_HTML.write(str(soup))
