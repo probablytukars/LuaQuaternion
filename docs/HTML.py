@@ -508,14 +508,11 @@ def create_index_page():
     sidebar_list = soup.find("ul", class_="sidebar-list")
     headings = soup.find_all(re.compile("^h[1-3]"))
     
-    print(headings)
-    
     for heading in headings:
         tag_name = heading.name
         tag_text = heading.text
         if tag_text in ["ON THIS PAGE", "API"]:
             continue
-        print(tag_name, tag_text)
         if tag_name == "h3":
             sidebar_item = get_template("sidebar-sub")
         else:
