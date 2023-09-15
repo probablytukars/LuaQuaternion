@@ -502,12 +502,6 @@ def create_index_page():
     ul = soup.find("ul", class_="content-list")
     ul.append(read_me_soup)
     
-    
-    class_list = soup.find("nav", class_="class-list")
-    
-    class_list.find_all("h4")[1].extract()
-    class_list.find("ul", class_="sidebar-list").extract()
-    
     with open("build/index.html", "w") as READ_ME_HTML:
         READ_ME_HTML.write(str(soup))
     
