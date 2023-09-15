@@ -139,7 +139,7 @@ function QuaternionSpring:TimeSkip(delta: number)
     local position, velocity = self:_positionVelocity(now+delta)
     self._position = position
     self._velocity = velocity
-    self._time0 = now
+    self._time = now
 end
 
 function QuaternionSpring:__index(index)
@@ -172,36 +172,36 @@ function QuaternionSpring:__newindex(index, value)
         local _, velocity = self:_positionVelocity(now)
         self._position = value
         self._velocity = velocity
-        self._time0 = now
+        self._time = now
     elseif index == "Velocity" or index == "v" then
         local position, _ = self:_positionVelocity(now)
         self._position = position
         self._velocity = value
-        self._time0 = now
+        self._time = now
     elseif index == "Target" or index == "t" then
         local position, velocity = self:_positionVelocity(now)
         self._position = position
         self._velocity = velocity
         self._target = value
-        self._time0 = now
+        self._time = now
     elseif index == "Damping" or index == "d" then
         local position, velocity = self:_positionVelocity(now)
         self._position = position
         self._velocity = velocity
         self._damping = value
-        self._time0 = now
+        self._time = now
     elseif index == "Speed" or index == "s" then
         local position, velocity = self:_positionVelocity(now)
         self._position = position
         self._velocity = velocity
         self._speed = value < 0 and 0 or value
-        self._time0 = now
+        self._time = now
     elseif index == "Clock" then
         local position, velocity = self:_positionVelocity(now)
         self._position = position
         self._velocity = velocity
         self._clock = value
-        self._time0 = value()
+        self._time = value()
     else
         error(string.format(ERROR_FORMAT, tostring(index)), 2)
     end
