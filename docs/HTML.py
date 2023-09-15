@@ -156,8 +156,13 @@ def anchor_type_href(class_name, append_to, gtype_):
 
 def setup_group_item(item):
     group_item = get_template("group-item")
-    group_item.h3.string = item["name"]
-    group_item.h3["id"] = item["name"]
+    if item["tag"] == "operation":
+        id = operation_to_string(item)
+        add_class(group_item.h3, "no-display")
+    else:
+        id = item["name"]
+    group_item.h3.string = id
+    group_item.h3["id"] = id
     insert_special_tag(group_item, item)
     if len(item["desc"]) > 0:
         group_item.p.append(description_array_to_html(item["desc"]))
@@ -362,7 +367,7 @@ operation_map = {
     "ge": ">=",
 }
 
-def operation_to_string(class_name, item):
+def operation_to_string(item):
     operator = item["operator"]
     if operator == "unm":
         return "-" + item["operand1"]
@@ -375,7 +380,7 @@ def operation_to_string(class_name, item):
 def operation_to_html(class_name, item):
     group_item = setup_group_item(item)
     add_class(group_item, "operation-item")
-    group_item["id"] = operation_to_string(class_name, item)
+    group_item["id"] = operation_to_string(item)
     insert_span = group_item.find("span", class_="definition")
     
     operator = item["operator"]
@@ -431,7 +436,7 @@ def process_list_json(function_group, soup, class_name):
         if "name" in item:
             target_name = item["name"]
         else:
-            target_name = operation_to_string(class_name, item)
+            target_name = operation_to_string(item)
         
         sidebar_sub.a.string = target_name
         sidebar_sub.a["href"] = "#" + target_name
