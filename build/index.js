@@ -245,9 +245,10 @@ function getClosestScroll() {
     const currentScroll = window.scrollY;
     
     headings.forEach(function(heading) {
-        const computedStyle = getComputedStyle(heading);
+        const parent = heading.parentElement
+        const computedStyle = getComputedStyle(parent);
         const marginTop = parseInt(computedStyle.marginTop);
-        const headingRect = heading.getBoundingClientRect();
+        const headingRect = parent.getBoundingClientRect();
         const headingPosition = headingRect.top + currentScroll - marginTop;
         const distance = headingPosition - currentScroll;
         
