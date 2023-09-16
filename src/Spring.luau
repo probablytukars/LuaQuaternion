@@ -8,8 +8,8 @@ local ERROR_FORMAT = "%q is not a valid member of Spring."
 type nlerpable = number | Vector2 | Vector3 | UDim | UDim2
 export type Spring = {
     new: (initial: nlerpable, damping: number, speed: number, clock: () -> number) -> Spring,
-    Impulse: (self: QuaternionSpring, velocity: nlerpable) -> nil,
-    TimeSkip: (self: QuaternionSpring, delta: number) -> nil,
+    Impulse: (self: Spring, velocity: nlerpable) -> nil,
+    TimeSkip: (self: Spring, delta: number) -> nil,
     
     Position: nlerpable,
     p: nlerpable,
