@@ -1123,7 +1123,7 @@ Quaternion.IsUnit = IsUnit
 
 --[=[
     @method
-    @group Methods
+    @group Deconstructors
     
     Returns a CFrame with the same rotation as the given 
     quaternion. If a position is supplied, the CFrame will have that
