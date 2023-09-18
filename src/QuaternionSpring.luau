@@ -253,9 +253,4 @@ function QuaternionSpring:_positionVelocity(now)
     return newPosition, newVelocity
 end
 
-
-
-
-
-
 return QuaternionSpring
