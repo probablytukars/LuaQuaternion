@@ -2,7 +2,9 @@ interface Quaternion {
     fromAxisAngle(axis: Vector3, angle: number): Quaternion;
     fromAxisAngleFast(axis: Vector3, angle: number): Quaternion;
     fromCFrame(cframe: CFrame): Quaternion;
+    fromCFrameFast(cframe: CFrame): Quaternion;
     fromMatrix(vX: Vector3, vY: Vector3, vZ: Vector3?): Quaternion;
+    fromMatrixFast(vX: Vector3, vY: Vector3, vZ: Vector3?): Quaternion;
     lookAt(from: Vector3, lookAt: Vector3, up: Vector3?): Quaternion;
     fromEulerAnglesXYZ(rx: number, ry: number, rz: number): Quaternion;
     Angles(rx: number, ry: number, rz: number): Quaternion;

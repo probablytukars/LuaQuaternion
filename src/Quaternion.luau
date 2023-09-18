@@ -5,7 +5,9 @@ export type Quaternion = {
     fromAxisAngle: (axis: Vector3, angle: number) -> Quaternion,
     fromAxisAngleFast: (axis: Vector3, angle: number) -> Quaternion,
     fromCFrame: (cframe: CFrame) -> Quaternion,
+    fromCFrameFast: (cframe: CFrame) -> Quaternion,
     fromMatrix: (vX: Vector3, vY: Vector3, vZ: Vector3?) -> Quaternion,
+    fromMatrixFast: (vX: Vector3, vY: Vector3, vZ: Vector3?) -> Quaternion,
     lookAt: (from: Vector3, lookAt: Vector3, up: Vector3?) -> Quaternion,
     fromEulerAnglesXYZ: (rx: number, ry: number, rz: number) -> Quaternion,
     Angles: (rx: number, ry: number, rz: number) -> Quaternion,
@@ -335,10 +337,10 @@ Quaternion.fromAxisAngle = fromAxisAngle
 local function fromAxisAngleFast(axis: Vector3, angle: number): Quaternion
     local ha = angle / 2
     local sha = math.sin(ha)
-    
-    local X = sha * axis.X
-    local Y = sha * axis.Y
-    local Z = sha * axis.Z
+    local shaxis = axis * sha
+    local X = shaxis.X
+    local Y = shaxis.Y
+    local Z = shaxis.Z
     local W = math.cos(ha)
     
     return new(X, Y, Z, W)
@@ -365,6 +367,21 @@ Quaternion.fromCFrame = fromCFrame
     @function
     @group Constructors
     
+    Creates a quaternion from a CFrame. 
+    Assumes that the CFrame has already been orthonormalized, otherwise its
+    possible that this will return a quaternion with NaN values.
+]=]
+local function fromCFrameFast(cframe: CFrame): Quaternion
+    local axis, angle = cframe:ToAxisAngle()
+    return fromAxisAngleFast(axis, angle)
+end
+
+Quaternion.fromCFrameFast = fromCFrameFast
+
+--[=[
+    @function
+    @group Constructors
+    
     Creates a quaternion from three vectors describing a rotation
     matrix.
     Will always return a valid unit quaternion.
@@ -380,6 +397,27 @@ local function fromMatrix(vX: Vector3, vY: Vector3, vZ: Vector3?): Quaternion
 end
 
 Quaternion.fromMatrix = fromMatrix
+
+--[=[
+    @function
+    @group Constructors
+    
+    Creates a quaternion from three vectors describing a rotation
+    matrix.
+    Assumes the matrix is already orthonormalized, if not orthonormalized, it
+    can return NaN or invalid Quaternion.
+]=]
+local function fromMatrixFast(vX: Vector3, vY: Vector3, vZ: Vector3?): Quaternion
+    local vXo, vYo = vX.Unit, vY.Unit
+    local vZo = 
+        if vZ
+        then vZ
+        else vX:Cross(vY).Unit
+    
+    return _fromOrthonormalizedMatrix(vXo, vYo, vZo)
+end
+
+Quaternion.fromMatrixFast = fromMatrixFast
 
 --[=[
     @function
