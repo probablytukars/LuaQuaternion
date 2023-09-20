@@ -1,4 +1,4 @@
-// v1.1.0
+// v1.1.1
 
 interface Quaternion {
     fromAxisAngle(axis: Vector3, angle: number): Quaternion;

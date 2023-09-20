@@ -1,4 +1,4 @@
--- v1.1.0
+-- v1.1.1
 
 export type Quaternion = {
     -- Constructors
@@ -359,8 +359,8 @@ Quaternion.fromAxisAngleFast = fromAxisAngleFast
     Will always return a valid unit quaternion.
 ]=]
 local function fromCFrame(cframe: CFrame): Quaternion
-    local Rv, Uv, Lv = cframe.RightVector, cframe.UpVector, -cframe.LookVector
-    return _fromOrthonormalizedMatrix(_Orthonormalize(Rv, Uv, Lv))
+    local axis, angle = cframe:Orthonormalize():ToAxisAngle()
+    return fromAxisAngle(axis, angle)
 end
 
 Quaternion.fromCFrame = fromCFrame
@@ -389,12 +389,8 @@ Quaternion.fromCFrameFast = fromCFrameFast
     Will always return a valid unit quaternion.
 ]=]
 local function fromMatrix(vX: Vector3, vY: Vector3, vZ: Vector3?): Quaternion
-    local vXo, vYo = vX.Unit, vY.Unit
-    local vZo = 
-        if vZ
-        then vZ.Unit
-        else vX:Cross(vY).Unit
-    
+    local vXo, vYo = vX, vY
+    local vZo = if vZ then vZ else vX:Cross(vY)
     return _fromOrthonormalizedMatrix(_Orthonormalize(vXo, vYo, vZo))
 end
 
@@ -411,11 +407,7 @@ Quaternion.fromMatrix = fromMatrix
 ]=]
 local function fromMatrixFast(vX: Vector3, vY: Vector3, vZ: Vector3?): Quaternion
     local vXo, vYo = vX.Unit, vY.Unit
-    local vZo = 
-        if vZ
-        then vZ
-        else vX:Cross(vY).Unit
-    
+    local vZo = if vZ then vZ else vX:Cross(vY).Unit
     return _fromOrthonormalizedMatrix(vXo, vYo, vZo)
 end
 
@@ -1625,11 +1617,8 @@ Quaternion.ToMatrix = ToMatrix
 local function ToMatrixVectors(q0: Quaternion): (Vector3, Vector3, Vector3) 
     local m00, m01, m02, m10, m11, m12, m20, m21, m22 = _toRotationMatrix(q0)
     
-    --Right, Up, Look
-    return 
-        Vector3.new(m00, m10, m20),
-        Vector3.new(m01, m11, m21),
-        Vector3.new(m02, m12, m22)
+    --Right, Up, Back
+    return Vector3.new(m00, m10, m20), Vector3.new(m01, m11, m21), Vector3.new(m02, m12, m22)
 end
 
 Quaternion.ToMatrixVectors = ToMatrixVectors
