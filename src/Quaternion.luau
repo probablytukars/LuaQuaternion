@@ -1,3 +1,5 @@
+-- v1.1.0
+
 export type Quaternion = {
     -- Constructors
     

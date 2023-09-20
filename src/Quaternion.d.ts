@@ -1,3 +1,5 @@
+// v1.1.0
+
 interface Quaternion {
     fromAxisAngle(axis: Vector3, angle: number): Quaternion;
     fromAxisAngleFast(axis: Vector3, angle: number): Quaternion;

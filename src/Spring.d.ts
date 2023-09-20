@@ -1,3 +1,5 @@
+// v1.1.0
+
 type nlerpable = number | Vector2 | Vector3 | UDim | UDim2
 
 interface Spring {
