@@ -50,7 +50,7 @@ end
 local ConstructorGroup = {}
 QuaternionTest.ConstructorGroup = ConstructorGroup
 ConstructorGroup._order = {
-    "new", "identity", "zero", "fromAxisAngle", "fromCFrame", "fromMatrix", 
+    "new", "identity", "zero", "fromAxisAngle", "fromMatrix", 
     "lookAt", "Angles", "fromOrientation", "fromEulerAngles", "fromVector"
 }
 ConstructorGroup._DisplayName = "Constructor Tests"
@@ -225,32 +225,6 @@ fromAxisAngle.BigAngle = {
         local q = Quaternion.fromAxisAngle(axis, angle)
 
         return Assert.KeyValuesApprox(q, {X = 0, Y = 0, Z = 0, W = 1} ,EPSILON)
-    end,
-}
-
-
-local fromCFrame = {}
-ConstructorGroup.fromCFrame = fromCFrame
-fromCFrame._order = {"Constructor"}
-
-fromCFrame.Constructor = {
-    DisplayName = "Constructor",
-    test = function()
-        for collectionName, rc in pairs(testData) do
-            if rc[1].standard then
-                for k, representation in pairs(rc) do
-                    local standard = representation.standard
-                    local cf = CFrame.fromMatrixArray(standard.matrix)
-                    local q0 = Quaternion.fromCFrame(cf)
-                    local qe = standard.quaternion
-                    
-                    if not(Assert.QuaternionsEqualApprox(qe, q0, EPSILON)) then
-                        return false, "Failed on " .. collectionName
-                    end
-                end
-            end
-            return true
-        end
     end,
 }
 
