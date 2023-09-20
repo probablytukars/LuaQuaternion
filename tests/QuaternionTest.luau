@@ -230,7 +230,7 @@ fromAxisAngle.BigAngle = {
 
 local fromMatrix = {}
 ConstructorGroup.fromMatrix = fromMatrix
-fromMatrix._order = {"Constructor", "SameVectors"}
+fromMatrix._order = {"Constructor"}
 
 fromMatrix.Constructor = {
     DisplayName = "Constructor",
