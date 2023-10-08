@@ -220,9 +220,9 @@ def read_file(file):
 
 
 for filename in os.listdir(source_folder):
-    if filename.endswith('.luau'):
+    if filename.endswith('.lua'):
         source_file_path = os.path.join(source_folder, filename)
-        target_file_path = os.path.join(target_folder, filename[:-4] + "json")
+        target_file_path = os.path.join(target_folder, filename[:-3] + "json")
 
         with open(source_file_path) as source_file:
             doc_out_tab = read_file(source_file)
