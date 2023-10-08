@@ -25,7 +25,7 @@ jobs:
         run: python tests/prepareTest.py
       
       - name: Run tests
-        run: binaries/ubuntu/luau tests/test.luau
+        run: binaries/ubuntu/luau tests/test.lua
   
   
   docs:
