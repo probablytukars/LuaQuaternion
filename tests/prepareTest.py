@@ -21,7 +21,7 @@ if not os.path.exists(target_folder):
 
 
 for filename in os.listdir(source_folder):
-    if filename.endswith('.luau'):
+    if filename.endswith('.lua'):
         source_file_path = os.path.join(source_folder, filename)
         target_file_path = os.path.join(target_folder, filename)
         
