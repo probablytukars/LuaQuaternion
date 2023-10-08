@@ -1,4 +1,3 @@
-const print = console.log;
 const main = document.querySelector("main")
 const sidebar = document.querySelector("aside")
 const sidebarlist = document.querySelector(".sidebar-list")
@@ -18,20 +17,19 @@ checkbox.addEventListener("change", () => {
   body.classList.toggle("light-mode")
 })
 
-var debounce = 0
+let debounce = 0
 
-function sidebar_click(){
-    print("click")
-    var current_time = Date.now()
+function sidebarClick(){
+    let current_time = Date.now()
     if (current_time - debounce > 300)  {
         sidebar.classList.toggle("active")
         debounce = current_time
     }
 }
 
-function main_click() {
+function mainClick() {
     if (sidebar.classList.contains("active")) {
-        var current_time = Date.now()
+        let current_time = Date.now()
         if (current_time - debounce > 300)  {
             sidebar.classList.toggle("active")
             debounce = current_time
@@ -39,8 +37,8 @@ function main_click() {
     }
 }
 
-menuButton.addEventListener("click", sidebar_click)
-main.addEventListener("click", main_click)
+menuButton.addEventListener("click", sidebarClick)
+main.addEventListener("click", mainClick)
 
 const lightThemeMq = window.matchMedia("(prefers-color-scheme: light)");
 function changeTheme(e) {
@@ -57,12 +55,7 @@ changeTheme(lightThemeMq)
 lightThemeMq.addEventListener("change", changeTheme)
 
 const detectSizeChange = window.matchMedia("screen and (max-aspect-ratio: 3/4), screen and (max-width: 920px)");
-detectSizeChange.addEventListener("change", (e) => {
-    sidebar.classList.remove("active")
-})
-
-
-
+detectSizeChange.addEventListener("change", (e) => {sidebar.classList.remove("active")})
 
 
 function searchFocus() {
@@ -95,7 +88,7 @@ function createSearchElement(searchTarget) {
 }
 
 function deleteSearchResults() {
-    var children = searchResults.children
+    let children = searchResults.children
     for (i = 0; i < children.length; i++) {
         li = children[i]
         if (! li.classList.contains("no-results")) {
@@ -163,7 +156,7 @@ function handleCompleteSearch() {
     }
 }
 
-var searchDebounce = 0
+let searchDebounce = 0
 completeSearch.addEventListener("click", handleCompleteSearch)
 searchBar.addEventListener("keydown", (e) => {
     const currentFocus = document.activeElement
@@ -232,7 +225,6 @@ document.addEventListener("keydown", (e) => {
             else {searchBar.focus()}
         }
     }
-    
 })
 
 const minScroll = 0.2;
@@ -275,8 +267,6 @@ function getClosestScroll() {
                     sticky.scrollTop = scrollTop + (height * scrollDown)
                 } else if (offsetTop < scrollTop + (height * minScroll)) {
                     sticky.scrollTop = scrollTop - (height * scrollDown)
-                } else {
-                    print("is in view")
                 }
                 sidebarItem.classList.add("closest")
             } else {
