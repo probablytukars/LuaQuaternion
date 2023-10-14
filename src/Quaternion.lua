@@ -359,7 +359,7 @@ Quaternion.fromAxisAngleFast = fromAxisAngleFast
     @group Constructors
     
     Creates a quaternion from a euler (compact axis-angles) vector. 
-    Will always return a valid unit quaternion. Normalizes axis.
+    Will always return a valid unit quaternion.
 ]=]
 local function fromEulerVector(eulerVector: Vector3): Quaternion
     local angle = eulerVector.Magnitude
@@ -1539,7 +1539,6 @@ Quaternion.Integrate = Integrate
     
     Get the euler (compact axis-angles) vector which represents the angular 
     velocity from `q0` to `q1` over the given `timestep`.
-    
     If `timestep` is zero, the zero vector is returned.
 ]=]
 local function AngularVelocity(q0: Quaternion, q1: Quaternion, timestep: number): Vector3
