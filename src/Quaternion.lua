@@ -1539,7 +1539,7 @@ Quaternion.Integrate = Integrate
     
     Get the euler (compact axis-angles) vector which represents the angular 
     velocity from `q0` to `q1` over the given `timestep`.
-    If `timestep` is zero, the zero vector is returned.
+    If `timestep` is zero or negative, the zero vector is returned.
 ]=]
 local function AngularVelocity(q0: Quaternion, q1: Quaternion, timestep: number): Vector3
 	if timestep > 0 then
