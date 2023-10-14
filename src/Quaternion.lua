@@ -1543,7 +1543,7 @@ Quaternion.Integrate = Integrate
 ]=]
 local function AngularVelocity(q0: Quaternion, q1: Quaternion, timestep: number): Vector3
 	if timestep > 0 then
-		local q2 = q1:Difference(q0)
+		local q2 = q0:Difference(q1)
 		return q2:ToEulerVector() / timestep
 	end
 	return Vector3.new()
