@@ -6,6 +6,7 @@ export type Quaternion = {
     new: (qX: number?, qY: number?, qZ: number?, qW: number?) -> Quaternion,
     fromAxisAngle: (axis: Vector3, angle: number) -> Quaternion,
     fromAxisAngleFast: (axis: Vector3, angle: number) -> Quaternion,
+    fromEulerVector: (eulerVector: Vector3) -> Quaternion,
     fromCFrame: (cframe: CFrame) -> Quaternion,
     fromCFrameFast: (cframe: CFrame) -> Quaternion,
     fromMatrix: (vX: Vector3, vY: Vector3, vZ: Vector3?) -> Quaternion,
@@ -110,6 +111,7 @@ export type Quaternion = {
     ) -> {Quaternion},
     Derivative: (q0: Quaternion, rate: Vector3) -> Quaternion,
     Integrate: (q0: Quaternion, rate: Vector3, timestep: number) -> Quaternion,
+	AngularVelocity: (q0: Quaternion, q1: Quaternion, timestep: number) -> Vector3,
     ApproxEq: (q0: Quaternion, q1: Quaternion, epsilon: number) -> boolean,
     IsNaN: (q0: Quaternion) -> boolean,
     
@@ -117,6 +119,7 @@ export type Quaternion = {
 
     ToCFrame: (q0: Quaternion, position: Vector3?) -> CFrame,
     ToAxisAngle: (q0: Quaternion) -> (Vector3, number),
+    ToEulerVector: (q0: Quaternion) -> Vector3,
     ToEulerAnglesXYZ: (q0: Quaternion) -> (number, number, number),
     ToEulerAnglesYXZ: (q0: Quaternion) -> (number, number, number),
     ToOrientation: (q0: Quaternion) -> (number, number, number),
@@ -350,6 +353,26 @@ end
 
 
 Quaternion.fromAxisAngleFast = fromAxisAngleFast
+
+--[=[
+    @function
+    @group Constructors
+    
+    Creates a quaternion from a euler (compact axis-angles) vector. 
+    Will always return a valid unit quaternion. Normalizes axis.
+]=]
+local function fromEulerVector(eulerVector: Vector3): Quaternion
+    local angle = eulerVector.Magnitude
+    if angle > 0 then
+        local axis = eulerVector / angle
+        return fromAxisAngleFast(axis, angle)
+    else
+        return Quaternion.identity
+    end
+end
+
+Quaternion.fromEulerVector = fromEulerVector
+
 
 --[=[
     @function
@@ -1514,6 +1537,25 @@ Quaternion.Integrate = Integrate
     @method
     @group Methods
     
+    Get the euler (compact axis-angles) vector which represents the angular 
+    velocity from `q0` to `q1` over the given `timestep`.
+    
+    If `timestep` is zero, the zero vector is returned.
+]=]
+local function AngularVelocity(q0: Quaternion, q1: Quaternion, timestep: number): Vector3
+	if timestep > 0 then
+		local q2 = q1:Difference(q0)
+		return q2:ToEulerVector() / timestep
+	end
+	return Vector3.new()
+end
+
+Quaternion.AngularVelocity = AngularVelocity
+
+--[=[
+    @method
+    @group Methods
+    
     Returns true if the symmetrized geodesic distance is less
     than `epsilon`.
 ]=]
@@ -1590,6 +1632,29 @@ local function ToAxisAngle(q0: Quaternion): (Vector3, number)
 end
 
 Quaternion.ToAxisAngle = ToAxisAngle
+
+--[=[
+    @method
+    @group Deconstructors
+    
+    Converts quaternion to euler (compact axis-angles) vector representation. 
+    Quaternion is normalized before conversion.
+]=]
+local function ToEulerVector(q0: Quaternion): Vector3
+    q0 = Normalize(q0)
+    local qX, qY, qZ, qW = q0.X, q0.Y, q0.Z, q0.W
+    
+    local angle = 2 * math.acos(qW);
+    local s = math.sqrt(1 - qW * qW);
+    
+    if s < EPSILON then
+        return Vector3.new(qX, qY, qZ) * angle
+    else
+        return Vector3.new(qX / s, qY / s, qZ / s) * angle
+    end
+end
+
+Quaternion.ToEulerVector = ToEulerVector
 
 --[=[
     @method
