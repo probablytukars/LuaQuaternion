@@ -3,6 +3,7 @@
 interface Quaternion {
     fromAxisAngle(axis: Vector3, angle: number): Quaternion;
     fromAxisAngleFast(axis: Vector3, angle: number): Quaternion;
+    fromEulerVector(eulerVector: Vector3): Quaternion;
     fromCFrame(cframe: CFrame): Quaternion;
     fromCFrameFast(cframe: CFrame): Quaternion;
     fromMatrix(vX: Vector3, vY: Vector3, vZ: Vector3?): Quaternion;
@@ -50,11 +51,13 @@ interface Quaternion {
     Intermediates(q0: Quaternion, q1: Quaternion, n: number, includeEndpoints: boolean?): {Quaternion};
     Derivative(q0: Quaternion, rate: Vector3):  Quaternion;
     Integrate(q0: Quaternion, rate: Vector3, timestep: number): Quaternion;
+    AngularVelocity(q0: Quaternion, q1: Quaternion, timestep: number): Vector3;
     ApproxEq(q0: Quaternion, q1: Quaternion, epsilon: number): boolean;
     IsNaN(q0: Quaternion): boolean;
 
     ToCFrame(q0: Quaternion, position: Vector3?): CFrame;
     ToAxisAngle(q0: Quaternion): (Vector3, number);
+    ToEulerVector(q0: Quaternion): Vector3;
     ToEulerAnglesXYZ(q0: Quaternion): (number, number, number);
     ToEulerAnglesYXZ(q0: Quaternion): (number, number, number);
     ToOrientation(q0: Quaternion): (number, number, number);
