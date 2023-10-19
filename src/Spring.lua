@@ -118,8 +118,9 @@ end
     @method
     @group Methods
     
-    Resets the springs' position and target to the initial value the
-    spring was created with. Sets the velocity to zero.
+    Resets the springs' position and target to the target value provided, or 
+    to the initial value the spring was created with if target is not specified.
+    Sets the velocity to zero.
 ]=]
 function Spring:Reset(target: nlerpable?)
 	local setTo = target or self._initial
