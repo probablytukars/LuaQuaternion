@@ -1,4 +1,4 @@
--- v1.1.0
+-- v1.2.1
 
 --[[
     SOURCE: https://github.com/Quenty/NevermoreEngine/blob/main/src/spring/src/Shared/Spring.lua
