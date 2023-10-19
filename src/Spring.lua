@@ -1,4 +1,4 @@
--- v1.1.1
+-- v1.1.0
 
 --[[
     SOURCE: https://github.com/Quenty/NevermoreEngine/blob/main/src/spring/src/Shared/Spring.lua
@@ -10,6 +10,7 @@ local ERROR_FORMAT = "%q is not a valid member of Spring."
 type nlerpable = number | Vector2 | Vector3 | UDim | UDim2
 export type Spring = {
     new: (initial: nlerpable, damping: number, speed: number, clock: () -> number) -> Spring,
+    Reset: (target: nlerpable?) -> nil,
     Impulse: (self: Spring, velocity: nlerpable) -> nil,
     TimeSkip: (self: Spring, delta: number) -> nil,
     
@@ -109,7 +110,22 @@ function Spring.new(initial: nlerpable, damping: number, speed: number, clock: (
         _target = initial;
         _damping = damping;
         _speed = speed;
+        _initial = initial;
     }, Spring)
+end
+
+--[=[
+    @method
+    @group Methods
+    
+    Resets the springs' position and target to the initial value the
+    spring was created with. Sets the velocity to zero.
+]=]
+function Spring:Reset(target: nlerpable?)
+	local setTo = target or self._initial
+	self._position = setTo
+	self._target = setTo
+	self._velocity = Vector3.zero
 end
 
 --[=[
@@ -120,7 +136,7 @@ end
     This is useful to make something shake.
 ]=]
 function Spring:Impulse(velocity: nlerpable)
-    self.Velocity = self.Velocity + velocity
+	self._velocity = self._velocity + velocity
 end
 
 --[=[
@@ -205,10 +221,10 @@ function Spring:_positionVelocity(now)
     local targetPosition = self._target
     local dampingFactor = self._damping
     local speed = self._speed
-
+    
     local deltaTime = speed * (now - self._time)
     local dampingSquared = dampingFactor * dampingFactor
-
+    
     local angFreq, sinTheta, cosTheta
     if dampingSquared < 1 then
         angFreq = math.sqrt(1 - dampingSquared)
@@ -226,7 +242,7 @@ function Spring:_positionVelocity(now)
         local v = math.exp((-dampingFactor - angFreq) * deltaTime) / angFreq2
         cosTheta, sinTheta = u + v, u - v
     end
-
+    
     local pullToTarget = 1 - (angFreq * cosTheta + dampingFactor * sinTheta)
     local velPosPush = sinTheta / speed
     local velPushRate = speed * sinTheta
@@ -238,11 +254,11 @@ function Spring:_positionVelocity(now)
         currentPosition + 
         positionDifference * pullToTarget + 
         currentVelocity * velPosPush
-
+    
     local newVelocity =
         positionDifference * velPushRate +
         currentVelocity * velocityDecay
-
+    
     return newPosition, newVelocity
 end
 

@@ -3,6 +3,7 @@
 type nlerpable = number | Vector2 | Vector3 | UDim | UDim2
 
 interface Spring {
+    Reset(self: Spring, target: nlerpable?);
     Impulse(self: Spring, velocity: nlerpable);
     TimeSkip(self: Spring, delta: number);
     

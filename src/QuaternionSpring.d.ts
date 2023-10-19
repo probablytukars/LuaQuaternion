@@ -1,6 +1,7 @@
 // v1.1.1
 
 interface QuaternionSpring {
+    Reset(self: QuaternionSpring, target: Quaternion?);
     Impulse(self: QuaternionSpring, velocity: Vector3);
     TimeSkip(self: QuaternionSpring, delta: number);
     

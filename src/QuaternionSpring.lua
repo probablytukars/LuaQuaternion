@@ -1,4 +1,4 @@
--- v1.1.1
+-- v1.1.0
 
 --[[
     SOURCE: https://github.com/Quenty/NevermoreEngine/blob/main/src/spring/src/Shared/Spring.lua
@@ -11,6 +11,7 @@ local ERROR_FORMAT = "%q is not a valid member of QuaternionSpring."
 
 export type QuaternionSpring = {
     new: (initial: Quaternion, damping: number, speed: number, clock: () -> number) -> QuaternionSpring,
+    Reset: (target: Quaternion?) -> nil,
     Impulse: (self: QuaternionSpring, velocity: Vector3) -> nil,
     TimeSkip: (self: QuaternionSpring, delta: number) -> nil,
     
@@ -111,11 +112,26 @@ function QuaternionSpring.new(initial: Quaternion, damping: number, speed: numbe
         _clock = clock;
         _time = clock();
         _position = initial;
-        _velocity = Vector3.new();
+        _velocity = Vector3.zero;
         _target = initial;
         _damping = damping;
         _speed = speed;
+        _initial = initial;
     }, QuaternionSpring)
+end
+
+--[=[
+    @method
+    @group Methods
+    
+    Resets the springs' position and target to the initial value the
+    spring was created with. Sets the velocity to zero.
+]=]
+function QuaternionSpring:Reset(target: Quaternion?)
+    local setTo = target or self._initial
+    self._position = setTo
+    self._target = setTo
+    self._velocity = Vector3.zero
 end
 
 --[=[
@@ -128,7 +144,7 @@ end
     and the magnitude is the angle (compact axis-angle).
 ]=]
 function QuaternionSpring:Impulse(velocity: Vector3)
-    self.Velocity = self.Velocity + velocity
+    self._velocity = self._velocity + velocity
 end
 
 --[=[
