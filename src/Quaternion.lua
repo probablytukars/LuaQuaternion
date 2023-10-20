@@ -1240,18 +1240,6 @@ Quaternion.Inverse = Inverse
     @method
     @group Methods
     
-    Returns the angular velocity between two quaternions.
-]=]
-local function LogInv(q0: Quaternion, q1: Quaternion): Quaternion
-    return Log(Mul(q0, Inverse(q1)))
-end
-
-Quaternion.LogInv = LogInv
-
---[=[
-    @method
-    @group Methods
-    
     Returns the negated version of the given quaternion.
 ]=]
 local function Negate(q0: Quaternion): Quaternion
