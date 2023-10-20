@@ -30,7 +30,6 @@ interface Quaternion {
     Log(q0: Quaternion): Quaternion;
     LogMap(q0: Quaternion, q1: Quaternion): Quaternion;
     LogMapSym(q0: Quaternion, q1: Quaternion): Quaternion;
-    LogInv(q0: Quaternion, q1: Quaternion): Quaternion;
     Length(q0: Quaternion): number;
     LengthSquared(q0: Quaternion): number;
     Hypot(q0: Quaternion): number;
