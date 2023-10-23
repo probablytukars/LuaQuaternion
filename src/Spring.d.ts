@@ -1,4 +1,4 @@
-// v1.2.1
+// v1.3.0
 
 type nlerpable = number | Vector2 | Vector3 | UDim | UDim2
 

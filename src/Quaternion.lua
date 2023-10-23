@@ -1,4 +1,4 @@
--- v1.2.2
+-- v1.3.0
 
 export type Quaternion = {
     -- Constructors
@@ -19,7 +19,7 @@ export type Quaternion = {
     fromEulerAngles: (
         rx: number, ry: number, rz: number, rotationOrder: Enum.RotationOrder?
     ) -> Quaternion,
-    fromVector: (vector: Vector3) -> Quaternion,
+    fromVector: (vector: Vector3, W: number?) -> Quaternion,
     RandomQuaternion: (seed: number) -> () -> Quaternion,
     
     -- Constants
@@ -111,6 +111,7 @@ export type Quaternion = {
     Derivative: (q0: Quaternion, rate: Vector3) -> Quaternion,
     Integrate: (q0: Quaternion, rate: Vector3, timestep: number) -> Quaternion,
 	AngularVelocity: (q0: Quaternion, q1: Quaternion, timestep: number) -> Vector3,
+    MinimalRotation: (q0: Quaternion, q1: Quaternion) -> Quaternion,
     ApproxEq: (q0: Quaternion, q1: Quaternion, epsilon: number) -> boolean,
     IsNaN: (q0: Quaternion) -> boolean,
     
@@ -619,9 +620,11 @@ Quaternion.fromEulerAngles = fromEulerAngles
     
     Creates a quaternion from a vector, where the imaginary
     components of the quaternion are set by the vector components.
+    Can also set the `W` component with the second argument, which defaults
+    to zero.
 ]=]
-local function fromVector(vector: Vector3): Quaternion
-    return new(vector.X, vector.Y, vector.Z, 0)
+local function fromVector(vector: Vector3, W: number?): Quaternion
+    return new(vector.X, vector.Y, vector.Z, W or 0)
 end
 
 Quaternion.fromVector = fromVector
@@ -1529,14 +1532,33 @@ Quaternion.Integrate = Integrate
     If `timestep` is zero or negative, the zero vector is returned.
 ]=]
 local function AngularVelocity(q0: Quaternion, q1: Quaternion, timestep: number): Vector3
-	if timestep > 0 then
-		local q2 = q0:Difference(q1)
-		return q2:ToEulerVector() / timestep
-	end
-	return Vector3.new()
+    if timestep > 0 then
+        local q2 = q0:Difference(q1)
+        return q2:ToEulerVector() / timestep
+    end
+    return Vector3.new()
 end
 
 Quaternion.AngularVelocity = AngularVelocity
+
+--[=[
+    @method
+    @group Methods
+    
+    This function returns the Quaternion which represents the shortest
+    arc rotation between `q0` and `q1` upVector (in matrix form).
+    To get the new quaternion which has the same upVector as `q1`, multiply
+    as `q2 * q0`, where `q2` is the derived Quaternion from this method.
+]=]
+local function MinimalRotation(q0: Quaternion, q1: Quaternion): Quaternion
+	local _, sup, _ = q0:ToMatrixVectors()
+	local _, tup, _ = q1:ToMatrixVectors()
+	local rotationAxis = sup:Cross(tup)
+	local rotationAngle = math.atan2(rotationAxis.Magnitude, sup:Dot(tup))
+	return fromAxisAngle(rotationAxis, rotationAngle)
+end
+
+Quaternion.MinimalRotation = MinimalRotation
 
 --[=[
     @method
@@ -1986,6 +2008,7 @@ return Quaternion
         /Shared/Quaternion.lua
     [5]: https://www.andre-gaschler.com/rotationconverter/
     [6]: https://stackoverflow.com/questions/31600717
+    [7]: https://stackoverflow.com/questions/1171849/
 --]==]
 
 

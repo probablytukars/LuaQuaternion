@@ -1,5 +1,4 @@
--- v1.2.1
-
+-- v1.3.0
 --[[
     SOURCE: https://github.com/Quenty/NevermoreEngine/blob/main/src/spring/src/Shared/Spring.lua
     [MIT LICENSE]

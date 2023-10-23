@@ -1,4 +1,4 @@
-// v1.2.1
+// v1.3.0
 
 interface Quaternion {
     fromAxisAngle(axis: Vector3, angle: number): Quaternion;
@@ -14,7 +14,7 @@ interface Quaternion {
     fromEulerAnglesYXZ(rx: number, ry: number, rz: number): Quaternion;
     fromOrientation(rx: number, ry: number, rz: number): Quaternion;
     fromEulerAngles(rx: number, ry: number, rz: number, rotationOrder: Enum.RotationOrder?): Quaternion;
-    fromVector(vector: Vector3): Quaternion;
+    fromVector(vector: Vector3, W: number?): Quaternion;
     RandomQuaternion(seed: number): () => Quaternion;
     
     X: number;
@@ -46,11 +46,12 @@ interface Quaternion {
     DistanceAbs(q0: Quaternion, q1: Quaternion): number;
     Slerp(q0: Quaternion, q1: Quaternion, alpha: number): Quaternion;
     IdentitySlerp(q1: Quaternion, alpha: number): Quaternion;
-    SlerpFunction(q0: Quaternion, q1: Quaternion) => (alpha: number): Quaternion;
+    SlerpFunction(q0: Quaternion, q1: Quaternion): (alpha: number) => Quaternion;
     Intermediates(q0: Quaternion, q1: Quaternion, n: number, includeEndpoints: boolean?): {Quaternion};
     Derivative(q0: Quaternion, rate: Vector3):  Quaternion;
     Integrate(q0: Quaternion, rate: Vector3, timestep: number): Quaternion;
     AngularVelocity(q0: Quaternion, q1: Quaternion, timestep: number): Vector3;
+    MinimalRotation(q0: Quaternion, q1: Quaternion): Quaternion;
     ApproxEq(q0: Quaternion, q1: Quaternion, epsilon: number): boolean;
     IsNaN(q0: Quaternion): boolean;
 
