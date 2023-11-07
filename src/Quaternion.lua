@@ -157,13 +157,16 @@ local EPSILON = 1e-6
     created, its components cannot be changed. All methods create new
     quaternions.
     
+    
     Some helpful tips for rearranging quaternion formulas:
     
     When rearraning a formula to solve for a specific value, it will involve
     using inverses and mulitplication, the order is very important as
     multiplication is non-commutative.
     
+    
     For example, given `a b = c`
+    
     
     To solve for `b`,
     
@@ -174,6 +177,7 @@ local EPSILON = 1e-6
     This simplifies to:
     
     `b = a^-1 * c`.
+    
     
     To solve for `a`,
     
@@ -195,10 +199,12 @@ local EPSILON = 1e-6
     In general, this means flip the order, inverse each individual,
     and then inverse them as a group.
     
+    
     Given the formula `a b c d = e` where `a`,`b`,`c`,`d`, and `e` are
     quaternions.
     
     Using rules from earlier:
+    
     
     Solving for `a`:
     
@@ -208,24 +214,30 @@ local EPSILON = 1e-6
     
     `a = e (b c d)^-1`
     
+    
     Solving for `b`:
     
     `b = a^-1 e (c d)^-1`
+    
     
     Solving for `c`:
     
     `c = (a b)^-1 e d`
     
+    
     Solving for `d`:
     
     `d = (a b c)^-1 e`
+    
     
     Quaternion multiplication is associative, so the following is equivalent:
     
     `(a b) c = a (b c)`
      
+    
     Using these rules, you should be able to rearrange any formula to solve
     for the desired quaternion.
+    
     
     Note that often you might not want the exact quaternion but instead the
     negated version (which represents the same rotation), as that rotation
