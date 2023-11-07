@@ -172,22 +172,22 @@ local EPSILON = 1e-6
     
     Multiply both sides by `a^-1` on the left sides of the equation:
     
-    `a^-1 * a * b = a^-1 * c`
+    `a^-1 a b = a^-1 c`
     
     This simplifies to:
     
-    `b = a^-1 * c`.
+    `b = a^-1 c`.
     
     
     To solve for `a`,
     
     Multiply both sides by `b^-1` on the right sides of the equation:
     
-    `a * b * b^-1 = c * b^-1`
+    `a b b^-1 = c b^-1`
     
     This simplifies to:
     
-    `a = c * b^-1`.
+    `a = c b^-1`.
     
     
     Another important rule to remember is the following:
@@ -243,7 +243,7 @@ local EPSILON = 1e-6
     negated version (which represents the same rotation), as that rotation
     would actually end up being shorter than the exact quaternion.
     
-    In this case `a:Inverse() * b` can be written as `b:Difference(a)`.
+    In this case `a:Inverse() \* b` can be written as `b:Difference(a)`.
 ]=]
 --[=[
     @prop X number
