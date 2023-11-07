@@ -156,6 +156,82 @@ local EPSILON = 1e-6
     This class is **immutable** which means once a quaternion has been
     created, its components cannot be changed. All methods create new
     quaternions.
+    
+    Some helpful tips for rearranging quaternion formulas:
+    
+    When rearraning a formula to solve for a specific value, it will involve
+    using inverses and mulitplication, the order is very important as
+    multiplication is non-commutative.
+    
+    For example, given `a b = c`
+    
+    To solve for `b`,
+    
+    Multiply both sides by `a^-1` on the left sides of the equation:
+    
+    `a^-1 * a * b = a^-1 * c`
+    
+    This simplifies to:
+    
+    `b = a^-1 * c`.
+    
+    To solve for `a`,
+    
+    Multiply both sides by `b^-1` on the right sides of the equation:
+    
+    `a * b * b^-1 = c * b^-1`
+    
+    This simplifies to:
+    
+    `a = c * b^-1`.
+    
+    
+    Another important rule to remember is the following:
+    
+    `a^-1 b^-1 = (b a)^-1`.
+    
+    `a b^-1 = (a^-1 b)^-1`.
+    
+    In general, this means flip the order, inverse each individual,
+    and then inverse them as a group.
+    
+    Given the formula `a b c d = e` where `a`,`b`,`c`,`d`, and `e` are
+    quaternions.
+    
+    Using rules from earlier:
+    
+    Solving for `a`:
+    
+    `a = e d^-1 c^-1 b^-1`
+    
+    Or more commonly written as:
+    
+    `a = e (b c d)^-1`
+    
+    Solving for `b`:
+    
+    `b = a^-1 e (c d)^-1`
+    
+    Solving for `c`:
+    
+    `c = (a b)^-1 e d`
+    
+    Solving for `d`:
+    
+    `d = (a b c)^-1 e`
+    
+    Quaternion multiplication is associative, so the following is equivalent:
+    
+    `(a b) c = a (b c)`
+     
+    Using these rules, you should be able to rearrange any formula to solve
+    for the desired quaternion.
+    
+    Note that often you might not want the exact quaternion but instead the
+    negated version (which represents the same rotation), as that rotation
+    would actually end up being shorter than the exact quaternion.
+    
+    In this case `a:Inverse() * b` can be written as `b:Difference(a)`.
 ]=]
 --[=[
     @prop X number
