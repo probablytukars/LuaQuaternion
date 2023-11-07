@@ -194,7 +194,7 @@ local EPSILON = 1e-6
     
     `a^-1 b^-1 = (b a)^-1`.
     
-    `a b^-1 = (a^-1 b)^-1`.
+    `a b^-1 = (b^-1 a)^-1`.
     
     In general, this means flip the order, inverse each individual,
     and then inverse them as a group.
