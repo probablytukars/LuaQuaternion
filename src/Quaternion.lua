@@ -243,7 +243,7 @@ local EPSILON = 1e-6
     negated version (which represents the same rotation), as that rotation
     would actually end up being shorter than the exact quaternion.
     
-    In this case `a:Inverse() \* b` can be written as `b:Difference(a)`.
+    In this case `a:Inverse() \* b` can be written as `a:Difference(b)`.
 ]=]
 --[=[
     @prop X number
@@ -1025,6 +1025,8 @@ Quaternion.__unm = unm
 Quaternion.Negate = unm
 
 local function Pow(q0: Quaternion, number: number)
+	if number == -1 then return q0:Inverse() end
+    
     local aW, aX, aY, aZ = q0.W, q0.X, q0.Y, q0.Z
     
     local im = aX*aX + aY*aY + aZ*aZ
