@@ -123,10 +123,12 @@ end
     Sets the velocity to zero.
 ]=]
 function Spring:Reset(target: nlerpable?)
+	local now = self._clock()
 	local setTo = target or self._initial
 	self._position = setTo
 	self._target = setTo
-	self._velocity = Vector3.zero
+	self._velocity = 0 * setTo
+	self._time = now
 end
 
 --[=[
