@@ -93,9 +93,7 @@ local RadianSpring = {_type = "RadianSpring"}
     @function
     @group Constructors
     
-    Constructs a new RadianSpring at the position and target specified.
-    
-    `min` defaults to -pi, and `max` defaults to pi.
+    Constructs a new RadianSpring at the position specified.
 ]=]
 function RadianSpring.new(initial: number, damping: number, speed: number, clock: () -> number)
     initial = initial or 0
