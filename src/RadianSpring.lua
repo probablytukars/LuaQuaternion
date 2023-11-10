@@ -1,7 +1,7 @@
 -- v1.3.0
 
 --[[
-    SOURCE: https://github.com/Quenty/NevermoreEngine/blob/main/src/RadianSpring/src/Shared/RadianSpring.lua
+    SOURCE: https://github.com/Quenty/NevermoreEngine/blob/main/src/Spring/src/Shared/Spring.lua
     [MIT LICENSE]
 --]]
 
