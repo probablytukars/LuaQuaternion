@@ -35,12 +35,11 @@ export type RadianSpring = {
     @class RadianSpring
     @grouporder ["Constructors", "Methods"]
     
-    This class represents a RadianSpring, which is used for springing angles.
+    This class represents a RadianSpring, which is used to spring angles.
     This is specifically designed to spring angles towards 0, and supports
-    the range [-2pi, 2pi) also known as [-tau, tau), which essentially
-    gives the angles "double cover" which is a useful property especially
-    with angular springs as it allows you to control the "direction" that
-    the angle travels in, just add or subtract tau to change the direction.
+    the range [-2pi, 2pi). This gives the angles a useful "double cover" 
+    property as it allows you to control the "direction" that the angle 
+    travels in, just by adding or subtracting tau (2pi).
     
     This is lazily evaluated meaning it only updates when indexed.
 ]=]
