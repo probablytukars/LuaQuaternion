@@ -1462,38 +1462,20 @@ Quaternion.Slerp = Slerp
     @method
     @group Methods
     
+    
+    (Deprecated)
+    
+    Deprecated in favour of `Pow`, which performs 3x faster on average.
+    
+    Internally calls Pow to perform operations.
+    
+    
     Returns a quaternion along the great circle arc between the
     identity quaternion and the given quaternion lying on the unit radius
     hypersphere. Alpha can be any real number.
 ]=]
-local function IdentitySlerp(q1: Quaternion, alpha: number): Quaternion 
-    local q0 = 1
-    q1 = Normalize(q1)
-    local dot = q1.W
-    
-    if dot < 0 then
-        q0 = -1
-        dot = -dot
-    end
-    
-    if dot >= 1 then
-        return Normalize(new(
-                q1.X * alpha, 
-                q1.Y * alpha, 
-                q1.Z * alpha, 
-                (q1.W - q0) * alpha + q0
-            ))
-    end
-    
-    local theta0 = math.acos(dot)
-    local sinTheta0 = math.sin(theta0)
-
-    local theta = theta0 * alpha
-    local sinTheta = math.sin(theta)
-
-    local s0 = math.cos(theta) - dot * sinTheta / sinTheta0
-    local s1 = sinTheta / sinTheta0
-    return Normalize(new(q1.X * s1, q1.Y * s1, q1.Z * s1, q0 * s0 + q1.W * s1))
+local function IdentitySlerp(q0: Quaternion, alpha: number): Quaternion
+    return Pow(q0, alpha)
 end
 
 Quaternion.IdentitySlerp = IdentitySlerp
