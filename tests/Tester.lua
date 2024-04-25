@@ -46,7 +46,7 @@ function Tester:runTest(test, call)
         if result then
             return 0, "       [✔] Pass - " .. test.DisplayName
         else
-            local failMessage = "       [❌] Fail - " .. test.DisplayName
+            local failMessage = "       [❌] Fail - " .. test.DisplayName .. " [" .. tostring(reason) .. "]"
             if self.failThrowsError then
                 error(failMessage)
             end

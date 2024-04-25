@@ -220,6 +220,9 @@ def read_file(file):
 
 
 for filename in os.listdir(source_folder):
+    source_file_path = None
+    target_file_path = None
+    
     if filename.endswith('.lua'):
         source_file_path = os.path.join(source_folder, filename)
         target_file_path = os.path.join(target_folder, filename[:-3] + "json")
