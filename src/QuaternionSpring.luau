@@ -1,6 +1,7 @@
--- v1.5.0
+-- v1.5.1
 --[[
-    SOURCE: https://github.com/Quenty/NevermoreEngine/tree/main/src/spring
+    Source: https://github.com/probablytukars/LuaQuaternion
+    Based on: https://github.com/Quenty/NevermoreEngine/tree/main/src/spring
     [MIT LICENSE]
 ]]
 
