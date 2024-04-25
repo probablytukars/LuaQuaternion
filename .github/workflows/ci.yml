@@ -14,10 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@latest
       
       - name: Set up Python 3.11
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@latest
         with:
           python-version: "3.11"
       
@@ -36,10 +36,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@latest
       
       - name: Set up Python 3.11
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@latest
         with:
           python-version: "3.11"
       
@@ -55,12 +55,12 @@ jobs:
         run: python docs/HTML.py
       
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@latest
         with:
           path: 'build'
         
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@latest
       
       
