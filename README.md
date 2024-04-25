@@ -1,3 +1,7 @@
+# NOTICE
+
+If you are using v1.4.0. (where IdentitySlerp is deprecated) please revert to v1.3.0 or any later version released after 24-04-24.
+
 # LuaQuaternion
 A fully featured library for utilizing quaternions in lua.
 
