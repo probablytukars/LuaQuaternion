@@ -223,13 +223,16 @@ for filename in os.listdir(source_folder):
     if filename.endswith('.lua'):
         source_file_path = os.path.join(source_folder, filename)
         target_file_path = os.path.join(target_folder, filename[:-3] + "json")
+    elif filename.endswith('.luau'):
+        source_file_path = os.path.join(source_folder, filename)
+        target_file_path = os.path.join(target_folder, filename[:-4] + "json")
 
-        with open(source_file_path) as source_file:
-            doc_out_tab = read_file(source_file)
-        
-        with open(target_file_path, "w") as target_file:
-            json.dump(doc_out_tab, target_file, indent=4)
-        
-        print(f'Processed: {filename} -> json')
+    with open(source_file_path) as source_file:
+        doc_out_tab = read_file(source_file)
+    
+    with open(target_file_path, "w") as target_file:
+        json.dump(doc_out_tab, target_file, indent=4)
+    
+    print(f'Processed: {filename} -> json')
 
 print('All files processed.')
