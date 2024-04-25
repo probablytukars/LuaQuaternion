@@ -219,6 +219,17 @@ def read_file(file):
     return create_doc_json(doc_store)
 
 
+class InvalidFilenameError(Exception):
+    """Exception raised for invalid filenames that don't end with .lua or .luau"""
+
+    def __init__(self, filename, message="Invalid filename. File must end with .lua or .luau"):
+        self.filename = filename
+        self.message = message
+        super().__init__(self.message)
+
+    def __str__(self):
+        return f"{self.filename} -> {self.message}"
+
 for filename in os.listdir(source_folder):
     source_file_path = None
     target_file_path = None
@@ -229,6 +240,8 @@ for filename in os.listdir(source_folder):
     elif filename.endswith('.luau'):
         source_file_path = os.path.join(source_folder, filename)
         target_file_path = os.path.join(target_folder, filename[:-4] + "json")
+    else:
+        raise InvalidFilenameError(filename)
 
     with open(source_file_path) as source_file:
         doc_out_tab = read_file(source_file)
