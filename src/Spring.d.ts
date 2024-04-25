@@ -1,4 +1,8 @@
-// v1.3.0
+// v1.4.0
+/*
+    SOURCE: https://github.com/Quenty/NevermoreEngine/tree/main/src/spring
+    [MIT LICENSE]
+*/
 
 type nlerpable = number | Vector2 | Vector3 | UDim | UDim2
 

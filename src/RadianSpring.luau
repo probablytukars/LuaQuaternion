@@ -1,25 +1,28 @@
--- v1.3.0
-
+-- v1.4.0
 --[[
     SOURCE: https://github.com/Quenty/NevermoreEngine/tree/main/src/spring
     [MIT LICENSE]
 --]]
 
-local ERROR_FORMAT = "%q is not a valid member of Spring."
+local ERROR_FORMAT = "%q is not a valid member of RadianSpring."
 
-type nlerpable = number | Vector2 | Vector3 | UDim | UDim2
-export type Spring = {
-    new: (initial: nlerpable, damping: number, speed: number, clock: () -> number) -> Spring,
-    Reset: (target: nlerpable?) -> nil,
-    Impulse: (self: Spring, velocity: nlerpable) -> nil,
-    TimeSkip: (self: Spring, delta: number) -> nil,
+local pi = math.pi
+local tau = pi * 2
+
+local function wrap(x) return ((x + tau) % (2 * tau)) - tau end
+
+export type RadianSpring = {
+    new: (initial: number, damping: number, speed: number, clock: () -> number) -> RadianSpring,
+    Reset: (target: number?) -> nil,
+    Impulse: (self: RadianSpring, velocity: number) -> nil,
+    TimeSkip: (self: RadianSpring, delta: number) -> nil,
     
-    Position: nlerpable,
-    p: nlerpable,
-    Velocity: nlerpable,
-    v: nlerpable,
-    Target: nlerpable,
-    t: nlerpable,
+    Position: number,
+    p: number,
+    Velocity: number,
+    v: number,
+    Target: number,
+    t: number,
     Damping: number,
     d: number,
     Speed: number,
@@ -28,48 +31,41 @@ export type Spring = {
 }
 
 --[=[
-    @class Spring
+    @class RadianSpring
     @grouporder ["Constructors", "Methods"]
     
-    This class represents a spring, which can handle any object which is
-    n-lerpable (numbers, Vector3s, etc).
+    This class represents a RadianSpring, which is used to spring angles.
+    This is specifically designed to spring angles towards 0, and supports
+    the range [-2pi, 2pi). This gives the angles a useful "double cover" 
+    property as it allows you to control the "direction" that the angle 
+    travels in, just by adding or subtracting tau (2pi).
     
     This is lazily evaluated meaning it only updates when indexed.
 ]=]
 --[=[
-    @prop Position nlerpable
+    @prop Position number
     
     The current position at the given clock time. 
-    Assigning the position will change the spring to have that position.
+    Assigning the position will change the RadianSpring to have that position.
 ]=]
 --[=[
-    @prop p nlerpable
+    @prop p number
     @alias Position
 ]=]
 --[=[
-    @prop Velocity nlerpable
+    @prop Velocity number
     
-    The current velocity. Assigning the velocity will change the spring to have 
+    The current velocity. Assigning the velocity will change the RadianSpring to have 
     that velocity.
 ]=]
 --[=[
-    @prop v nlerpable
+    @prop v number
     @alias Velocity
-]=]
---[=[
-    @prop Target nlerpable
-    
-    The current target. Assigning the target will change the spring to have 
-    that target.
-]=]
---[=[
-    @prop t nlerpable
-    @alias Target
 ]=]
 --[=[
     @prop Damping number
     
-    The current damper, defaults to 1. At 1 the spring is critically damped. 
+    The current damper, defaults to 1. At 1 the RadianSpring is critically damped. 
     At less than 1, it will be underdamped, and thus, bounce, and at over 1, 
     it will be critically damped.
 ]=]
@@ -89,45 +85,41 @@ export type Spring = {
 --[=[
     @prop Clock
 ]=]
-local Spring = {_type = "Spring"}
+local RadianSpring = {_type = "RadianSpring"}
 
 --[=[
     @function
     @group Constructors
     
-    Constructs a new Spring at the position and target specified, of type <T>.
+    Constructs a new RadianSpring at the position specified.
 ]=]
-function Spring.new(initial: nlerpable, damping: number, speed: number, clock: () -> number)
-    initial = initial or Vector3.new()
+function RadianSpring.new(initial: number, damping: number, speed: number, clock: () -> number)
+    initial = initial or 0
     damping = damping or 1
     speed = speed or 1
-    clock = clock or os.clock
+	clock = clock or os.clock
     return setmetatable({
         _clock = clock;
         _time = clock();
         _position = initial;
         _velocity = 0 * initial;
-        _target = initial;
         _damping = damping;
         _speed = speed;
-        _initial = initial;
-    }, Spring)
+		_initial = initial;
+    }, RadianSpring)
 end
 
 --[=[
     @method
     @group Methods
     
-    Resets the springs' position and target to the target value provided, or 
-    to the initial value the spring was created with if target is not specified.
-    Sets the velocity to zero.
+    Resets the RadianSprings' position and target to the initial value the
+    RadianSpring was created with. Sets the velocity to zero.
 ]=]
-function Spring:Reset(target: nlerpable?)
+function RadianSpring:Reset()
 	local now = self._clock()
-	local setTo = target or self._initial
-	self._position = setTo
-	self._target = setTo
-	self._velocity = 0 * setTo
+	self._position = 0
+	self._velocity = 0
 	self._time = now
 end
 
@@ -135,19 +127,19 @@ end
     @method
     @group Methods
     
-    Impulses the spring, increasing velocity by the amount given.
+    Impulses the RadianSpring, increasing velocity by the amount given.
     This is useful to make something shake.
 ]=]
-function Spring:Impulse(velocity: nlerpable)
+function RadianSpring:Impulse(velocity: number)
 	self._velocity = self._velocity + velocity
 end
 
 --[=[
     @method
     @group Methods
-    Instantly skips the spring forwards by the given time.
+    Instantly skips the RadianSpring forwards by the given time.
 ]=]
-function Spring:TimeSkip(delta: number)
+function RadianSpring:TimeSkip(delta: number)
     local now = self._clock()
     local position, velocity = self:_positionVelocity(now+delta)
     self._position = position
@@ -155,17 +147,15 @@ function Spring:TimeSkip(delta: number)
     self._time = now
 end
 
-function Spring:__index(index)
-    if Spring[index] then
-        return Spring[index]
+function RadianSpring:__index(index)
+    if RadianSpring[index] then
+        return RadianSpring[index]
     elseif index == "Position" or index == "p" then
         local position, _ = self:_positionVelocity(self._clock())
         return position
     elseif index == "Velocity" or index == "v" then
         local _, velocity = self:_positionVelocity(self._clock())
         return velocity
-    elseif index == "Target" or index == "t" then
-        return self._target
     elseif index == "Damping" or index == "d" then
         return self._damping
     elseif index == "Speed" or index == "s" then
@@ -177,23 +167,17 @@ function Spring:__index(index)
     end
 end
 
-function Spring:__newindex(index, value)
-    local now = self._clock()
+function RadianSpring:__newindex(index, value)
+	local now = self._clock()
     if index == "Position" or index == "p" then
         local _, velocity = self:_positionVelocity(now)
-        self._position = value
+        self._position = wrap(value)
         self._velocity = velocity
         self._time = now
     elseif index == "Velocity" or index == "v" then
         local position, _ = self:_positionVelocity(now)
         self._position = position
         self._velocity = value
-        self._time = now
-    elseif index == "Target" or index == "t" then
-        local position, velocity = self:_positionVelocity(now)
-        self._position = position
-        self._velocity = velocity
-        self._target = value
         self._time = now
     elseif index == "Damping" or index == "d" then
         local position, velocity = self:_positionVelocity(now)
@@ -218,10 +202,11 @@ function Spring:__newindex(index, value)
     end
 end
 
-function Spring:_positionVelocity(now)
+
+
+function RadianSpring:_positionVelocity(now)
     local currentPosition = self._position
     local currentVelocity = self._velocity
-    local targetPosition = self._target
     local dampingFactor = self._damping
     local speed = self._speed
     
@@ -251,18 +236,12 @@ function Spring:_positionVelocity(now)
     local velPushRate = speed * sinTheta
     local velocityDecay = angFreq * cosTheta - dampingFactor * sinTheta
     
-    local positionDifference = targetPosition - currentPosition
+    local positionDifference = wrap(-currentPosition)
     
-    local newPosition = 
-        currentPosition + 
-        positionDifference * pullToTarget + 
-        currentVelocity * velPosPush
-    
-    local newVelocity =
-        positionDifference * velPushRate +
-        currentVelocity * velocityDecay
+    local newPosition = currentPosition + (positionDifference * pullToTarget) + (currentVelocity * velPosPush)
+    local newVelocity = (positionDifference * velPushRate) + (currentVelocity * velocityDecay)
     
     return newPosition, newVelocity
 end
 
-return Spring
+return RadianSpring

@@ -1,4 +1,8 @@
-// v1.3.0
+// v1.4.0
+/*
+    SOURCE: https://github.com/Quenty/NevermoreEngine/tree/main/src/spring
+    [MIT LICENSE]
+*/
 
 interface Quaternion {
     fromAxisAngle(axis: Vector3, angle: number): Quaternion;
