@@ -53,7 +53,7 @@ function Tester:runTest(test, call)
             return 1, failMessage
         end
     else
-        return 2, "       ❗❗❗ Unhandled Exception - " .. test.DisplayName
+        return 2, "       ❗❗❗ Unhandled Exception - " .. test.DisplayName .. " [" .. tostring(result) .. "] [" .. tostring(reason) .. "]"
     end
 end
 

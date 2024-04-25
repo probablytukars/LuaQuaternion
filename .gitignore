@@ -4,3 +4,4 @@ build/index.html
 build/docs
 build/api
 .vscode
+test_build/

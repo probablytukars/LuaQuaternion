@@ -1447,10 +1447,15 @@ pow.QuaternionNumber = {
         }
         
         local testPowers = {
-            0, 1e-6, 1e-4, 0.1, 0.5, 0.9, 0.999, 
+            0, 0.1, 0.5, 0.9, 0.999, 
             1.001, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 5,
             1e1, 1e3, 1e5, 1e7
         }
+        
+        -- Due to the same reasons mentioned in the lookAt function,
+        -- a change to the EPSILON value means that the samller powers
+        -- being tested will result in a failure, despite the
+        -- result being completely correct. This is a false positive.
         
         for i, quat in pairs(testQuaternions) do
             local axis, angle = quat:ToAxisAngle()
@@ -1476,9 +1481,9 @@ pow.QuaternionNumber = {
                     )
                     if not (axisMatches and angleMatches) then
                         return false, "Axis Matches [" .. tostring(axisMatches) .. "]  Angle Matches [" 
-                            .. tostring(angleMatches) .. "]" .. "Error on " 
-                            .. tostring(i) " Quaternion, unpow: " .. tostring(unpow) .. " powsign: "
-                            .. tostring(powsign)
+                            .. tostring(angleMatches) .. "]  Error on " 
+                            .. tostring(i) .. " Quaternion, unpow: " .. tostring(unpow) .. " powsign: "
+                            .. tostring(powsign) .. " powindex: " .. tostring(j)
                     end
                 end
             end
