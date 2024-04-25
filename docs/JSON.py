@@ -241,7 +241,7 @@ for filename in os.listdir(source_folder):
         source_file_path = os.path.join(source_folder, filename)
         target_file_path = os.path.join(target_folder, filename[:-4] + "json")
     else:
-        raise InvalidFilenameError(filename)
+        continue
 
     with open(source_file_path) as source_file:
         doc_out_tab = read_file(source_file)
