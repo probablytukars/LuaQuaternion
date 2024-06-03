@@ -145,7 +145,7 @@ export type Quaternion = {
     ToString: (q0: Quaternion, decimalPlaces: number?) -> string,
 }
 
-local EPSILON = 7e-5
+local EPSILON = 5e-7
 
 --[=[
     @class Quaternion
