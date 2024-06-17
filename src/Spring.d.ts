@@ -6,17 +6,17 @@
 
 type nlerpable = number | Vector2 | Vector3 | UDim | UDim2
 
-interface Spring {
-    Reset(this: Spring, target: nlerpable?);
-    Impulse(this: Spring, velocity: nlerpable);
+interface Spring<T = nlerpable> {
+    Reset(this: Spring, target: T?);
+    Impulse(this: Spring, velocity: T);
     TimeSkip(this: Spring, delta: number);
     
-    Position: nlerpable;
-    p: nlerpable;
-    Velocity: nlerpable;
-    v: nlerpable;
-    Target: nlerpable;
-    t: nlerpable;
+    Position: T;
+    p: T;
+    Velocity: T;
+    v: T;
+    Target: T;
+    t: T;
     Damping: number;
     d: number;
     Speed: number;
@@ -24,8 +24,8 @@ interface Spring {
     Clock(): number;
 }
 
-interface SpringConstructor {
-    new(initial: nlerpable, damping: number, speed: number, clock: () => number): Spring
+interface SpringConstructor<T = nlerpable> {
+    new(initial: T, damping: number, speed: number, clock: () => number): Spring
 }
 
 declare const Spring: SpringConstructor;
