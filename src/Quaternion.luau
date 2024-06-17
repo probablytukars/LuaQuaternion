@@ -1,4 +1,3 @@
--- v1.5.2
 --[[
     Source: https://github.com/probablytukars/LuaQuaternion
     [MIT LICENSE]

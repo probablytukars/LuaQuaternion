@@ -1,4 +1,3 @@
--- v1.5.2
 --[[
     Source: https://github.com/probablytukars/LuaQuaternion
     Based on: https://github.com/Quenty/NevermoreEngine/tree/main/src/spring
