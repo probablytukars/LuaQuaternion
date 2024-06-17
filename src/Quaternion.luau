@@ -145,7 +145,7 @@ export type Quaternion = {
     ToString: (q0: Quaternion, decimalPlaces: number?) -> string,
 }
 
-local EPSILON = 7e-5
+local EPSILON = 5e-7
 
 --[=[
     @class Quaternion
@@ -556,14 +556,13 @@ local function lookAt(from: Vector3, lookAt: Vector3, up: Vector3?): Quaternion
         local rightVector = selectVector.Unit
         local upVector = rightVector:Cross(lookVector).Unit
         return _fromOrthonormalizedMatrix(rightVector, upVector, -lookVector)
-    else
-        local upVector = Vector3.zAxis:Cross(lookVector)
-        local upSign = upVector:Dot(Vector3.yAxis)
-        upVector *= upSign
-        local rightVector = lookVector:Cross(upVector)
-        
-        return _fromOrthonormalizedMatrix(rightVector, upVector, -lookVector)
     end
+    
+    local upVector = Vector3.zAxis:Cross(lookVector)
+    local upSign = upVector:Dot(Vector3.yAxis)
+    upVector *= upSign
+    local rightVector = lookVector:Cross(upVector)
+    return _fromOrthonormalizedMatrix(rightVector, upVector, -lookVector)
 end
 
 Quaternion.lookAt = lookAt
