@@ -5,9 +5,9 @@
 */
 
 interface QuaternionSpring {
-    Reset(self: QuaternionSpring, target: Quaternion?);
-    Impulse(self: QuaternionSpring, velocity: Vector3);
-    TimeSkip(self: QuaternionSpring, delta: number);
+    Reset(this: QuaternionSpring, target: Quaternion?);
+    Impulse(this: QuaternionSpring, velocity: Vector3);
+    TimeSkip(this: QuaternionSpring, delta: number);
     
     Position: Quaternion;
     p: Quaternion;

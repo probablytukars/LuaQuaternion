@@ -7,9 +7,9 @@
 type nlerpable = number | Vector2 | Vector3 | UDim | UDim2
 
 interface Spring {
-    Reset(self: Spring, target: nlerpable?);
-    Impulse(self: Spring, velocity: nlerpable);
-    TimeSkip(self: Spring, delta: number);
+    Reset(this: Spring, target: nlerpable?);
+    Impulse(this: Spring, velocity: nlerpable);
+    TimeSkip(this: Spring, delta: number);
     
     Position: nlerpable;
     p: nlerpable;

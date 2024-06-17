@@ -5,9 +5,9 @@
 */
 
 interface RadianSpring {
-    Reset(self: RadianSpring, target: number?);
-    Impulse(self: RadianSpring, velocity: number);
-    TimeSkip(self: RadianSpring, delta: number);
+    Reset(this: RadianSpring, target: number?);
+    Impulse(this: RadianSpring, velocity: number);
+    TimeSkip(this: RadianSpring, delta: number);
     
     Position: number;
     p: number;

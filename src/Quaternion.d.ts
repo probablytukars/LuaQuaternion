@@ -4,28 +4,29 @@
 */
 
 interface Quaternion {
-    fromAxisAngle(axis: Vector3, angle: number): Quaternion;
-    fromAxisAngleFast(axis: Vector3, angle: number): Quaternion;
-    fromEulerVector(eulerVector: Vector3): Quaternion;
-    fromCFrame(cframe: CFrame): Quaternion;
-    fromCFrameFast(cframe: CFrame): Quaternion;
-    fromMatrix(vX: Vector3, vY: Vector3, vZ: Vector3?): Quaternion;
-    fromMatrixFast(vX: Vector3, vY: Vector3, vZ: Vector3?): Quaternion;
-    lookAt(from: Vector3, lookAt: Vector3, up: Vector3?): Quaternion;
-    fromEulerAnglesXYZ(rx: number, ry: number, rz: number): Quaternion;
-    Angles(rx: number, ry: number, rz: number): Quaternion;
-    fromEulerAnglesYXZ(rx: number, ry: number, rz: number): Quaternion;
-    fromOrientation(rx: number, ry: number, rz: number): Quaternion;
-    fromEulerAngles(rx: number, ry: number, rz: number, rotationOrder: Enum.RotationOrder?): Quaternion;
-    fromVector(vector: Vector3, W: number?): Quaternion;
-    RandomQuaternion(seed: number): () => Quaternion;
-    
     X: number;
     Y: number;
     Z: number;
     W: number;
     Unit: Quaternion;
     Magnitude: number;
+    
+    Add(this: Quaternion, q1: Quaternion):  Quaternion;
+	Sub(this: Quaternion, q1: Quaternion): Quaternion;
+	Mul(this: Quaternion, q1: Quaternion): Quaternion;
+	Scale(this: Quaternion, scale: number): Quaternion;
+	MulCFrameR(this: Quaternion, cframe: CFrame):  CFrame;
+	MulCFrameL(this: Quaternion, cframe: CFrame):  CFrame;
+	RotateVector(this: Quaternion, vector: Vector3):  Vector3;
+	CombineImaginary(this: Quaternion, vector: Vector3):  Quaternion;
+	Div(this: Quaternion, q1: Quaternion):  Quaternion;
+	ScaleInv(this: Quaternion, scale: number): Quaternion;
+	Unm(this: Quaternion): Quaternion;
+	Pow(this: Quaternion, power: number): Quaternion;
+	Len(this: Quaternion): number;
+	Lt(this: Quaternion, q1: Quaternion): boolean;
+	Le(this: Quaternion, q1: Quaternion): boolean;
+	Eq(this: Quaternion, q1: Quaternion): boolean;
     
     Exp(q0: Quaternion): Quaternion;
     ExpMap(q0: Quaternion, q1: Quaternion): Quaternion;
@@ -77,6 +78,22 @@ interface Quaternion {
 
 interface QuaternionConstructor {
     new(qX: number?, qY: number?, qZ: number?, qW: number?): Quaternion;
+    fromAxisAngle(axis: Vector3, angle: number): Quaternion;
+    fromAxisAngleFast(axis: Vector3, angle: number): Quaternion;
+    fromEulerVector(eulerVector: Vector3): Quaternion;
+    fromCFrame(cframe: CFrame): Quaternion;
+    fromCFrameFast(cframe: CFrame): Quaternion;
+    fromMatrix(vX: Vector3, vY: Vector3, vZ: Vector3?): Quaternion;
+    fromMatrixFast(vX: Vector3, vY: Vector3, vZ: Vector3?): Quaternion;
+    lookAt(from: Vector3, lookAt: Vector3, up: Vector3?): Quaternion;
+    fromEulerAnglesXYZ(rx: number, ry: number, rz: number): Quaternion;
+    Angles(rx: number, ry: number, rz: number): Quaternion;
+    fromEulerAnglesYXZ(rx: number, ry: number, rz: number): Quaternion;
+    fromOrientation(rx: number, ry: number, rz: number): Quaternion;
+    fromEulerAngles(rx: number, ry: number, rz: number, rotationOrder: Enum.RotationOrder?): Quaternion;
+    fromVector(vector: Vector3, W: number?): Quaternion;
+    RandomQuaternion(seed: number): () => Quaternion;
+    
     identity: Quaternion;
     zero: Quaternion;
 }
