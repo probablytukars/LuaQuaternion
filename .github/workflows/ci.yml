@@ -21,6 +21,9 @@ jobs:
         with:
           python-version: "3.12"
       
+      - name: Tell me where I am
+        run: pwd
+      
       - name: Test
         env:
           PYTHONPATH: ${{ github.workspace }}
