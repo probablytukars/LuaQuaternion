@@ -1,47 +1,20 @@
 import copy
 import json
+import markdown
 import os
 import re
-import markdown
+import sys
 
-from bs4 import BeautifulSoup
-from moonwave.tokens import tokenize
+import warnings
+from bs4 import BeautifulSoup, MarkupResemblesLocatorWarning
+from docs.moonwave.tokens import tokenize
 
-template_input_file = "docs/template.html"
-source_folder = "build/docs"
-target_folder = "build/api"
+warnings.filterwarnings("ignore", category=MarkupResemblesLocatorWarning)
 
-if not os.path.exists(target_folder):
-    os.makedirs(target_folder)
-    
+# function to be created at runtime
+get_template = None
 
-def get_soup_template():
-    html_content = ""
-    with open(template_input_file, "r") as template_file:
-        for line in template_file.readlines():
-            html_content = html_content + line.strip()
-
-    return BeautifulSoup(html_content, "html.parser")
-
-SOUP_TEMPLATE = get_soup_template()
-
-def get_template_function():
-    templates = {}
-    
-    for template in SOUP_TEMPLATE.head.find_all("template"):
-        template_name = template.get("id")[9:] #"template-"
-        template_content = template.contents[0]
-        templates[template_name] = template_content
-        template.extract()
-
-    def get_template(template_name):
-        return copy.copy(templates[template_name])
-    
-    return get_template
-
-get_template = get_template_function()
-
-def quick_add_template(append_to, template_name, set_string, add_class_=None):
+def quick_add_template(append_to, template_name, set_string=None, add_class_=None):
     template = get_template(template_name)
     if set_string:
         template.string = set_string
@@ -49,6 +22,12 @@ def quick_add_template(append_to, template_name, set_string, add_class_=None):
         add_class(template, add_class_)
     append_to.append(template)
     return template
+
+def create_sidebar_item(append_to, set_string, href):
+    sidebar_item = quick_add_template(append_to, "sidebar-item")
+    sidebar_item_a = sidebar_item.find("a")
+    sidebar_item_a.string = set_string
+    sidebar_item_a["href"] = href
 
 def add_class(element, class_name):
     element['class'] = element.get('class', []) + [class_name]
@@ -76,9 +55,9 @@ def escape_html(string):
 
 def escape_formatting(string):
     conversion_dict = {
-        '\*': '&#42;',
-        '\_': '&#95;',
-        '\`': '&#96;'
+        r'\*': '&#42;',
+        r'\_': '&#95;',
+        r'\`': '&#96;'
     }
     
     for pattern, replacement in conversion_dict.items():
@@ -457,14 +436,14 @@ def process_list_json(function_group, soup, class_name):
     
     return group_component
 
-def api_page(filename):
-    json_source_path = os.path.join(source_folder, filename)
-    target_output_path = os.path.join(target_folder, filename[:-4] + "html")
+def api_page(json_path, api_path, filename):
+    json_file = os.path.join(json_path, filename)
+    api_file = os.path.join(api_path, filename[:-4] + "html")
     
-    with open(json_source_path, 'r') as json_source:
-        json_docs = json.load(json_source)
+    with open(json_file, 'r') as json_fio:
+        json_docs = json.load(json_fio)
     
-    soup = copy.copy(SOUP_TEMPLATE)
+    soup = get_template("SOUP_TEMPLATE")
     
     content_list = soup.find("ul", class_="content-list")
     class_name = ""
@@ -483,26 +462,34 @@ def api_page(filename):
             content_list.append(group_component)
 
 
-    with open(target_output_path, 'w') as target_file:
-        target_file.write(str(soup))
+    with open(api_file, 'w') as api_fio:
+        api_fio.write(str(soup))
 
     print(f'Processed: {filename} -> html')
 
-def create_api_pages():
-    for filename in os.listdir(source_folder):
+def get_api_pages(json_path):
+    api_list = []
+    for filename in os.listdir(json_path):
+        if filename.endswith(".json"):
+            api_list.append(filename[:-5])
+    return api_list
+
+def create_api_pages(json_path, web_path, api_path):
+    for filename in os.listdir(json_path):
         if filename.endswith('.json'):
-            api_page(filename)
+            api_page(json_path, api_path, filename)
     print('All files processed.')
 
-def create_index_page():
-    with open("README.md", "r") as READ_ME_MD:
-        READ_ME_HTML = markdown.markdown(READ_ME_MD.read())
+def create_index_page(read_me_path, index_html_path):
+    read_me_html = None
+    with open(read_me_path, "r") as read_me_md:
+        read_me_html = markdown.markdown(read_me_md.read())
     
-    read_me_soup = BeautifulSoup(READ_ME_HTML, "html.parser")
+    read_me_soup = BeautifulSoup(read_me_html, "html.parser")
     for link in read_me_soup.find_all("a"):
         add_class(link, "color-link")
     
-    soup = copy.copy(SOUP_TEMPLATE)
+    soup = get_template("SOUP_TEMPLATE")
     
     ul = soup.find("ul", class_="content-list")
     ul.append(read_me_soup)
@@ -525,18 +512,68 @@ def create_index_page():
         sidebar_list.append(sidebar_item)
     
     
-    with open("build/index.html", "w") as READ_ME_HTML:
+    with open(index_html_path, "w") as READ_ME_HTML:
         READ_ME_HTML.write(str(soup))
     
 
-def main():
-    create_api_pages()
-    create_index_page()
+
+def HTML(u_read_me_path, u_template_html_path, u_build_path, web_path, index_html):
+    global get_template
     
+    print("Creating HTML API pages from JSON.")
+    assert(isinstance(u_template_html_path, str))
+    assert(isinstance(u_build_path, str))
+    assert(isinstance(u_read_me_path, str))
+    assert(isinstance(web_path, str))
+    
+    template_html_path = os.path.normpath(u_template_html_path)
+    build_path = os.path.normpath(u_build_path)
+    read_me_path = os.path.normpath(u_read_me_path)
+    
+    json_path = os.path.join(build_path, "json")
+    api_path = os.path.join(build_path, "api")
+    index_html_path = os.path.join(build_path, "index.html")
+    
+    if not os.path.exists(json_path):
+        os.makedirs(json_path)
+    
+    html_content = ""
+    with open(template_html_path, "r") as template_file:
+        for line in template_file.readlines():
+            html_content = html_content + line.strip()
 
-if __name__ == "__main__":
-    main()
-
-
+    SOUP_TEMPLATE = BeautifulSoup(html_content, "html.parser")
+    
+    templates = {"SOUP_TEMPLATE": SOUP_TEMPLATE}
+    for template in SOUP_TEMPLATE.head.find_all("template"):
+        template_name = template.get("id")[9:] # remove "template-"
+        extracted_template = template.extract()
+        templates[template_name] = extracted_template.contents[0]
+    
+    get_template = lambda template_name: copy.copy(templates[template_name])
+    
+    
+    index_css = SOUP_TEMPLATE.find(id="index-css") #/LuaQuaternion/index.css
+    index_css["href"] = web_path + "index.css"
+    
+    index_script = SOUP_TEMPLATE.find(id="index-script") #/LuaQuaternion/index.js
+    index_script["src"] = web_path + "index.js"
+    
+    api_sidebar_desktop = SOUP_TEMPLATE.find(id="api-sidebar-list-desktop")
+    create_sidebar_item(api_sidebar_desktop, "Home", web_path + index_html)
+    
+    api_sidebar_mobile = SOUP_TEMPLATE.find(id="api-sidebar-list-mobile")
+    create_sidebar_item(api_sidebar_mobile, "Home", web_path + index_html)
+    
+    api_pages = get_api_pages(json_path)
+    
+    for api_page in api_pages:
+        api_href = web_path + "api/" + api_page + ".html"
+        create_sidebar_item(api_sidebar_desktop, api_page, api_href)
+        create_sidebar_item(api_sidebar_mobile, api_page, api_href)
+    
+    create_api_pages(json_path, web_path, api_path)
+    create_index_page(read_me_path, index_html_path)
+    
 
 

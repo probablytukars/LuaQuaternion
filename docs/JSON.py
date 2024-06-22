@@ -1,12 +1,7 @@
 import json
-import re
 import os
-
-source_folder = "src"
-target_folder = "build/docs"
-
-if not os.path.exists(target_folder):
-    os.makedirs(target_folder)
+import re
+import sys
 
 tag_regex  = r'@(\S+)\s*(.*)'
 prop_regex = r'(\S+)\s*(\S*)'
@@ -105,10 +100,10 @@ def parse_doc_line(doc_store, file, doc):
                 return
             if not name_found:
                 if line.startswith("local function"):
-                    doc["name"] = re.findall("local function (\S+)\(", line)[0]
+                    doc["name"] = re.findall(r"local function (\S+)\(", line)[0]
                     doc["remove_first"] = True
                 elif line.startswith("function"):
-                    find = re.findall("function (\S+)\(", line)[0]
+                    find = re.findall(r"function (\S+)\(", line)[0]
                     if "." in find:
                         doc["name"] = find.split(".")[-1].strip()
                         doc["remove_first"] = True
@@ -119,7 +114,7 @@ def parse_doc_line(doc_store, file, doc):
                         doc["name"] = find.strip()
                         doc["remove_first"] = True
                 else:
-                    dot_find = re.findall("(\S+)\s*=\s*(\S+)", line)
+                    dot_find = re.findall(r"(\S+)\s*=\s*(\S+)", line)
                     if dot_find:
                         setter, equals = dot_find[0]
                         doc["name"] = setter.split(".")[-1]
@@ -130,7 +125,7 @@ def parse_doc_line(doc_store, file, doc):
                         return
                 
                 name_found = True
-                doc["definition"] = re.findall("(\(.*)", line)[0]
+                doc["definition"] = re.findall(r"(\(.*)", line)[0]
             
             return
         else:
@@ -218,25 +213,47 @@ def read_file(file):
             fix_doc_desc(doc)
     return create_doc_json(doc_store)
 
-for filename in os.listdir(source_folder):
-    source_file_path = None
-    target_file_path = None
-    
-    if filename.endswith('.lua'):
-        source_file_path = os.path.join(source_folder, filename)
-        target_file_path = os.path.join(target_folder, filename[:-3] + "json")
-    elif filename.endswith('.luau'):
-        source_file_path = os.path.join(source_folder, filename)
-        target_file_path = os.path.join(target_folder, filename[:-4] + "json")
-    else:
-        continue
 
-    with open(source_file_path) as source_file:
-        doc_out_tab = read_file(source_file)
-    
-    with open(target_file_path, "w") as target_file:
-        json.dump(doc_out_tab, target_file, indent=4)
-    
-    print(f'Processed: {filename} -> json')
 
-print('All files processed.')
+def JSON(u_src_path, u_build_path, u_json_path):
+    print("Creating JSON API from lua(u).")
+    assert(isinstance(u_src_path, str))
+    assert(isinstance(u_build_path, str))
+    assert(isinstance(u_json_path, str))
+    
+    src_path = os.path.normpath(u_src_path)
+    build_path = os.path.normpath(u_build_path)
+    json_path = os.path.normpath(u_json_path)
+    target_path = os.path.join(build_path, json_path)
+    
+    if not os.path.exists(target_path):
+        print("Created JSON target folder.")
+        os.makedirs(target_path)
+    
+    for filename in os.listdir(src_path):
+        src_file_path = None
+        target_file_path = None
+        
+        if filename.endswith('.lua'):
+            src_file_path = os.path.join(src_path, filename)
+            target_file_path = os.path.join(target_path, filename[:-3] + "json")
+        elif filename.endswith('.luau'):
+            src_file_path = os.path.join(src_path, filename)
+            target_file_path = os.path.join(target_path, filename[:-4] + "json")
+        else:
+            continue
+
+        with open(src_file_path) as src_file:
+            doc_out_tab = read_file(src_file)
+        
+        with open(target_file_path, "w") as target_file:
+            json.dump(doc_out_tab, target_file, indent=4)
+        
+        print(f'Processed: {filename} -> json')
+
+    print('All files processed.')
+
+if __name__ == "__main__":
+    main()
+else:
+    ValueError("Cannot be included as module.")

@@ -1232,8 +1232,9 @@ ToString.BuiltIn = {
 local MathGroup = {}
 QuaternionTest.MathGroup = MathGroup
 MathGroup._order = {
-    "add", "sub", "mul", "div", "unm", "pow", "eq", "lt", "le", "len", 
-    "Exp", "ExpMap", "ExpMapSym", "Log", "LogMap", "LogMapSym"
+    "add", "sub", "mul", "Scale", "RotateVector", "div", "ScaleInv", "unm", 
+    "pow", "eq", "lt", "le", "len", "Exp", "ExpMap", "ExpMapSym", 
+    "Log", "LogMap", "LogMapSym"
 }
 MathGroup._DisplayName = "Math Tests"
 
@@ -1281,9 +1282,6 @@ local mul = {}
 MathGroup.mul = mul
 mul._order = {
     "QuaternionQuaternion",
-    "NumberQuaternion",
-    "QuaternionNumber",
-    "QuaternionVector3",
 }
 
 mul.QuaternionQuaternion = {
@@ -1298,13 +1296,21 @@ mul.QuaternionQuaternion = {
     end
 }
 
-mul.NumberQuaternion = {
-    DisplayName = "number * Quaternion",
+
+
+local Scale = {}
+MathGroup.Scale = Scale
+Scale._order = {
+    "Scalar"
+}
+
+Scale.Scalar = {
+    DisplayName = "Quaternion:Scale(number)",
     test = function()
         local q0 = Quaternion.new(-0.6132499, 0.3980986, -0.6776496, 0.0789497)
         local scalar = 5.351
         
-        local qr = scalar * q0
+        local qr = q0:Scale(scalar)
         local qe = Quaternion.new(
             -3.2815002149, 2.1302256086, -3.6261030096, 0.4224598447
         )
@@ -1313,28 +1319,21 @@ mul.NumberQuaternion = {
     end
 }
 
-mul.QuaternionNumber = {
-    DisplayName = "Quaternion * number",
-    test = function()
-        local q0 = Quaternion.new(-0.6132499, 0.3980986, -0.6776496, 0.0789497)
-        local scalar = 5.351
 
-        local qr = q0 * scalar
-        local qe = Quaternion.new(
-            -3.2815002149, 2.1302256086, -3.6261030096, 0.4224598447
-        )
 
-        return Assert.KeyValuesApprox(qe, qr, EPSILON)
-    end
+local RotateVector = {}
+MathGroup.RotateVector = RotateVector
+RotateVector._order = {
+    "RotateVector"
 }
 
-mul.QuaternionVector3 = {
-    DisplayName = "Quaternion * Vector3",
+RotateVector.RotateVector = {
+    DisplayName = "Quaternion:RotateVector(Vector3)",
     test = function()
         local q0 = Quaternion.new(-0.6132499, 0.3980986, -0.6776496, 0.0789497)
         local vector = Vector3.new(5, 7, -2)
         
-        local vr = q0 * vector
+        local vr = q0:RotateVector(vector)
         local ve = Vector3.new(
             -5.633782386779785, 
             -6.7849040031433105, 
@@ -1350,41 +1349,7 @@ mul.QuaternionVector3 = {
 local div = {}
 MathGroup.div = div
 div._order = {
-    "QuaternionNumber",
-    "NumberQuaternion",
     "QuaternionQuaternion"
-}
-
-div.QuaternionNumber = {
-    DisplayName = "Quaternion / number",
-    test = function()
-        local q0 = Quaternion.new(-3.2815002149, 2.1302256086, -3.6261030096, 0.4224598447)
-        local scalar = 5.351
-
-        local qr = q0 / scalar
-        local qe = Quaternion.new(
-            -0.6132499, 0.3980986, -0.6776496, 0.0789497
-        )
-
-        return Assert.KeyValuesApprox(qe, qr, EPSILON)
-    end
-}
-
-div.NumberQuaternion = {
-    DisplayName = "number / Quaternion",
-    test = function()
-        local q0 = Quaternion.new(
-            -3.2815002149, 2.1302256086, -3.6261030096, 0.4224598447
-        )
-        local scalar = 5.351
-
-        local qr = scalar / q0
-        local qe = Quaternion.new(
-            -1.63065660508, 2.51194050921, -1.47568891061, 12.6662925888
-        )
-
-        return Assert.KeyValuesApprox(qe, qr, EPSILON)
-    end
 }
 
 div.QuaternionQuaternion = {
@@ -1408,6 +1373,29 @@ div.QuaternionQuaternion = {
         return Assert.KeyValuesApprox(qe, qr, EPSILON)
     end
 }
+
+
+local ScaleInv = {}
+MathGroup.ScaleInv = ScaleInv
+ScaleInv._order = {
+    "ScaleInv"
+}
+
+ScaleInv.ScaleInv = {
+    DisplayName = "Quaternion:ScaleInv(number)",
+    test = function()
+        local q0 = Quaternion.new(-3.2815002149, 2.1302256086, -3.6261030096, 0.4224598447)
+        local scalar = 5.351
+        
+        local qr = q0:ScaleInv(scalar)
+        local qe = Quaternion.new(
+            -0.6132499, 0.3980986, -0.6776496, 0.0789497
+        )
+        
+        return Assert.KeyValuesApprox(qe, qr, EPSILON)
+    end
+}
+
 
 
 
@@ -1464,8 +1452,8 @@ pow.QuaternionNumber = {
                     local pow = powsign * unpow
                     local q0 = quat ^ pow
                     local naxis, nangle = q0:ToAxisAngle()
-                    
                     local anglepow = angle * pow
+                
                     local sign = (anglepow / (math.pi * 2)) % 2 > 1 and -1 or 1
                     local expect_axis = axis * sign
                     local expect_angle = (anglepow * sign) % (math.pi * 2)
@@ -1499,7 +1487,7 @@ pow.QuaternionNumberNonUnit = {
         local scalefactor = 2.5
         local q0 = Quaternion.new(
             -0.0712248, 0.6351379, 0.2064367, -0.7408851
-        ) * scalefactor
+        ):Scale(scalefactor)
         local pow = 4.3
 
         local qr = q0 ^ pow
@@ -2360,14 +2348,17 @@ Difference.NonUnit = {
     test = function()
         local q0 = Quaternion.fromEulerAngles(
             math.rad(-20), math.rad(40), math.rad(120)
-        ) * 2.503
+        ):Scale(2.503)
         local q2 = Quaternion.fromEulerAngles(
             math.rad(30), math.rad(90), math.rad(60)
-        ) * 0.893
+        ):Scale(0.893)
         
         local q1 = q0:Difference(q2)
         local qm = q0 * q1
         local qi = q2 / q1
+        
+        
+        
         return Assert.KeyValuesApprox(qm, q2, EPSILON)
             and Assert.KeyValuesApprox(qi, q0, EPSILON)
     end

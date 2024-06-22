@@ -1,7 +1,7 @@
+.venv/
 __pycache__
-build/docs.json
-build/index.html
-build/docs
-build/api
+build/*
+!build/index.css
+!build/index.js
 .vscode
 test_build/

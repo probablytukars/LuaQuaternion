@@ -1246,7 +1246,8 @@ Quaternion.Normalize = Normalize
     one, within 1 +- epsilon range.
 ]=]
 local function IsUnit(q0: Quaternion, epsilon: number): boolean
-	return math.abs(1 - Length(q0)) < epsilon
+	local l_epsilon = epsilon or EPSILON
+	return math.abs(1 - Length(q0)) < l_epsilon
 end
 
 Quaternion.IsUnit = IsUnit
