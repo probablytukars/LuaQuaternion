@@ -2,16 +2,23 @@ from configparser import ConfigParser
 import os
 import shutil
 import subprocess
-
 from tests.PrepareTest import PrepareTest
-from build import run_python_script
+
+def run_python_script(script, on_succ, on_err):
+	try:
+		script()
+	except SystemExit as e:
+		on_err(e.code)
+		exit(e.code)
+	else:
+		on_succ(0)
 
 CONFIG = "config.conf"
 sep = "-" * 50
 sep_n = sep + "\n"
 
 def Test():
-	on_err = lambda code: print(f"{sep_n}An error occured during build: {code}")
+	on_err = lambda code: print(f"{sep_n}An error occurred during build: {code}")
 	on_succ = lambda code: None
 	on_fin = lambda code: print(f"{sep_n}Build finished successfully.")
 	
@@ -34,7 +41,7 @@ def Test():
 	
 	subprocess.run(command, check=True)
 	
-	print(f"{sep_n}Testing finished sucessfully.")
+	print(f"{sep_n}Testing finished successfully.")
 	
 	
 	
