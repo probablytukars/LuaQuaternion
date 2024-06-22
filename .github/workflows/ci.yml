@@ -21,14 +21,15 @@ jobs:
         with:
           python-version: "3.12"
       
-      - name: Tell me where I am
+      - name: "PrepareTest.py does exist you silly billy"
         run: |
-          pwd
           ls
+          cd tests
+          ls
+          cd ..
+          pwd
       
       - name: Test
-        env:
-          PYTHONPATH: ${{ github.workspace }}
         run: python test.py
   
   
