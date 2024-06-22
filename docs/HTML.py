@@ -536,6 +536,9 @@ def HTML(u_read_me_path, u_template_html_path, u_build_path, web_path, index_htm
     
     if not os.path.exists(json_path):
         os.makedirs(json_path)
+        
+    if not os.path.exists(api_path):
+        os.makedirs(api_path)
     
     html_content = ""
     with open(template_html_path, "r") as template_file:
