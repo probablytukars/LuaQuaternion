@@ -1,7 +1,11 @@
 from configparser import ConfigParser
 import os
+import sys
 import shutil
 import subprocess
+
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+
 from tests.PrepareTest import PrepareTest
 from build import run_python_script
 
