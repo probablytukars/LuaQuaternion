@@ -48,7 +48,7 @@ jobs:
       - name: Build
         env:
           PYTHONPATH: ${{ github.workspace }}
-        run: python build.py
+        run: python build.py true
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
