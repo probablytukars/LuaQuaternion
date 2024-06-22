@@ -1,6 +1,7 @@
 # LuaQuaternion
 
-LuaQuaternion is a fully featured library for utilizing quaternions in lua.
+LuaQuaternion is a fully featured library for utilizing quaternions in luau.
+To use in lua projects you will need to manually remove all type information.
 
 If you are using this project in an external editor, you can install this library using `npm i @tukars/luaquaternion`.
 
