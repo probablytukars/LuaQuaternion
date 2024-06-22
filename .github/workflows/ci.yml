@@ -22,7 +22,9 @@ jobs:
           python-version: "3.12"
       
       - name: Tell me where I am
-        run: pwd
+        run: |
+          pwd
+          ls
       
       - name: Test
         env:
