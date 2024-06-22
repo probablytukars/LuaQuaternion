@@ -21,14 +21,6 @@ jobs:
         with:
           python-version: "3.12"
       
-      - name: "PrepareTest.py does exist you silly billy"
-        run: |
-          ls
-          cd tests
-          ls
-          cd ..
-          pwd
-      
       - name: Test
         run: python test.py
   
