@@ -5,3 +5,4 @@ build/*
 !build/index.js
 .vscode
 test_build/
+node_modules/

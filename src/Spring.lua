@@ -7,7 +7,7 @@
 
 local ERROR_FORMAT = "%q is not a valid member of Spring."
 
-type nlerpable = number | Vector2 | Vector3 | UDim | UDim2
+export type nlerpable = number | Vector2 | Vector3 | UDim | UDim2
 
 local Spring = {_type = "Spring"}
 

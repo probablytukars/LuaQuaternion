@@ -1,5 +1,36 @@
 {
-	"name": "@tukars/luaquaternion",
-	"version": "2.0.2",
-	"license": "MIT"
+  "name": "@rbxts/luaquaternion",
+  "version": "2.1.0",
+  "description": "A quaternion library for Roblox",
+  "keywords": [
+    "quaternion",
+    "LuaQuaternion",
+    "roblox-ts",
+    "lua"
+  ],
+  "main": "src/init.lua",
+  "typings": "src/index.d.ts",
+  "files": [
+    "src"
+  ],
+  "repository": {
+    "type": "github",
+    "url": "git+https://github.com/probablytukars/LuaQuaternion.git"
+  },
+  "bugs": {
+    "url": "https://github.com/probablytukars/LuaQuaternion/issues"
+  },
+  "homepage": "https://probablytukars.github.io/LuaQuaternion/",
+  "author": "tukars",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
 }
