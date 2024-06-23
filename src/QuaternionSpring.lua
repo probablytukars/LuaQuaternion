@@ -232,6 +232,8 @@ local function TimeSkip(self: QuaternionSpring, delta: number)
 	self._time = now
 end
 
+QuaternionSpring.TimeSkip = TimeSkip
+
 function QuaternionSpring.__index(self: QuaternionSpring, index: string)
 	if QuaternionSpring[index] then
 		return QuaternionSpring[index]

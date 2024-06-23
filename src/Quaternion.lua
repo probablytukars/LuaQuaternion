@@ -1800,7 +1800,7 @@ local function ToEulerAnglesXYZ(q0: Quaternion): (number, number, number)
 	local rX, rY, rZ
 	
 	local test = qY * qW + qX * qZ
-	if math.abs(test) > 0.499999 then
+	if math.abs(test) > 0.5 - EPSILON then
 		local sign = test > 0 and 1 or -1
 		rX = sign * 2 * math.atan2(qZ, qW)
 		rY = sign * math.pi / 2
