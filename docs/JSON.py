@@ -215,7 +215,7 @@ def read_file(file):
 
 
 
-def JSON(u_src_path, u_build_path, u_json_path):
+def JSON(u_src_path, u_build_path, u_json_path, ignore_lua=["init"]):
     print("Creating JSON API from lua(u).")
     assert(isinstance(u_src_path, str))
     assert(isinstance(u_build_path, str))
@@ -242,7 +242,16 @@ def JSON(u_src_path, u_build_path, u_json_path):
             target_file_path = os.path.join(target_path, filename[:-4] + "json")
         else:
             continue
-
+        
+        continue_outer = False
+        for ignore in ignore_lua:
+            if filename.startswith(ignore):
+                continue_outer = True
+                break
+        
+        if continue_outer:
+            continue
+        
         with open(src_file_path) as src_file:
             doc_out_tab = read_file(src_file)
         
