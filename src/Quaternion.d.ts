@@ -51,7 +51,7 @@ interface Quaternion {
     Slerp(this: Quaternion, q1: Quaternion, alpha: number): Quaternion;
     IdentitySlerp(q1: Quaternion, alpha: number): Quaternion;
     SlerpFunction(this: Quaternion, q1: Quaternion): (alpha: number) => Quaternion;
-    Intermediates(this: Quaternion, q1: Quaternion, n: number, includeEndpoints: boolean?): {Quaternion};
+    Intermediates(this: Quaternion, q1: Quaternion, n: number, includeEndpoints?: boolean): {Quaternion};
     Derivative(this: Quaternion, rate: Vector3):  Quaternion;
     Integrate(this: Quaternion, rate: Vector3, timestep: number): Quaternion;
     AngularVelocity(this: Quaternion, q1: Quaternion, timestep: number): Vector3;
@@ -59,13 +59,13 @@ interface Quaternion {
     ApproxEq(this: Quaternion, q1: Quaternion, epsilon: number): boolean;
     IsNaN(this: Quaternion): boolean;
 
-    ToCFrame(this: Quaternion, position: Vector3?): CFrame;
+    ToCFrame(this: Quaternion, position?: Vector3): CFrame;
     ToAxisAngle(this: Quaternion): (Vector3, number);
     ToEulerVector(this: Quaternion): Vector3;
     ToEulerAnglesXYZ(this: Quaternion): (number, number, number);
     ToEulerAnglesYXZ(this: Quaternion): (number, number, number);
     ToOrientation(this: Quaternion): (number, number, number);
-    ToEulerAngles(this: Quaternion, rotationOrder: Enum.RotationOrder?): (number, number, number);
+    ToEulerAngles(this: Quaternion, rotationOrder?: Enum.RotationOrder): (number, number, number);
     ToMatrix(this: Quaternion): (number, number, number, number, number, number, number, number, number);
     ToMatrixVectors(this: Quaternion): (Vector3, Vector3, Vector3);
     Vector(this: Quaternion): Vector3;
@@ -73,7 +73,7 @@ interface Quaternion {
     Imaginary(this: Quaternion): Quaternion;
     GetComponents(this: Quaternion): (number, number, number, number);
     components(this: Quaternion): (number, number, number, number);
-    ToString(this: Quaternion, decimalPlaces: number?): string;
+    ToString(this: Quaternion, decimalPlaces?: number): string;
 }
 
 interface QuaternionConstructor {
