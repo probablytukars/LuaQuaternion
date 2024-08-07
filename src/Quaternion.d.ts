@@ -60,19 +60,19 @@ interface Quaternion {
     IsNaN(this: Quaternion): boolean;
 
     ToCFrame(this: Quaternion, position?: Vector3): CFrame;
-    ToAxisAngle(this: Quaternion): (Vector3, number);
+    ToAxisAngle(this: Quaternion): LuaTuple<[Vector3, number]>;
     ToEulerVector(this: Quaternion): Vector3;
-    ToEulerAnglesXYZ(this: Quaternion): (number, number, number);
-    ToEulerAnglesYXZ(this: Quaternion): (number, number, number);
-    ToOrientation(this: Quaternion): (number, number, number);
-    ToEulerAngles(this: Quaternion, rotationOrder?: Enum.RotationOrder): (number, number, number);
-    ToMatrix(this: Quaternion): (number, number, number, number, number, number, number, number, number);
-    ToMatrixVectors(this: Quaternion): (Vector3, Vector3, Vector3);
+    ToEulerAnglesXYZ(this: Quaternion): LuaTuple<[number, number, number]>;
+    ToEulerAnglesYXZ(this: Quaternion): LuaTuple<[number, number, number]>;
+    ToOrientation(this: Quaternion): LuaTuple<[number, number, number]>;
+    ToEulerAngles(this: Quaternion, rotationOrder?: Enum.RotationOrder): LuaTuple<[number, number, number]>;
+    ToMatrix(this: Quaternion): LuaTuple<[number, number, number, number, number, number, number, number, number]>;
+    ToMatrixVectors(this: Quaternion): LuaTuple<[Vector3, Vector3, Vector3]>;
     Vector(this: Quaternion): Vector3;
     Scalar(this: Quaternion): number;
     Imaginary(this: Quaternion): Quaternion;
-    GetComponents(this: Quaternion): (number, number, number, number);
-    components(this: Quaternion): (number, number, number, number);
+    GetComponents(this: Quaternion): LuaTuple<[number, number, number, number]>;
+    components(this: Quaternion): LuaTuple<[number, number, number, number]>;
     ToString(this: Quaternion, decimalPlaces?: number): string;
 }
 
