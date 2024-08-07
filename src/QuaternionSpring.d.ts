@@ -23,7 +23,7 @@ interface QuaternionSpring {
 }
 
 interface QuaternionSpringConstructor {
-    new(initial: Quaternion, damping: number, speed: number, clock: () => number): QuaternionSpring
+    new: (initial: Quaternion, damping: number, speed: number, clock: () => number) => QuaternionSpring;
 }
 
 declare const QuaternionSpring: QuaternionSpringConstructor;

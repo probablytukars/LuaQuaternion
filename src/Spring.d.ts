@@ -25,7 +25,7 @@ interface Spring<T = nlerpable> {
 }
 
 interface SpringConstructor<T = nlerpable> {
-    new(initial: T, damping: number, speed: number, clock: () => number): Spring
+    new: (initial: T, damping: number, speed: number, clock: () => number) => Spring;
 }
 
 declare const Spring: SpringConstructor;

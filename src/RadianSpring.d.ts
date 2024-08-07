@@ -21,7 +21,7 @@ interface RadianSpring {
 }
 
 interface RadianSpringConstructor {
-    new(initial: number, damping: number, speed: number, min: number, max: number, clock: () => number): Spring
+    new: (initial: number, damping: number, speed: number, min: number, max: number, clock: () => number) => Spring;
 }
 
 declare const RadianSpring: RadianSpringConstructor;

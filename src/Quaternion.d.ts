@@ -77,23 +77,23 @@ interface Quaternion {
 }
 
 interface QuaternionConstructor {
-    new(qX: number?, qY: number?, qZ: number?, qW: number?): Quaternion;
-    fromAxisAngle(axis: Vector3, angle: number): Quaternion;
-    fromAxisAngleFast(axis: Vector3, angle: number): Quaternion;
-    fromEulerVector(eulerVector: Vector3): Quaternion;
-    fromCFrame(cframe: CFrame): Quaternion;
-    fromCFrameFast(cframe: CFrame): Quaternion;
-    fromMatrix(vX: Vector3, vY: Vector3, vZ: Vector3?): Quaternion;
-    fromMatrixFast(vX: Vector3, vY: Vector3, vZ: Vector3?): Quaternion;
-    lookAt(from: Vector3, lookAt: Vector3, up: Vector3?): Quaternion;
-    fromEulerAnglesXYZ(rx: number, ry: number, rz: number): Quaternion;
-    Angles(rx: number, ry: number, rz: number): Quaternion;
-    fromEulerAnglesYXZ(rx: number, ry: number, rz: number): Quaternion;
-    fromOrientation(rx: number, ry: number, rz: number): Quaternion;
-    fromEulerAngles(rx: number, ry: number, rz: number, rotationOrder: Enum.RotationOrder?): Quaternion;
-    fromVector(vector: Vector3, W: number?): Quaternion;
-    RandomQuaternion(seed: number): () => Quaternion;
-    
+    new: (qX?: number, qY?: number, qZ?: number, qW?: number) => Quaternion;
+    fromAxisAngle: (axis: Vector3, angle: number) => Quaternion;
+    fromAxisAngleFast: (axis: Vector3, angle: number) => Quaternion;
+    fromEulerVector: (eulerVector: Vector3) => Quaternion;
+    fromCFrame: (cframe: CFrame) => Quaternion;
+    fromCFrameFast: (cframe: CFrame) => Quaternion;
+    fromMatrix: (vX: Vector3, vY: Vector3, vZ?: Vector3) => Quaternion;
+    fromMatrixFast: (vX: Vector3, vY: Vector3, vZ?: Vector3) => Quaternion;
+    lookAt: (from: Vector3, lookAt: Vector3, up?: Vector3) => Quaternion;
+    fromEulerAnglesXYZ: (rx: number, ry: number, rz: number) => Quaternion;
+    Angles: (rx: number, ry: number, rz: number) => Quaternion;
+    fromEulerAnglesYXZ: (rx: number, ry: number, rz: number) => Quaternion;
+    fromOrientation: (rx: number, ry: number, rz: number) => Quaternion;
+    fromEulerAngles: (rx: number, ry: number, rz: number, rotationOrder?: Enum.RotationOrder) => Quaternion;
+    fromVector: (vector: Vector3, W?: number) => Quaternion;
+    RandomQuaternion: (seed: number) => () => Quaternion;
+
     identity: Quaternion;
     zero: Quaternion;
 }
