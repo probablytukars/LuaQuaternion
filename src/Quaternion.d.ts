@@ -51,7 +51,7 @@ interface Quaternion {
     Slerp(this: Quaternion, q1: Quaternion, alpha: number): Quaternion;
     IdentitySlerp(q1: Quaternion, alpha: number): Quaternion;
     SlerpFunction(this: Quaternion, q1: Quaternion): (alpha: number) => Quaternion;
-    Intermediates(this: Quaternion, q1: Quaternion, n: number, includeEndpoints?: boolean): Quaternion;
+    Intermediates(this: Quaternion, q1: Quaternion, n: number, includeEndpoints?: boolean): Quaternion[];
     Derivative(this: Quaternion, rate: Vector3):  Quaternion;
     Integrate(this: Quaternion, rate: Vector3, timestep: number): Quaternion;
     AngularVelocity(this: Quaternion, q1: Quaternion, timestep: number): Vector3;
