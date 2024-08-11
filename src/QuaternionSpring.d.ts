@@ -5,7 +5,7 @@
 */
 
 interface QuaternionSpring {
-    Reset(this: QuaternionSpring, target: Quaternion?);
+    Reset(this: QuaternionSpring, target?: Quaternion);
     Impulse(this: QuaternionSpring, velocity: Vector3);
     TimeSkip(this: QuaternionSpring, delta: number);
     
@@ -23,7 +23,7 @@ interface QuaternionSpring {
 }
 
 interface QuaternionSpringConstructor {
-    new(initial: Quaternion, damping: number, speed: number, clock: () => number): QuaternionSpring
+    new: (initial: Quaternion, damping: number, speed: number, clock: () => number) => QuaternionSpring;
 }
 
 declare const QuaternionSpring: QuaternionSpringConstructor;

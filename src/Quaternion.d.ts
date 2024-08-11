@@ -51,7 +51,7 @@ interface Quaternion {
     Slerp(this: Quaternion, q1: Quaternion, alpha: number): Quaternion;
     IdentitySlerp(q1: Quaternion, alpha: number): Quaternion;
     SlerpFunction(this: Quaternion, q1: Quaternion): (alpha: number) => Quaternion;
-    Intermediates(this: Quaternion, q1: Quaternion, n: number, includeEndpoints: boolean?): {Quaternion};
+    Intermediates(this: Quaternion, q1: Quaternion, n: number, includeEndpoints?: boolean): Quaternion[];
     Derivative(this: Quaternion, rate: Vector3):  Quaternion;
     Integrate(this: Quaternion, rate: Vector3, timestep: number): Quaternion;
     AngularVelocity(this: Quaternion, q1: Quaternion, timestep: number): Vector3;
@@ -59,41 +59,41 @@ interface Quaternion {
     ApproxEq(this: Quaternion, q1: Quaternion, epsilon: number): boolean;
     IsNaN(this: Quaternion): boolean;
 
-    ToCFrame(this: Quaternion, position: Vector3?): CFrame;
-    ToAxisAngle(this: Quaternion): (Vector3, number);
+    ToCFrame(this: Quaternion, position?: Vector3): CFrame;
+    ToAxisAngle(this: Quaternion): LuaTuple<[Vector3, number]>;
     ToEulerVector(this: Quaternion): Vector3;
-    ToEulerAnglesXYZ(this: Quaternion): (number, number, number);
-    ToEulerAnglesYXZ(this: Quaternion): (number, number, number);
-    ToOrientation(this: Quaternion): (number, number, number);
-    ToEulerAngles(this: Quaternion, rotationOrder: Enum.RotationOrder?): (number, number, number);
-    ToMatrix(this: Quaternion): (number, number, number, number, number, number, number, number, number);
-    ToMatrixVectors(this: Quaternion): (Vector3, Vector3, Vector3);
+    ToEulerAnglesXYZ(this: Quaternion): LuaTuple<[number, number, number]>;
+    ToEulerAnglesYXZ(this: Quaternion): LuaTuple<[number, number, number]>;
+    ToOrientation(this: Quaternion): LuaTuple<[number, number, number]>;
+    ToEulerAngles(this: Quaternion, rotationOrder?: Enum.RotationOrder): LuaTuple<[number, number, number]>;
+    ToMatrix(this: Quaternion): LuaTuple<[number, number, number, number, number, number, number, number, number]>;
+    ToMatrixVectors(this: Quaternion): LuaTuple<[Vector3, Vector3, Vector3]>;
     Vector(this: Quaternion): Vector3;
     Scalar(this: Quaternion): number;
     Imaginary(this: Quaternion): Quaternion;
-    GetComponents(this: Quaternion): (number, number, number, number);
-    components(this: Quaternion): (number, number, number, number);
-    ToString(this: Quaternion, decimalPlaces: number?): string;
+    GetComponents(this: Quaternion): LuaTuple<[number, number, number, number]>;
+    components(this: Quaternion): LuaTuple<[number, number, number, number]>;
+    ToString(this: Quaternion, decimalPlaces?: number): string;
 }
 
 interface QuaternionConstructor {
-    new(qX: number?, qY: number?, qZ: number?, qW: number?): Quaternion;
-    fromAxisAngle(axis: Vector3, angle: number): Quaternion;
-    fromAxisAngleFast(axis: Vector3, angle: number): Quaternion;
-    fromEulerVector(eulerVector: Vector3): Quaternion;
-    fromCFrame(cframe: CFrame): Quaternion;
-    fromCFrameFast(cframe: CFrame): Quaternion;
-    fromMatrix(vX: Vector3, vY: Vector3, vZ: Vector3?): Quaternion;
-    fromMatrixFast(vX: Vector3, vY: Vector3, vZ: Vector3?): Quaternion;
-    lookAt(from: Vector3, lookAt: Vector3, up: Vector3?): Quaternion;
-    fromEulerAnglesXYZ(rx: number, ry: number, rz: number): Quaternion;
-    Angles(rx: number, ry: number, rz: number): Quaternion;
-    fromEulerAnglesYXZ(rx: number, ry: number, rz: number): Quaternion;
-    fromOrientation(rx: number, ry: number, rz: number): Quaternion;
-    fromEulerAngles(rx: number, ry: number, rz: number, rotationOrder: Enum.RotationOrder?): Quaternion;
-    fromVector(vector: Vector3, W: number?): Quaternion;
-    RandomQuaternion(seed: number): () => Quaternion;
-    
+    new: (qX?: number, qY?: number, qZ?: number, qW?: number) => Quaternion;
+    fromAxisAngle: (axis: Vector3, angle: number) => Quaternion;
+    fromAxisAngleFast: (axis: Vector3, angle: number) => Quaternion;
+    fromEulerVector: (eulerVector: Vector3) => Quaternion;
+    fromCFrame: (cframe: CFrame) => Quaternion;
+    fromCFrameFast: (cframe: CFrame) => Quaternion;
+    fromMatrix: (vX: Vector3, vY: Vector3, vZ?: Vector3) => Quaternion;
+    fromMatrixFast: (vX: Vector3, vY: Vector3, vZ?: Vector3) => Quaternion;
+    lookAt: (from: Vector3, lookAt: Vector3, up?: Vector3) => Quaternion;
+    fromEulerAnglesXYZ: (rx: number, ry: number, rz: number) => Quaternion;
+    Angles: (rx: number, ry: number, rz: number) => Quaternion;
+    fromEulerAnglesYXZ: (rx: number, ry: number, rz: number) => Quaternion;
+    fromOrientation: (rx: number, ry: number, rz: number) => Quaternion;
+    fromEulerAngles: (rx: number, ry: number, rz: number, rotationOrder?: Enum.RotationOrder) => Quaternion;
+    fromVector: (vector: Vector3, W?: number) => Quaternion;
+    RandomQuaternion: (seed: number) => () => Quaternion;
+
     identity: Quaternion;
     zero: Quaternion;
 }
