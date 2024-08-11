@@ -64,3 +64,6 @@ Once you have made your changes, and you are satisfied with them (and they
 pass tests and build!) - open a pull request for the repository and your
 request will reviewed. Please ensure your commit messages are clear and 
 descriptive!
+
+When opening your pull request please target the dev branch and not the main
+branch.
