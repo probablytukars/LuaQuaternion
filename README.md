@@ -1,3 +1,7 @@
+# Archived
+
+This repository is archived as I no longer maintain interest in luau and roblox development. 
+
 # LuaQuaternion
 
 LuaQuaternion is a fully featured library for utilizing quaternions in luau.
